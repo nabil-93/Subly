@@ -60,7 +60,45 @@ function formatDate(date) {
 }
 
 // ─── Home Screen ────────────────────────────────────────────────
-function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient }) {
+function getInitials(name) {
+  const parts = (name || "").trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+// ─── Welcome Screen ─────────────────────────────────────────────
+function WelcomeScreen({ onSubmit, accentGradient }) {
+  const [name, setName] = React.useState("");
+  const canSubmit = name.trim().length > 0;
+
+  function submit() {
+    if (canSubmit) onSubmit(name.trim());
+  }
+
+  return (
+    <div style={{ flex:1, display:"flex", flexDirection:"column", justifyContent:"center", padding:"32px 28px", background:"#F7F7FB" }}>
+      <div style={{ width:72, height:72, borderRadius:22, background:accentGradient, display:"flex", alignItems:"center", justifyContent:"center", fontSize:36, marginBottom:24, boxShadow:"0 12px 32px rgba(99,102,241,0.35)" }}>💸</div>
+      <div style={{ fontSize:28, fontWeight:800, color:"#111827", letterSpacing:"-0.5px", marginBottom:8 }}>Willkommen bei Subly</div>
+      <div style={{ fontSize:15, color:"#6B7280", lineHeight:1.5, marginBottom:28 }}>Behalte deine Abonnements im Blick. Wie sollen wir dich nennen?</div>
+      <input
+        autoFocus
+        placeholder="Dein Name"
+        value={name}
+        onChange={e => setName(e.target.value)}
+        onKeyDown={e => e.key === "Enter" && submit()}
+        style={{ width:"100%", background:"#fff", border:"1.5px solid #E5E7EB", borderRadius:14, padding:"15px 18px", color:"#111827", fontSize:17, outline:"none", marginBottom:16 }}
+      />
+      <div
+        onClick={canSubmit ? submit : null}
+        style={{ background: canSubmit ? accentGradient : "#E5E7EB", color: canSubmit ? "#fff" : "#9CA3AF", borderRadius:16, padding:"15px 0", textAlign:"center", fontWeight:700, fontSize:16, cursor: canSubmit ? "pointer" : "default", transition:"all 0.2s" }}>
+        Loslegen →
+      </div>
+    </div>
+  );
+}
+
+function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName }) {
   const totalMonthly = subs.reduce((s, x) => s + x.price, 0);
   const nextSub = [...subs].sort((a, b) => a.nextDate - b.nextDate)[0];
   const nextDays = nextSub ? daysUntil(nextSub.nextDate) : 0;
@@ -83,9 +121,9 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient }) {
       <div style={H.header}>
         <div>
           <div style={H.greeting}>Guten Tag 👋</div>
-          <div style={H.name}>Nabil Ouhaddou</div>
+          <div style={H.name}>{userName}</div>
         </div>
-        <div style={H.avatar}>NO</div>
+        <div style={H.avatar}>{getInitials(userName)}</div>
       </div>
 
       {nextSub && (
@@ -536,7 +574,7 @@ const INS = {
 };
 
 // ─── Settings Screen ────────────────────────────────────────────
-function SettingsScreen({ accentGradient }) {
+function SettingsScreen({ accentGradient, userName }) {
   const [notifications, setNotifications] = React.useState(true);
   const [faceId, setFaceId] = React.useState(true);
   const [darkMode, setDarkMode] = React.useState(false);
@@ -567,10 +605,9 @@ function SettingsScreen({ accentGradient }) {
       <div style={S.header}><div style={S.title}>Einstellungen</div></div>
 
       <div style={{ ...S.profileCard, background: accentGradient }}>
-        <div style={S.avatar}>NO</div>
+        <div style={S.avatar}>{getInitials(userName)}</div>
         <div>
-          <div style={S.profileName}>Nabil Ouhaddou</div>
-          <div style={S.profileEmail}>nab.ouhaddou@gmail.com</div>
+          <div style={S.profileName}>{userName}</div>
         </div>
         <div style={S.profileEdit}>✏️</div>
         <div style={S.gloss} />
@@ -754,19 +791,28 @@ const ROUNDNESS = 20;
 function App() {
   const accentGradient = `linear-gradient(135deg, ${ACCENT_START}, ${ACCENT_END})`;
 
+  const [userName, setUserName] = React.useState(() => {
+    try { return localStorage.getItem("subly:userName") || ""; } catch { return ""; }
+  });
   const [subs, setSubs] = React.useState(INITIAL_SUBS);
   const [activeTab, setActiveTab] = React.useState("home");
   const [showAdd, setShowAdd] = React.useState(false);
   const [selectedSub, setSelectedSub] = React.useState(null);
   const [notification, setNotification] = React.useState(null);
 
+  function handleNameSubmit(name) {
+    try { localStorage.setItem("subly:userName", name); } catch {}
+    setUserName(name);
+  }
+
   React.useEffect(() => {
+    if (!userName) return;
     const t = setTimeout(() => {
       setNotification("Dein Spotify-Abonnement wird in 2 Tagen abgebucht");
       setTimeout(() => setNotification(null), 4000);
     }, 2000);
     return () => clearTimeout(t);
-  }, []);
+  }, [userName]);
 
   function handleAdd({ type, ...data }) {
     const nd = data.startDate ? new Date(data.startDate) : new Date(2026, 4, 10);
@@ -784,10 +830,10 @@ function App() {
   ];
 
   const screens = {
-    home:     <HomeScreen key="home" subs={subs} onSwipeDelete={handleDelete} onSubClick={setSelectedSub} accentGradient={accentGradient} />,
+    home:     <HomeScreen key="home" subs={subs} onSwipeDelete={handleDelete} onSubClick={setSelectedSub} accentGradient={accentGradient} userName={userName} />,
     calendar: <CalendarScreen key="cal" subs={subs} />,
     insights: <InsightsScreen key="ins" subs={subs} accentGradient={accentGradient} />,
-    settings: <SettingsScreen key="set" accentGradient={accentGradient} />,
+    settings: <SettingsScreen key="set" accentGradient={accentGradient} userName={userName} />,
   };
 
   const br = ROUNDNESS + 8;
@@ -802,6 +848,15 @@ function App() {
             <span>●●●</span><span>WiFi</span><span>🔋</span>
           </div>
         </div>
+
+        {!userName && (
+          <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
+            <WelcomeScreen onSubmit={handleNameSubmit} accentGradient={accentGradient} />
+          </div>
+        )}
+
+        {userName && (<>
+
 
         {showAdd && (
           <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"flex-end", zIndex:200, background:"rgba(17,24,39,0.45)", backdropFilter:"blur(6px)" }} onClick={e => e.target===e.currentTarget && setShowAdd(false)}>
@@ -851,6 +906,7 @@ function App() {
         <div className="home-indicator" style={{ height:20, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, background:"#fff" }}>
           <div style={{ width:120, height:4, borderRadius:2, background:"#D1D5DB" }} />
         </div>
+        </>)}
       </div>
     </div>
   );
