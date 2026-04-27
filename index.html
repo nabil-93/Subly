@@ -859,6 +859,78 @@ const SD = {
   deleteBtn: { flex:1, background:"#FEF2F2", border:"1px solid #FECACA", borderRadius:14, padding:"14px 0", textAlign:"center", color:"#DC2626", fontWeight:700, fontSize:15, cursor:"pointer", transition:"all 0.2s" },
 };
 
+// ─── Install Prompt ─────────────────────────────────────────────
+function InstallPrompt({ accentGradient }) {
+  const [show, setShow] = React.useState(false);
+  const [platform, setPlatform] = React.useState(null);
+  const deferredPrompt = React.useRef(null);
+
+  React.useEffect(() => {
+    try { if (localStorage.getItem("subly:installDismissed") === "1") return; } catch {}
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return;
+    if (window.navigator.standalone) return;
+
+    const ua = navigator.userAgent || "";
+    const isIOS = /iPhone|iPad|iPod/.test(ua) && !window.MSStream;
+    const isAndroid = /Android/.test(ua);
+
+    if (isIOS) {
+      setPlatform("ios");
+      const t = setTimeout(() => setShow(true), 3500);
+      return () => clearTimeout(t);
+    } else if (isAndroid) {
+      const handler = (e) => {
+        e.preventDefault();
+        deferredPrompt.current = e;
+        setPlatform("android");
+        setShow(true);
+      };
+      window.addEventListener('beforeinstallprompt', handler);
+      return () => window.removeEventListener('beforeinstallprompt', handler);
+    }
+  }, []);
+
+  function dismiss() {
+    try { localStorage.setItem("subly:installDismissed", "1"); } catch {}
+    setShow(false);
+  }
+
+  function install() {
+    const p = deferredPrompt.current;
+    if (!p) return;
+    p.prompt();
+    p.userChoice.finally(() => { deferredPrompt.current = null; dismiss(); });
+  }
+
+  if (!show) return null;
+
+  return (
+    <div style={{ position:"absolute", bottom:90, left:12, right:12, background:"#fff", borderRadius:18, padding:14, boxShadow:"0 12px 40px rgba(0,0,0,0.22)", border:"1px solid #E5E7EB", zIndex:300 }} className="slide-up">
+      <div style={{ display:"flex", alignItems:"flex-start", gap:12 }}>
+        <div style={{ width:44, height:44, borderRadius:12, background: accentGradient, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:22, color:"#fff" }}>📲</div>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontSize:14, fontWeight:800, color:"#111827", marginBottom:4 }}>Subly auf dem Handy installieren</div>
+          {platform === "ios" ? (
+            <div style={{ fontSize:12.5, color:"#6B7280", lineHeight:1.5 }}>
+              Tippe unten in Safari auf <span style={{ display:"inline-block", padding:"1px 6px", background:"#EEF2FF", borderRadius:5, color:"#6366F1", fontWeight:700 }}>Teilen ⬆︎</span> und dann auf <strong style={{ color:"#111827" }}>„Zum Home-Bildschirm“</strong>, um Subly wie eine App zu nutzen.
+            </div>
+          ) : (
+            <div style={{ fontSize:12.5, color:"#6B7280", lineHeight:1.5 }}>
+              Füge Subly zu deinem Startbildschirm hinzu, um sie wie eine App zu nutzen.
+            </div>
+          )}
+        </div>
+        <div onClick={dismiss} style={{ width:26, height:26, borderRadius:7, background:"#F3F4F6", display:"flex", alignItems:"center", justifyContent:"center", color:"#9CA3AF", cursor:"pointer", flexShrink:0, fontSize:12, fontWeight:700 }}>✕</div>
+      </div>
+      {platform === "android" && (
+        <div onClick={install} style={{ marginTop:12, background: accentGradient, color:"#fff", borderRadius:12, padding:"10px 0", textAlign:"center", fontWeight:700, fontSize:14, cursor:"pointer" }}>
+          Installieren
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── App ────────────────────────────────────────────────────────
 const ACCENT_START = "#6366F1";
 const ACCENT_END = "#8B5CF6";
@@ -1006,6 +1078,7 @@ function App() {
           <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }} className="fade-in" key={activeTab}>
             {screens[activeTab] || null}
           </div>
+          <InstallPrompt accentGradient={accentGradient} />
         </div>
 
         <div style={{ display:"flex", alignItems:"center", background:"#fff", borderTop:"1px solid #F3F4F6", paddingBottom:4, height:72, flexShrink:0, boxShadow:"0 -4px 20px rgba(0,0,0,0.04)" }}>
