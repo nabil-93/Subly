@@ -46,6 +46,26 @@ const INITIAL_SUBS = [
 function formatEur(amount) {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: window.__SUBLY_CURRENCY || "EUR" }).format(amount);
 }
+
+function serializeSubs(subs) {
+  return JSON.stringify(subs.map(s => ({
+    ...s,
+    nextDate: s.nextDate instanceof Date ? s.nextDate.toISOString() : s.nextDate,
+    history: (s.history || []).map(d => d instanceof Date ? d.toISOString() : d),
+  })));
+}
+function deserializeSubs(json) {
+  if (!json) return null;
+  try {
+    const arr = JSON.parse(json);
+    if (!Array.isArray(arr)) return null;
+    return arr.map(s => ({
+      ...s,
+      nextDate: new Date(s.nextDate),
+      history: (s.history || []).map(d => new Date(d)),
+    }));
+  } catch { return null; }
+}
 function daysUntil(date) {
   const now = new Date(2026, 3, 27);
   return Math.ceil((date - now) / (1000 * 60 * 60 * 24));
@@ -112,7 +132,7 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
     const dx = e.changedTouches[0].clientX - (touchStart.current[id] || 0);
     if (dx < -60) setSwipeStates(s => ({ ...s, [id]: "delete" }));
     else if (dx > 60) setSwipeStates(s => ({ ...s, [id]: "edit" }));
-    else setSwipeStates(s => ({ ...s, [id]: null }));
+    else if (Math.abs(dx) > 20) setSwipeStates(s => ({ ...s, [id]: null }));
   }
 
   const upcoming = [...subs].sort((a, b) => a.nextDate - b.nextDate);
@@ -161,12 +181,18 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
               onTouchStart={e => handleTouchStart(sub.id, e)}
               onTouchEnd={e => handleTouchEnd(sub.id, e)}>
               {sw === "delete" && (
-                <div style={H.swipeDel} onClick={() => { onSwipeDelete(sub.id); setSwipeStates(s => ({...s,[sub.id]:null})); }}>
+                <div style={H.swipeDel}
+                  onTouchStart={e => e.stopPropagation()}
+                  onTouchEnd={e => { e.stopPropagation(); e.preventDefault(); onSwipeDelete(sub.id); setSwipeStates(s => ({...s,[sub.id]:null})); }}
+                  onClick={e => { e.stopPropagation(); onSwipeDelete(sub.id); setSwipeStates(s => ({...s,[sub.id]:null})); }}>
                   🗑️<span style={{fontSize:10}}>Löschen</span>
                 </div>
               )}
               {sw === "edit" && (
-                <div style={H.swipeEdit} onClick={() => { onSubClick(sub); setSwipeStates(s => ({...s,[sub.id]:null})); }}>
+                <div style={H.swipeEdit}
+                  onTouchStart={e => e.stopPropagation()}
+                  onTouchEnd={e => { e.stopPropagation(); e.preventDefault(); onSubClick(sub); setSwipeStates(s => ({...s,[sub.id]:null})); }}
+                  onClick={e => { e.stopPropagation(); onSubClick(sub); setSwipeStates(s => ({...s,[sub.id]:null})); }}>
                   ✏️<span style={{fontSize:10}}>Bearbeiten</span>
                 </div>
               )}
@@ -837,7 +863,13 @@ function App() {
   const [pushEnabled, setPushEnabled] = React.useState(() => {
     try { return localStorage.getItem("subly:push") !== "0"; } catch { return true; }
   });
-  const [subs, setSubs] = React.useState(INITIAL_SUBS);
+  const [subs, setSubs] = React.useState(() => {
+    try { return deserializeSubs(localStorage.getItem("subly:subs")) || INITIAL_SUBS; } catch { return INITIAL_SUBS; }
+  });
+
+  React.useEffect(() => {
+    try { localStorage.setItem("subly:subs", serializeSubs(subs)); } catch {}
+  }, [subs]);
   const [activeTab, setActiveTab] = React.useState("home");
   const [showAdd, setShowAdd] = React.useState(false);
   const [selectedSub, setSelectedSub] = React.useState(null);
@@ -869,6 +901,7 @@ function App() {
       localStorage.removeItem("subly:userName");
       localStorage.removeItem("subly:currency");
       localStorage.removeItem("subly:push");
+      localStorage.removeItem("subly:subs");
     } catch {}
     setSubs(INITIAL_SUBS);
     setCurrency("EUR");
