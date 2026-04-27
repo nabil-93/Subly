@@ -357,18 +357,24 @@ function CalendarScreen({ subs }) {
           const isToday = d === todayDay;
           return (
             <div key={d}
-              style={{
-                ...CAL.dayCell,
-                background: isSel ? "linear-gradient(135deg,#6366F1,#8B5CF6)" : isToday ? "#EEF2FF" : "transparent",
-                border: isToday && !isSel ? "1.5px solid #6366F1" : "1.5px solid transparent",
-                cursor: hasEvents ? "pointer" : "default"
-              }}
+              style={{ ...CAL.dayCell, cursor: hasEvents ? "pointer" : "default" }}
               onClick={() => hasEvents && setSelectedDay(isSel ? null : d)}>
-              <span style={{ ...CAL.dayNum, color: isSel ? "#fff" : isToday ? "#6366F1" : "#374151", fontWeight: isSel || isToday ? 700 : 400 }}>{d}</span>
+              <span style={{
+                width: 30, height: 30, borderRadius: "50%",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 14,
+                background: isSel ? "linear-gradient(135deg,#6366F1,#8B5CF6)"
+                          : isToday ? "#EF4444"
+                          : "transparent",
+                color: isSel || isToday ? "#fff" : "#374151",
+                fontWeight: isSel || isToday ? 700 : 400,
+                boxShadow: isToday && !isSel ? "0 4px 12px rgba(239,68,68,0.35)" : "none",
+                transition: "all 0.15s"
+              }}>{d}</span>
               {hasEvents && (
                 <div style={CAL.dots}>
                   {events.slice(0,3).map((_, di) => (
-                    <div key={di} style={{ ...CAL.dot, background: isSel ? "rgba(255,255,255,0.9)" : "#EF4444" }} />
+                    <div key={di} style={{ ...CAL.dot, background: isSel ? "#6366F1" : isToday ? "#EF4444" : "#9CA3AF" }} />
                   ))}
                 </div>
               )}
