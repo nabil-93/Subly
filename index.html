@@ -1035,8 +1035,14 @@ function App() {
   }, [userName, pushEnabled, subs]);
 
   function handleAdd({ type, ...data }) {
-    const nd = data.startDate ? new Date(data.startDate) : new Date(2026, 4, 10);
-    setSubs(s => [...s, { id: Date.now(), ...data, nextDate: nd, autoRenew: true, history: [], category: "Sonstiges" }]);
+    let nd;
+    if (data.startDate) {
+      const [y, m, d] = data.startDate.split("-").map(Number);
+      nd = new Date(y, (m || 1) - 1, d || 1);
+    } else {
+      nd = new Date(2026, 4, 10);
+    }
+    setSubs(s => [...s, { id: Date.now(), ...data, nextDate: nd, autoRenew: true, history: [], category: "Sonstiges", cycle: data.cycle || "Monatlich" }]);
   }
 
   function handleDelete(id) { setSubs(s => s.filter(x => x.id !== id)); }
