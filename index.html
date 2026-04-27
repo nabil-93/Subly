@@ -44,7 +44,7 @@ const INITIAL_SUBS = [
 ];
 
 function formatEur(amount) {
-  return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(amount);
+  return new Intl.NumberFormat("de-DE", { style: "currency", currency: window.__SUBLY_CURRENCY || "EUR" }).format(amount);
 }
 function daysUntil(date) {
   const now = new Date(2026, 3, 27);
@@ -224,13 +224,21 @@ const H = {
 // ─── Calendar Screen ────────────────────────────────────────────
 function CalendarScreen({ subs }) {
   const [selectedDay, setSelectedDay] = React.useState(null);
-  const currentMonth = { year: 2026, month: 4 };
+  const [year, setYear] = React.useState(2026);
+  const [month, setMonth] = React.useState(4);
   const monthNames = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
   const dayNames = ["Mo","Di","Mi","Do","Fr","Sa","So"];
-  const { year, month } = currentMonth;
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const offset = (firstDay + 6) % 7;
+
+  function shiftMonth(delta) {
+    setSelectedDay(null);
+    let m = month + delta, y = year;
+    if (m < 0) { m = 11; y--; }
+    else if (m > 11) { m = 0; y++; }
+    setMonth(m); setYear(y);
+  }
 
   const eventMap = {};
   subs.forEach(s => {
@@ -243,21 +251,21 @@ function CalendarScreen({ subs }) {
   });
 
   const selectedEvents = selectedDay ? (eventMap[selectedDay] || []) : [];
-  const totalExpenses = subs.reduce((s,x) => s + x.price, 0);
+  const monthExpenses = Object.values(eventMap).flat().reduce((s,x) => s + x.price, 0);
 
   return (
     <div style={CAL.screen}>
       <div style={CAL.header}>
         <div style={CAL.monthTitle}>{monthNames[month]} {year}</div>
         <div style={CAL.navRow}>
-          <div style={CAL.navBtn}>‹</div>
-          <div style={CAL.navBtn}>›</div>
+          <div style={CAL.navBtn} onClick={() => shiftMonth(-1)}>‹</div>
+          <div style={CAL.navBtn} onClick={() => shiftMonth(1)}>›</div>
         </div>
       </div>
 
       <div style={CAL.totalBanner}>
-        <span style={CAL.totalLabel}>Gesamtausgaben im Mai</span>
-        <span style={CAL.totalAmount}>−{formatEur(totalExpenses)}</span>
+        <span style={CAL.totalLabel}>Ausgaben im {monthNames[month]}</span>
+        <span style={CAL.totalAmount}>−{formatEur(monthExpenses)}</span>
       </div>
 
       <div style={CAL.dayNames}>
@@ -575,11 +583,10 @@ const INS = {
 };
 
 // ─── Settings Screen ────────────────────────────────────────────
-function SettingsScreen({ accentGradient, userName }) {
-  const [notifications, setNotifications] = React.useState(true);
-  const [faceId, setFaceId] = React.useState(true);
-  const [darkMode, setDarkMode] = React.useState(false);
-  const [currency, setCurrency] = React.useState("EUR");
+function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, pushEnabled, onTogglePush, onChangeName, onResetSubs, onResetApp, subCount }) {
+  const [editingName, setEditingName] = React.useState(false);
+  const [tempName, setTempName] = React.useState(userName);
+  const [confirmReset, setConfirmReset] = React.useState(null);
 
   const Toggle = ({ value, onChange }) => (
     <div onClick={() => onChange(!value)} style={{ width: 46, height: 26, borderRadius: 13, background: value ? "#6366F1" : "#E5E7EB", position: "relative", cursor: "pointer", transition: "background 0.25s", flexShrink: 0 }}>
@@ -593,13 +600,18 @@ function SettingsScreen({ accentGradient, userName }) {
       <div style={S.sectionCard}>{children}</div>
     </div>
   );
-  const Row = ({ icon, label, right, border=true }) => (
-    <div style={{ ...S.row, borderBottom: border ? "1px solid #F3F4F6" : "none" }}>
+  const Row = ({ icon, label, right, border=true, onClick, danger }) => (
+    <div onClick={onClick} style={{ ...S.row, borderBottom: border ? "1px solid #F3F4F6" : "none", cursor: onClick ? "pointer" : "default" }}>
       <span style={S.rowIcon}>{icon}</span>
-      <span style={S.rowLabel}>{label}</span>
+      <span style={{ ...S.rowLabel, color: danger ? "#DC2626" : "#374151" }}>{label}</span>
       <div>{right}</div>
     </div>
   );
+
+  function saveName() {
+    const n = tempName.trim();
+    if (n) { onChangeName(n); setEditingName(false); }
+  }
 
   return (
     <div style={S.screen}>
@@ -607,38 +619,62 @@ function SettingsScreen({ accentGradient, userName }) {
 
       <div style={{ ...S.profileCard, background: accentGradient }}>
         <div style={S.avatar}>{getInitials(userName)}</div>
-        <div>
-          <div style={S.profileName}>{userName}</div>
+        <div style={{ flex:1, minWidth:0 }}>
+          {editingName ? (
+            <input
+              autoFocus
+              value={tempName}
+              onChange={e => setTempName(e.target.value)}
+              onBlur={saveName}
+              onKeyDown={e => { if (e.key === "Enter") saveName(); if (e.key === "Escape") { setTempName(userName); setEditingName(false); } }}
+              style={{ background:"rgba(255,255,255,0.2)", border:"1px solid rgba(255,255,255,0.4)", borderRadius:8, padding:"6px 10px", color:"#fff", fontSize:16, fontWeight:700, outline:"none", width:"100%" }}
+            />
+          ) : (
+            <div style={S.profileName}>{userName}</div>
+          )}
+          <div style={S.profileEmail}>Tippe ✏️ zum Bearbeiten</div>
         </div>
-        <div style={S.profileEdit}>✏️</div>
+        <div style={S.profileEdit} onClick={() => { setTempName(userName); setEditingName(v => !v); }}>{editingName ? "✓" : "✏️"}</div>
         <div style={S.gloss} />
       </div>
 
-      <Section title="Sicherheit">
-        <Row icon="🔐" label="Face ID / Touch ID" right={<Toggle value={faceId} onChange={setFaceId} />} />
-        <Row icon="🔑" label="Passwort ändern" right={<span style={S.chevron}>›</span>} border={false} />
-      </Section>
       <Section title="Benachrichtigungen">
-        <Row icon="🔔" label="Push-Benachrichtigungen" right={<Toggle value={notifications} onChange={setNotifications} />} />
-        <Row icon="📅" label="Erinnerung vor Zahlung" right={<span style={S.badge}>3 Tage</span>} border={false} />
+        <Row icon="🔔" label="Push-Benachrichtigungen" right={<Toggle value={pushEnabled} onChange={onTogglePush} />} border={false} />
       </Section>
+
       <Section title="Darstellung">
-        <Row icon="🌙" label="Dunkelmodus" right={<Toggle value={darkMode} onChange={setDarkMode} />} />
         <Row icon="💱" label="Währung" right={
-          <select style={S.select} value={currency} onChange={e => setCurrency(e.target.value)}>
+          <select style={S.select} value={currency} onChange={e => onChangeCurrency(e.target.value)}>
             <option>EUR</option><option>USD</option><option>GBP</option><option>CHF</option>
           </select>
         } border={false} />
       </Section>
-      <Section title="Daten & Export">
-        <Row icon="📄" label="Als PDF exportieren" right={<span style={S.chevron}>›</span>} />
-        <Row icon="📊" label="Als CSV exportieren" right={<span style={S.chevron}>›</span>} />
-        <Row icon="☁️" label="Cloud-Synchronisierung" right={<span style={{ ...S.badge, color:"#16A34A", background:"#F0FDF4" }}>Aktiv</span>} border={false} />
+
+      <Section title="Daten">
+        <Row icon="📊" label={`Aktive Abonnements`} right={<span style={S.badge}>{subCount}</span>} />
+        {confirmReset === "subs" ? (
+          <Row icon="⚠️" label="Wirklich alle Abos zurücksetzen?" right={
+            <div style={{ display:"flex", gap:6 }}>
+              <span style={{ ...S.badge, background:"#F3F4F6", color:"#6B7280", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>Abbrechen</span>
+              <span style={{ ...S.badge, background:"#FEE2E2", color:"#DC2626", cursor:"pointer" }} onClick={() => { onResetSubs(); setConfirmReset(null); }}>Ja</span>
+            </div>
+          } border={false} />
+        ) : (
+          <Row icon="🔄" label="Abos auf Standard zurücksetzen" right={<span style={S.chevron}>›</span>} onClick={() => setConfirmReset("subs")} border={false} />
+        )}
       </Section>
-      <Section title="Support">
-        <Row icon="❓" label="Hilfe & FAQ" right={<span style={S.chevron}>›</span>} />
-        <Row icon="⭐" label="App bewerten" right={<span style={S.chevron}>›</span>} />
-        <Row icon="📝" label="Feedback senden" right={<span style={S.chevron}>›</span>} border={false} />
+
+      <Section title="Konto">
+        {confirmReset === "app" ? (
+          <Row icon="⚠️" label="Wirklich alles zurücksetzen?" right={
+            <div style={{ display:"flex", gap:6 }}>
+              <span style={{ ...S.badge, background:"#F3F4F6", color:"#6B7280", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>Abbrechen</span>
+              <span style={{ ...S.badge, background:"#FEE2E2", color:"#DC2626", cursor:"pointer" }} onClick={() => { onResetApp(); setConfirmReset(null); }}>Ja</span>
+            </div>
+          } border={false} />
+        ) : (
+          <Row icon="🚪" label="App komplett zurücksetzen" danger right={<span style={S.chevron}>›</span>} onClick={() => setConfirmReset("app")} border={false} />
+        )}
       </Section>
 
       <div style={S.version}>Subly v1.0.0 · Deutsch</div>
@@ -743,7 +779,7 @@ function SubDetailScreen({ sub, onClose, onDelete, accentGradient }) {
       </div>
 
       <div style={{ display:"flex", gap:10 }}>
-        <div style={SD.editBtn} onClick={onClose}>Bearbeiten</div>
+        <div style={SD.editBtn} onClick={onClose}>Schließen</div>
         {!showConfirm ? (
           <div style={SD.deleteBtn} onClick={() => setShowConfirm(true)}>Kündigen</div>
         ) : (
@@ -795,25 +831,60 @@ function App() {
   const [userName, setUserName] = React.useState(() => {
     try { return localStorage.getItem("subly:userName") || ""; } catch { return ""; }
   });
+  const [currency, setCurrency] = React.useState(() => {
+    try { return localStorage.getItem("subly:currency") || "EUR"; } catch { return "EUR"; }
+  });
+  const [pushEnabled, setPushEnabled] = React.useState(() => {
+    try { return localStorage.getItem("subly:push") !== "0"; } catch { return true; }
+  });
   const [subs, setSubs] = React.useState(INITIAL_SUBS);
   const [activeTab, setActiveTab] = React.useState("home");
   const [showAdd, setShowAdd] = React.useState(false);
   const [selectedSub, setSelectedSub] = React.useState(null);
   const [notification, setNotification] = React.useState(null);
 
+  // keep global currency in sync so formatEur reads latest
+  window.__SUBLY_CURRENCY = currency;
+
   function handleNameSubmit(name) {
     try { localStorage.setItem("subly:userName", name); } catch {}
     setUserName(name);
   }
+  function handleChangeCurrency(c) {
+    try { localStorage.setItem("subly:currency", c); } catch {}
+    window.__SUBLY_CURRENCY = c;
+    setCurrency(c);
+  }
+  function handleTogglePush(v) {
+    try { localStorage.setItem("subly:push", v ? "1" : "0"); } catch {}
+    setPushEnabled(v);
+    if (!v) setNotification(null);
+  }
+  function handleResetSubs() {
+    setSubs(INITIAL_SUBS);
+    setActiveTab("home");
+  }
+  function handleResetApp() {
+    try {
+      localStorage.removeItem("subly:userName");
+      localStorage.removeItem("subly:currency");
+      localStorage.removeItem("subly:push");
+    } catch {}
+    setSubs(INITIAL_SUBS);
+    setCurrency("EUR");
+    setPushEnabled(true);
+    setActiveTab("home");
+    setUserName("");
+  }
 
   React.useEffect(() => {
-    if (!userName) return;
+    if (!userName || !pushEnabled) return;
     const t = setTimeout(() => {
       setNotification("Dein Spotify-Abonnement wird in 2 Tagen abgebucht");
       setTimeout(() => setNotification(null), 4000);
     }, 2000);
     return () => clearTimeout(t);
-  }, [userName]);
+  }, [userName, pushEnabled]);
 
   function handleAdd({ type, ...data }) {
     const nd = data.startDate ? new Date(data.startDate) : new Date(2026, 4, 10);
@@ -834,7 +905,7 @@ function App() {
     home:     <HomeScreen key="home" subs={subs} onSwipeDelete={handleDelete} onSubClick={setSelectedSub} accentGradient={accentGradient} userName={userName} />,
     calendar: <CalendarScreen key="cal" subs={subs} />,
     insights: <InsightsScreen key="ins" subs={subs} accentGradient={accentGradient} />,
-    settings: <SettingsScreen key="set" accentGradient={accentGradient} userName={userName} />,
+    settings: <SettingsScreen key="set" accentGradient={accentGradient} userName={userName} currency={currency} onChangeCurrency={handleChangeCurrency} pushEnabled={pushEnabled} onTogglePush={handleTogglePush} onChangeName={handleNameSubmit} onResetSubs={handleResetSubs} onResetApp={handleResetApp} subCount={subs.length} />,
   };
 
   const br = ROUNDNESS + 8;
