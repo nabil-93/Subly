@@ -75,6 +75,40 @@ function daysUntil(date) {
   target.setHours(0, 0, 0, 0);
   return Math.round((target - now) / (1000 * 60 * 60 * 24));
 }
+
+function nextOccurrence(sub) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const anchor = new Date(sub.nextDate);
+  anchor.setHours(0, 0, 0, 0);
+  const cycle = sub.cycle || "Monatlich";
+
+  if (anchor >= today) return anchor;
+
+  if (cycle === "Monatlich") {
+    const day = anchor.getDate();
+    let y = today.getFullYear(), m = today.getMonth();
+    let candidate = new Date(y, m, Math.min(day, new Date(y, m + 1, 0).getDate()));
+    if (candidate < today) {
+      m += 1;
+      candidate = new Date(y, m, Math.min(day, new Date(y, m + 1, 0).getDate()));
+    }
+    return candidate;
+  }
+  if (cycle === "Wöchentlich") {
+    const diff = (anchor.getDay() - today.getDay() + 7) % 7;
+    const next = new Date(today);
+    next.setDate(today.getDate() + (diff === 0 ? 7 : diff));
+    return next;
+  }
+  if (cycle === "Jährlich") {
+    let y = today.getFullYear();
+    let candidate = new Date(y, anchor.getMonth(), anchor.getDate());
+    if (candidate < today) candidate = new Date(y + 1, anchor.getMonth(), anchor.getDate());
+    return candidate;
+  }
+  return anchor;
+}
 function daysLabel(d) {
   if (d === 0) return "Heute";
   if (d === 1) return "Morgen";
@@ -126,8 +160,10 @@ function WelcomeScreen({ onSubmit, accentGradient }) {
 
 function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName }) {
   const totalMonthly = subs.reduce((s, x) => s + x.price, 0);
-  const nextSub = [...subs].sort((a, b) => a.nextDate - b.nextDate)[0];
-  const nextDays = nextSub ? daysUntil(nextSub.nextDate) : 0;
+  const subsWithNext = subs.map(s => ({ ...s, _next: nextOccurrence(s) }));
+  const sortedByNext = [...subsWithNext].sort((a, b) => a._next - b._next);
+  const nextSub = sortedByNext[0];
+  const nextDays = nextSub ? daysUntil(nextSub._next) : 0;
 
   const [swipeStates, setSwipeStates] = React.useState({});
   const touchStart = React.useRef({});
@@ -140,7 +176,7 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
     else if (Math.abs(dx) > 20) setSwipeStates(s => ({ ...s, [id]: null }));
   }
 
-  const upcoming = [...subs].sort((a, b) => a.nextDate - b.nextDate);
+  const upcoming = sortedByNext;
 
   return (
     <div style={H.screen}>
@@ -190,7 +226,7 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
 
       <div style={H.list}>
         {upcoming.map(sub => {
-          const d = daysUntil(sub.nextDate);
+          const d = daysUntil(sub._next);
           const sw = swipeStates[sub.id];
           return (
             <div key={sub.id} style={H.rowWrap}
@@ -795,7 +831,8 @@ const S = {
 function SubDetailScreen({ sub, onClose, onDelete, accentGradient }) {
   const [autoRenew, setAutoRenew] = React.useState(sub.autoRenew);
   const [showConfirm, setShowConfirm] = React.useState(false);
-  const days = daysUntil(sub.nextDate);
+  const nextDate = nextOccurrence(sub);
+  const days = daysUntil(nextDate);
 
   const Toggle = ({ value, onChange }) => (
     <div onClick={() => onChange(!value)} style={{ width:50, height:28, borderRadius:14, background:value?"#6366F1":"#E5E7EB", position:"relative", cursor:"pointer", transition:"background 0.25s", flexShrink:0 }}>
@@ -822,7 +859,7 @@ function SubDetailScreen({ sub, onClose, onDelete, accentGradient }) {
       <div style={{ ...SD.countdown, borderColor: days<=2 ? "#FDE68A" : "#E0E7FF" }}>
         <div style={SD.countLabel}>Nächste Abbuchung</div>
         <div style={{ ...SD.countDays, color:days<=2?"#F59E0B":"#6366F1" }}>{daysLabel(days)}</div>
-        <div style={SD.countDate}>{formatDate(sub.nextDate)}</div>
+        <div style={SD.countDate}>{formatDate(nextDate)}</div>
         {days<=2 && <div style={SD.warn}>⚠️ Bald fällig</div>}
       </div>
 
@@ -853,7 +890,7 @@ function SubDetailScreen({ sub, onClose, onDelete, accentGradient }) {
 
       <div style={{ marginBottom:16 }}>
         <div style={{ fontSize:14, color:"#9CA3AF", fontWeight:600, marginBottom:10 }}>Zahlungsverlauf</div>
-        {[sub.nextDate,...sub.history].map((d,i) => (
+        {[nextDate,...sub.history].map((d,i) => (
           <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:"1px solid #F3F4F6" }}>
             <div style={{ width:8, height:8, borderRadius:"50%", background:i===0?"#6366F1":"#E5E7EB", flexShrink:0 }} />
             <div style={{ flex:1 }}>
@@ -1045,12 +1082,15 @@ function App() {
 
   React.useEffect(() => {
     if (!userName || !pushEnabled || subs.length === 0) return;
-    const upcoming = [...subs].sort((a, b) => a.nextDate - b.nextDate)[0];
+    const upcoming = subs
+      .map(s => ({ s, next: nextOccurrence(s) }))
+      .sort((a, b) => a.next - b.next)[0];
     if (!upcoming) return;
-    const d = daysUntil(upcoming.nextDate);
+    const d = daysUntil(upcoming.next);
+    const sub = upcoming.s;
     if (d < 0 || d > 3) return;
     const t = setTimeout(() => {
-      setNotification(`Dein ${upcoming.name}-Abonnement wird ${daysLabel(d).toLowerCase()} abgebucht`);
+      setNotification(`Dein ${sub.name}-Abonnement wird ${daysLabel(d).toLowerCase()} abgebucht`);
       setTimeout(() => setNotification(null), 4000);
     }, 2000);
     return () => clearTimeout(t);
