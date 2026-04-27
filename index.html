@@ -19,6 +19,7 @@
     html, body { background: #F7F7FB; }
     .app-wrap { padding: 0 !important; min-height: 100vh !important; min-height: 100dvh !important; align-items: stretch !important; }
     .phone-shell { width: 100% !important; height: 100vh !important; height: 100dvh !important; border-radius: 0 !important; box-shadow: none !important; }
+    .fake-statusbar, .home-indicator { display: none !important; }
   }
   @keyframes slide-up { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   .slide-up { animation: slide-up 0.35s cubic-bezier(.32,.72,0,1) forwards; }
@@ -82,9 +83,9 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient }) {
       <div style={H.header}>
         <div>
           <div style={H.greeting}>Guten Tag 👋</div>
-          <div style={H.name}>Max Mustermann</div>
+          <div style={H.name}>Nabil Ouhaddou</div>
         </div>
-        <div style={H.avatar}>MM</div>
+        <div style={H.avatar}>NO</div>
       </div>
 
       {nextSub && (
@@ -566,10 +567,10 @@ function SettingsScreen({ accentGradient }) {
       <div style={S.header}><div style={S.title}>Einstellungen</div></div>
 
       <div style={{ ...S.profileCard, background: accentGradient }}>
-        <div style={S.avatar}>MM</div>
+        <div style={S.avatar}>NO</div>
         <div>
-          <div style={S.profileName}>Max Mustermann</div>
-          <div style={S.profileEmail}>max@mustermann.de</div>
+          <div style={S.profileName}>Nabil Ouhaddou</div>
+          <div style={S.profileEmail}>nab.ouhaddou@gmail.com</div>
         </div>
         <div style={S.profileEdit}>✏️</div>
         <div style={S.gloss} />
@@ -795,7 +796,7 @@ function App() {
     <div className="app-wrap" style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"100vh", padding:16 }}>
       <div className="phone-shell" style={{ width:390, height:844, background:"#F7F7FB", borderRadius:br, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:`0 32px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.05) inset, 0 0 0 10px #CBCBDB`, position:"relative", flexShrink:0 }}>
 
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 24px 6px", flexShrink:0, background:"#F7F7FB" }}>
+        <div className="fake-statusbar" style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 24px 6px", flexShrink:0, background:"#F7F7FB" }}>
           <span style={{ fontSize:15, color:"#111827", fontWeight:700 }}>9:41</span>
           <div style={{ display:"flex", gap:6, fontSize:10, color:"#6B7280", alignItems:"center" }}>
             <span>●●●</span><span>WiFi</span><span>🔋</span>
@@ -847,7 +848,7 @@ function App() {
           ))}
         </div>
 
-        <div style={{ height:20, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, background:"#fff" }}>
+        <div className="home-indicator" style={{ height:20, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, background:"#fff" }}>
           <div style={{ width:120, height:4, borderRadius:2, background:"#D1D5DB" }} />
         </div>
       </div>
