@@ -1,0 +1,14 @@
+{
+  "name": "Subly – Abonnement-Tracker",
+  "short_name": "Subly",
+  "description": "Behalte deine Abonnements im Blick.",
+  "lang": "de",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F7FB",
+  "theme_color": "#6366F1",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
