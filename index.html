@@ -35,13 +35,7 @@
 
 <script type="text/babel">
 // ─── Data & Utils ───────────────────────────────────────────────
-const INITIAL_SUBS = [
-  { id: 1, name: "Spotify", category: "Musik", price: 10.99, color: "#1DB954", icon: "🎵", nextDate: new Date(2026, 3, 29), cycle: "Monatlich", autoRenew: true, history: [new Date(2026,2,29), new Date(2026,1,29)] },
-  { id: 2, name: "Netflix", category: "Streaming", price: 17.99, color: "#E50914", icon: "🎬", nextDate: new Date(2026, 4, 3), cycle: "Monatlich", autoRenew: true, history: [new Date(2026,3,3)] },
-  { id: 3, name: "iCloud+", category: "Cloud", price: 2.99, color: "#6E6EFF", icon: "☁️", nextDate: new Date(2026, 4, 7), cycle: "Monatlich", autoRenew: true, history: [] },
-  { id: 4, name: "Adobe CC", category: "Design", price: 59.99, color: "#FF0000", icon: "🖌️", nextDate: new Date(2026, 4, 12), cycle: "Monatlich", autoRenew: false, history: [] },
-  { id: 5, name: "NYT", category: "Nachrichten", price: 4.99, color: "#000000", icon: "📰", nextDate: new Date(2026, 4, 15), cycle: "Monatlich", autoRenew: true, history: [] },
-];
+const INITIAL_SUBS = [];
 
 function formatEur(amount) {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: window.__SUBLY_CURRENCY || "EUR" }).format(amount);
@@ -147,6 +141,13 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
         <div style={H.avatar}>{getInitials(userName)}</div>
       </div>
 
+      {!nextSub && (
+        <div style={{ margin:"8px 16px 14px", background:"#fff", borderRadius:20, padding:"32px 20px", textAlign:"center", boxShadow:"0 2px 12px rgba(0,0,0,0.05)", border:"1.5px dashed #E5E7EB" }}>
+          <div style={{ fontSize:42, marginBottom:10 }}>📭</div>
+          <div style={{ fontSize:16, color:"#111827", fontWeight:700, marginBottom:6 }}>Noch keine Abonnements</div>
+          <div style={{ fontSize:13, color:"#9CA3AF", lineHeight:1.5 }}>Tippe auf <span style={{ color:"#6366F1", fontWeight:700 }}>+</span> unten, um dein erstes Abo hinzuzufügen.</div>
+        </div>
+      )}
       {nextSub && (
         <div style={{ ...H.nextCard, background: accentGradient, marginBottom: 14, padding: "20px 20px" }} onClick={() => onSubClick(nextSub)}>
           <div style={{ ...H.nextIcon, background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 24, width: 52, height: 52, borderRadius: 16 }}>{nextSub.icon}</div>
@@ -162,15 +163,19 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
         </div>
       )}
 
-      <div style={H.insightBanner}>
-        <span style={{ fontSize: 15 }}>💡</span>
-        <span style={H.insightText}>Du gibst <strong style={{ color: "#6366F1" }}>{formatEur(totalMonthly)}</strong>/Monat für Abos aus</span>
-      </div>
+      {subs.length > 0 && (
+        <div style={H.insightBanner}>
+          <span style={{ fontSize: 15 }}>💡</span>
+          <span style={H.insightText}>Du gibst <strong style={{ color: "#6366F1" }}>{formatEur(totalMonthly)}</strong>/Monat für Abos aus</span>
+        </div>
+      )}
 
-      <div style={H.sectionRow}>
-        <span style={H.sectionTitle}>Abonnements</span>
-        <span style={H.sectionBadge}>{subs.length}</span>
-      </div>
+      {subs.length > 0 && (
+        <div style={H.sectionRow}>
+          <span style={H.sectionTitle}>Abonnements</span>
+          <span style={H.sectionBadge}>{subs.length}</span>
+        </div>
+      )}
 
       <div style={H.list}>
         {upcoming.map(sub => {
@@ -911,13 +916,17 @@ function App() {
   }
 
   React.useEffect(() => {
-    if (!userName || !pushEnabled) return;
+    if (!userName || !pushEnabled || subs.length === 0) return;
+    const upcoming = [...subs].sort((a, b) => a.nextDate - b.nextDate)[0];
+    if (!upcoming) return;
+    const d = daysUntil(upcoming.nextDate);
+    if (d < 0 || d > 3) return;
     const t = setTimeout(() => {
-      setNotification("Dein Spotify-Abonnement wird in 2 Tagen abgebucht");
+      setNotification(`Dein ${upcoming.name}-Abonnement wird ${daysLabel(d).toLowerCase()} abgebucht`);
       setTimeout(() => setNotification(null), 4000);
     }, 2000);
     return () => clearTimeout(t);
-  }, [userName, pushEnabled]);
+  }, [userName, pushEnabled, subs]);
 
   function handleAdd({ type, ...data }) {
     const nd = data.startDate ? new Date(data.startDate) : new Date(2026, 4, 10);
