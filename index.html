@@ -280,12 +280,38 @@ function CalendarScreen({ subs }) {
   }
 
   const eventMap = {};
+  function pushEvent(day, sub) {
+    if (day < 1 || day > daysInMonth) return;
+    if (!eventMap[day]) eventMap[day] = [];
+    eventMap[day].push(sub);
+  }
   subs.forEach(s => {
-    const d = s.nextDate;
-    if (d.getFullYear() === year && d.getMonth() === month) {
-      const k = d.getDate();
-      if (!eventMap[k]) eventMap[k] = [];
-      eventMap[k].push(s);
+    const anchor = s.nextDate;
+    const cycle = s.cycle || "Monatlich";
+    const viewStart = new Date(year, month, 1);
+    const viewEnd = new Date(year, month, daysInMonth);
+
+    if (cycle === "Monatlich") {
+      // jeden Monat am gleichen Tag (geclamped)
+      if (viewEnd >= anchor) {
+        pushEvent(Math.min(anchor.getDate(), daysInMonth), s);
+      }
+    } else if (cycle === "Wöchentlich") {
+      // jede Woche am gleichen Wochentag
+      const targetDow = anchor.getDay();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const d = new Date(year, month, day);
+        if (d >= anchor && d.getDay() === targetDow) pushEvent(day, s);
+      }
+    } else if (cycle === "Jährlich") {
+      if (anchor.getMonth() === month && viewEnd >= anchor) {
+        pushEvent(anchor.getDate(), s);
+      }
+    } else {
+      // Benutzerdefiniert / einmalig
+      if (anchor.getFullYear() === year && anchor.getMonth() === month) {
+        pushEvent(anchor.getDate(), s);
+      }
     }
   });
 
