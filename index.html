@@ -1090,53 +1090,6 @@ const maskDateInput = (val) => {
   return res;
 };
 
-function DatePickerModal({ value, onChange, onClose }) {
-  const { t } = useTranslation();
-  const [viewDate, setViewDate] = React.useState(value ? new Date(value) : new Date());
-  const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
-  
-  const year = viewDate.getFullYear();
-  const month = viewDate.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // Mon=0
-  
-  const days = [];
-  for (let i = 0; i < firstDay; i++) days.push(null);
-  for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i));
-
-  const isSelected = (d) => d && value && new Date(d).toDateString() === new Date(value).toDateString();
-  const isToday = (d) => d && new Date(d).toDateString() === new Date().toDateString();
-
-  return (
-    <div style={{ position:"fixed", inset:0, zIndex:2000, display:"flex", alignItems:"flex-end", justifyContent:"center", background:"rgba(0,0,0,0.35)", backdropFilter:"blur(4px)" }} onClick={onClose}>
-      <div style={{ width:"100%", maxWidth:400, background:"#fff", borderRadius:"32px 32px 0 0", padding:"16px 22px 32px", boxShadow:"0 -10px 40px rgba(0,0,0,0.1)" }} onClick={e => e.stopPropagation()} className="slide-up">
-        <div style={{ width:42, height:5, background:"#E1E8D9", borderRadius:3, margin:"0 auto 20px" }} />
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
-          <div style={{ fontSize:18, fontWeight:800, color:"#1C2612" }}>{monthNames[month]} {year}</div>
-          <div style={{ display:"flex", gap:8 }}>
-            <div className="press" onClick={() => setViewDate(new Date(year, month - 1, 1))} style={{ width:38, height:38, borderRadius:12, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#7C9A57", fontWeight:800 }}>‹</div>
-            <div className="press" onClick={() => setViewDate(new Date(year, month + 1, 1))} style={{ width:38, height:38, borderRadius:12, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#7C9A57", fontWeight:800 }}>›</div>
-          </div>
-        </div>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4, textAlign:"center", marginBottom:10 }}>
-          {["Mo","Di","Mi","Do","Fr","Sa","So"].map((d,i) => <div key={i} style={{ fontSize:11, color:"#8A9A7B", fontWeight:700, textTransform:"uppercase" }}>{d}</div>)}
-        </div>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4 }}>
-          {days.map((d,i) => (
-            <div key={i} className={d ? "press" : ""} onClick={() => d && (onChange(d.toISOString().split("T")[0]), onClose())}
-                 style={{ 
-                   height:44, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:14, fontSize:16, fontWeight:700, cursor:d?"pointer":"default",
-                   background: isSelected(d) ? "#7C9A57" : (isToday(d) ? "#F2F5EF" : "transparent"),
-                   color: isSelected(d) ? "#fff" : (isToday(d) ? "#7C9A57" : (d ? "#1C2612" : "transparent")),
-                   boxShadow: isSelected(d) ? "0 8px 16px rgba(124,154,87,0.3)" : "none"
-                 }}>{d ? d.getDate() : ""}</div>
-          ))}
-        </div>
-        <div className="press" onClick={onClose} style={{ marginTop:24, background:"#F2F5EF", color:"#5E7840", textAlign:"center", padding:"16px 0", borderRadius:18, fontWeight:800, fontSize:15, cursor:"pointer" }}>{t("detail.close")}</div>
-      </div>
-    </div>
-  );
-}
 
 
 // ─── Date Utils ────────────────────────────────────────────────
