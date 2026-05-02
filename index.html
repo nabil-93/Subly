@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Subly – Abonnement-Tracker</title>
 <meta name="description" content="Behalte deine Abonnements im Blick." />
-<meta name="theme-color" content="#6366F1" />
+<meta name="theme-color" content="#7C9A57" />
 <link rel="icon" type="image/svg+xml" href="icon.svg" />
 <link rel="apple-touch-icon" href="icon.svg" />
 <link rel="manifest" href="manifest.json" />
@@ -13,18 +13,18 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="Subly" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { width: 100%; min-height: 100%; background: #E4E4EF; font-family: 'Plus Jakarta Sans', sans-serif; }
+  html, body { width: 100%; min-height: 100%; background: #C4D4B4; font-family: 'Inter', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
   body { display: flex; align-items: center; justify-content: center; }
   input, select, button { font-family: inherit; }
   ::-webkit-scrollbar { width: 0; }
   @media (max-width: 768px) {
-    html, body { background: #F7F7FB; min-height: 100vh; min-height: 100dvh; }
+    html, body { background: #F5F7F4; min-height: 100vh; min-height: 100dvh; }
     body { display: block; align-items: stretch; justify-content: stretch; }
     .app-wrap { padding: 0 !important; width: 100% !important; min-height: 100vh !important; min-height: 100dvh !important; align-items: stretch !important; justify-content: stretch !important; }
     .phone-shell { width: 100% !important; max-width: 100% !important; height: 100vh !important; height: 100dvh !important; border-radius: 0 !important; box-shadow: none !important; }
@@ -36,6 +36,47 @@
   .fade-in { animation: fade-in 0.28s ease forwards; }
   @keyframes notif-in { from { transform: translateY(-60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   .notif-in { animation: notif-in 0.4s cubic-bezier(.32,.72,0,1) forwards; }
+  @keyframes pulse-ring { 0% { transform: scale(0.95); opacity: 0.7; } 70% { transform: scale(1.4); opacity: 0; } 100% { transform: scale(1.4); opacity: 0; } }
+  .pulse-ring { animation: pulse-ring 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+  /* ── abo 2-style animations ───────────────────────────────────── */
+  @keyframes page-in { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+  .page-in { animation: page-in 0.32s cubic-bezier(.32,.72,0,1) forwards; }
+  @keyframes card-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  .card-rise { animation: card-rise 0.38s cubic-bezier(.22,1,.36,1) forwards; opacity:0; }
+  @keyframes scale-in { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+  .scale-in { animation: scale-in 0.28s cubic-bezier(.22,1,.36,1) forwards; }
+  /* Hover lift for cards (desktop) — also adds tap feedback for touch */
+  .lift { transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s ease; }
+  .lift:hover { transform: translateY(-4px) scale(1.01); }
+  .lift:active { transform: scale(0.98); }
+  /* Subtle press scale */
+  .press { transition: transform .15s ease; }
+  .press:active { transform: scale(0.94); }
+  /* Tab indicator dot pop */
+  @keyframes dot-pop { from { transform: scale(0); opacity:0; } to { transform: scale(1); opacity:1; } }
+  .dot-pop { animation: dot-pop .25s cubic-bezier(.22,1,.36,1) forwards; }
+  /* Float-y bounce for hero icon */
+  @keyframes float-y { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .float-y { animation: float-y 3s ease-in-out infinite; }
+  /* FAB pulsing glow */
+  @keyframes fab-glow { 0%,100% { box-shadow: 0 20px 40px -10px rgba(124,154,87,0.45); } 50% { box-shadow: 0 24px 48px -8px rgba(124,154,87,0.65); } }
+  .fab-glow { animation: fab-glow 2.4s ease-in-out infinite; }
+  /* Stagger helper – just an opacity reveal in steps */
+  .stagger > *:nth-child(1) { animation-delay: .04s; }
+  .stagger > *:nth-child(2) { animation-delay: .10s; }
+  .stagger > *:nth-child(3) { animation-delay: .16s; }
+  .stagger > *:nth-child(4) { animation-delay: .22s; }
+  .stagger > *:nth-child(5) { animation-delay: .28s; }
+  .stagger > *:nth-child(6) { animation-delay: .34s; }
+  .stagger > *:nth-child(7) { animation-delay: .40s; }
+  .stagger > *:nth-child(8) { animation-delay: .46s; }
+  /* Smooth content transitions */
+  .smooth-color { transition: color .25s ease, background .25s ease, border-color .25s ease; }
+  /* Number "tick" highlight */
+  @keyframes tick { 0% { transform: scale(1); } 50% { transform: scale(1.08); color: #7C9A57; } 100% { transform: scale(1); } }
+  .tick { animation: tick .5s ease; }
 </style>
 </head>
 <body>
@@ -46,7 +87,13 @@
 const INITIAL_SUBS = [];
 
 function formatEur(amount) {
-  return new Intl.NumberFormat("de-DE", { style: "currency", currency: window.__SUBLY_CURRENCY || "EUR" }).format(amount);
+  const cur = window.__SUBLY_CURRENCY || "EUR";
+  const locale = cur === "MAD" ? "fr-MA" : cur === "USD" || cur === "GBP" ? "en-US" : "de-DE";
+  try {
+    return new Intl.NumberFormat(locale, { style: "currency", currency: cur, maximumFractionDigits: 2 }).format(amount);
+  } catch {
+    return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(amount);
+  }
 }
 
 function serializeSubs(subs) {
@@ -107,6 +154,14 @@ function nextOccurrence(sub) {
     if (candidate < today) candidate = new Date(y + 1, anchor.getMonth(), anchor.getDate());
     return candidate;
   }
+  if (cycle === "Benutzerdefiniert") {
+    const n = parseInt(sub.customDays, 10) || 30;
+    const diffDays = Math.ceil((today - anchor) / (1000 * 60 * 60 * 24));
+    const cycles = Math.ceil(diffDays / n);
+    const candidate = new Date(anchor);
+    candidate.setDate(anchor.getDate() + cycles * n);
+    return candidate;
+  }
   return anchor;
 }
 function daysLabel(d) {
@@ -117,6 +172,52 @@ function daysLabel(d) {
 }
 function formatDate(date) {
   return date.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+function cycleLabel(sub) {
+  const c = sub.cycle || "Monatlich";
+  if (c === "Benutzerdefiniert") {
+    const n = parseInt(sub.customDays, 10) || 30;
+    return `alle ${n} Tage`;
+  }
+  return c;
+}
+
+// Sum what would be spent in the given (year, month) for one sub.
+function monthlySpending(subs, year, month) {
+  const monthStart = new Date(year, month, 1);
+  monthStart.setHours(0,0,0,0);
+  const monthEnd = new Date(year, month + 1, 0);
+  monthEnd.setHours(23,59,59,999);
+  let total = 0;
+  subs.forEach(s => {
+    const anchor = new Date(s.nextDate);
+    anchor.setHours(0,0,0,0);
+    if (anchor > monthEnd) return;
+    const cycle = s.cycle || "Monatlich";
+    if (cycle === "Monatlich") {
+      total += s.price;
+    } else if (cycle === "Wöchentlich") {
+      const targetDow = anchor.getDay();
+      for (let day = 1; day <= monthEnd.getDate(); day++) {
+        const d = new Date(year, month, day);
+        if (d >= anchor && d.getDay() === targetDow) total += s.price;
+      }
+    } else if (cycle === "Jährlich") {
+      if (anchor.getMonth() === month) total += s.price;
+    } else if (cycle === "Benutzerdefiniert") {
+      const n = parseInt(s.customDays, 10) || 30;
+      if (n > 0) {
+        let cursor = new Date(anchor);
+        while (cursor <= monthEnd) {
+          if (cursor >= monthStart) total += s.price;
+          cursor.setDate(cursor.getDate() + n);
+        }
+      }
+    } else {
+      if (anchor.getFullYear() === year && anchor.getMonth() === month) total += s.price;
+    }
+  });
+  return total;
 }
 
 // ─── Home Screen ────────────────────────────────────────────────
@@ -137,29 +238,33 @@ function WelcomeScreen({ onSubmit, accentGradient }) {
   }
 
   return (
-    <div style={{ flex:1, display:"flex", flexDirection:"column", justifyContent:"center", padding:"32px 28px", background:"#F7F7FB" }}>
-      <div style={{ width:72, height:72, borderRadius:22, background:accentGradient, display:"flex", alignItems:"center", justifyContent:"center", fontSize:36, marginBottom:24, boxShadow:"0 12px 32px rgba(99,102,241,0.35)" }}>💸</div>
-      <div style={{ fontSize:28, fontWeight:800, color:"#111827", letterSpacing:"-0.5px", marginBottom:8 }}>Willkommen bei Subly</div>
-      <div style={{ fontSize:15, color:"#6B7280", lineHeight:1.5, marginBottom:28 }}>Behalte deine Abonnements im Blick. Wie sollen wir dich nennen?</div>
-      <input
-        autoFocus
-        placeholder="Dein Name"
-        value={name}
-        onChange={e => setName(e.target.value)}
-        onKeyDown={e => e.key === "Enter" && submit()}
-        style={{ width:"100%", background:"#fff", border:"1.5px solid #E5E7EB", borderRadius:14, padding:"15px 18px", color:"#111827", fontSize:17, outline:"none", marginBottom:16 }}
-      />
-      <div
-        onClick={canSubmit ? submit : null}
-        style={{ background: canSubmit ? accentGradient : "#E5E7EB", color: canSubmit ? "#fff" : "#9CA3AF", borderRadius:16, padding:"15px 0", textAlign:"center", fontWeight:700, fontSize:16, cursor: canSubmit ? "pointer" : "default", transition:"all 0.2s" }}>
-        Loslegen →
+    <div style={{ flex:1, display:"flex", flexDirection:"column", justifyContent:"center", padding:"32px 28px", background:"#F5F7F4", position:"relative", overflow:"hidden" }}>
+      <div style={{ position:"absolute", top:-80, right:-80, width:240, height:240, borderRadius:"50%", background:"radial-gradient(circle,rgba(124,154,87,0.20),transparent 70%)" }} />
+      <div style={{ position:"absolute", bottom:-60, left:-40, width:180, height:180, borderRadius:"50%", background:"radial-gradient(circle,rgba(124,154,87,0.14),transparent 70%)" }} />
+      <div style={{ position:"relative", zIndex:1 }}>
+        <div style={{ width:84, height:84, borderRadius:26, background:"#7C9A57", display:"flex", alignItems:"center", justifyContent:"center", fontSize:42, marginBottom:28, boxShadow:"0 20px 40px -10px rgba(124,154,87,0.5)" }}>💸</div>
+        <div style={{ fontSize:34, fontWeight:800, color:"#1C2612", letterSpacing:"-1.2px", marginBottom:10, lineHeight:1.05 }}>Willkommen bei<br/><span style={{ color:"#7C9A57" }}>Subly</span></div>
+        <div style={{ fontSize:15, color:"#8A9A7B", lineHeight:1.55, marginBottom:32, fontWeight:500 }}>Behalte deine Abonnements im Blick. Wie sollen wir dich nennen?</div>
+        <input
+          autoFocus
+          placeholder="Dein Name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && submit()}
+          style={{ width:"100%", background:"#fff", border:"none", borderRadius:24, padding:"18px 22px", color:"#1C2612", fontSize:16, fontWeight:600, outline:"none", marginBottom:14, boxShadow:"0 12px 36px -8px rgba(0,0,0,0.06), 0 4px 12px -4px rgba(0,0,0,0.04)" }}
+        />
+        <div
+          onClick={canSubmit ? submit : null}
+          style={{ background: canSubmit ? "#7C9A57" : "#E1E8D9", color: canSubmit ? "#fff" : "#8A9A7B", borderRadius:24, padding:"18px 0", textAlign:"center", fontWeight:800, fontSize:16, cursor: canSubmit ? "pointer" : "default", transition:"all 0.2s", boxShadow: canSubmit ? "0 20px 40px -10px rgba(124,154,87,0.45)" : "none", letterSpacing:"-0.2px" }}>
+          Loslegen →
+        </div>
       </div>
     </div>
   );
 }
 
 function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName }) {
-  const totalMonthly = subs.reduce((s, x) => s + x.price, 0);
+  const totalMonthly = subs.reduce((s, x) => s + monthlyEquivalent(x), 0);
   const subsWithNext = subs.map(s => ({ ...s, _next: nextOccurrence(s) }));
   const sortedByNext = [...subsWithNext].sort((a, b) => a._next - b._next);
   const nextSub = sortedByNext[0];
@@ -179,57 +284,55 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
   const upcoming = sortedByNext;
 
   return (
-    <div style={H.screen}>
-      <div style={H.header}>
-        <div>
+    <div style={H.screen} className="page-in">
+      <div style={H.greetingRow}>
+        <div style={{ minWidth:0, flex:1 }}>
           <div style={H.greeting}>Guten Tag 👋</div>
-          <div style={H.name}>{userName}</div>
+          <div style={H.userName}>{userName}</div>
         </div>
         <div style={H.avatar}>{getInitials(userName)}</div>
       </div>
+      <div style={H.header}>
+        <div>
+          <div style={H.title}>Abonnements</div>
+          <div style={H.subtitle}>Du hast {subs.length} aktiv</div>
+        </div>
+      </div>
+
+      <div style={H.heroCard}>
+        <div style={H.heroBlob1} />
+        <div style={H.heroBlob2} />
+        <div style={{ position:"relative", zIndex:2 }}>
+          <div style={H.heroLabel}>Gesamt pro Monat</div>
+          <div style={H.heroAmount}>{formatEur(totalMonthly)}</div>
+          <div style={H.yearlyPill}>
+            <div style={H.yearlyLabel}>Pro Jahr</div>
+            <div style={H.yearlyVal}>{formatEur(totalMonthly * 12)}</div>
+          </div>
+        </div>
+      </div>
 
       {!nextSub && (
-        <div style={{ margin:"8px 16px 14px", background:"#fff", borderRadius:20, padding:"32px 20px", textAlign:"center", boxShadow:"0 2px 12px rgba(0,0,0,0.05)", border:"1.5px dashed #E5E7EB" }}>
-          <div style={{ fontSize:42, marginBottom:10 }}>📭</div>
-          <div style={{ fontSize:16, color:"#111827", fontWeight:700, marginBottom:6 }}>Noch keine Abonnements</div>
-          <div style={{ fontSize:13, color:"#9CA3AF", lineHeight:1.5 }}>Tippe auf <span style={{ color:"#6366F1", fontWeight:700 }}>+</span> unten, um dein erstes Abo hinzuzufügen.</div>
-        </div>
-      )}
-      {nextSub && (
-        <div style={{ ...H.nextCard, background: accentGradient, marginBottom: 14, padding: "20px 20px" }} onClick={() => onSubClick(nextSub)}>
-          <div style={{ ...H.nextIcon, background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 24, width: 52, height: 52, borderRadius: 16 }}>{nextSub.icon}</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ ...H.nextLabel, color: "rgba(255,255,255,0.7)" }}>Nächste Zahlung</div>
-            <div style={{ ...H.nextName, color: "#fff", fontSize: 18 }}>{nextSub.name}</div>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ ...H.nextAmount, color: "#fff", fontSize: 22 }}>−{formatEur(nextSub.price)}</div>
-            <div style={{ ...H.nextDays, color: nextDays <= 2 ? "#FDE68A" : "rgba(255,255,255,0.85)", fontSize: 13 }}>{daysLabel(nextDays)}</div>
-          </div>
-          <div style={H.gloss1} /><div style={H.gloss2} />
-        </div>
-      )}
-
-      {subs.length > 0 && (
-        <div style={H.insightBanner}>
-          <span style={{ fontSize: 15 }}>💡</span>
-          <span style={H.insightText}>Du gibst <strong style={{ color: "#6366F1" }}>{formatEur(totalMonthly)}</strong>/Monat für Abos aus</span>
+        <div style={{ margin:"0 18px 18px", background:"#fff", borderRadius:28, padding:"40px 24px", textAlign:"center", boxShadow:SHADOW_CARD }}>
+          <div style={{ width:64, height:64, borderRadius:20, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, margin:"0 auto 14px" }}>📭</div>
+          <div style={{ fontSize:17, color:"#1C2612", fontWeight:800, marginBottom:6 }}>Noch keine Abos</div>
+          <div style={{ fontSize:13.5, color:"#8A9A7B", lineHeight:1.5 }}>Tippe auf <span style={{ display:"inline-flex", width:22, height:22, borderRadius:7, background:"#7C9A57", color:"#fff", fontWeight:800, alignItems:"center", justifyContent:"center", fontSize:14, verticalAlign:"middle" }}>+</span> um dein erstes hinzuzufügen.</div>
         </div>
       )}
 
       {subs.length > 0 && (
         <div style={H.sectionRow}>
-          <span style={H.sectionTitle}>Abonnements</span>
-          <span style={H.sectionBadge}>{subs.length}</span>
+          <span style={H.sectionTitle}>Anstehend</span>
+          <span style={H.sectionLink}>{subs.length} aktiv</span>
         </div>
       )}
 
-      <div style={H.list}>
+      <div style={H.list} className="stagger">
         {upcoming.map(sub => {
           const d = daysUntil(sub._next);
           const sw = swipeStates[sub.id];
           return (
-            <div key={sub.id} style={H.rowWrap}
+            <div key={sub.id} style={H.rowWrap} className="card-rise"
               onTouchStart={e => handleTouchStart(sub.id, e)}
               onTouchEnd={e => handleTouchEnd(sub.id, e)}>
               {sw === "delete" && (
@@ -248,16 +351,29 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
                   ✏️<span style={{fontSize:10}}>Bearbeiten</span>
                 </div>
               )}
-              <div style={{ ...H.row, transform: sw === "delete" ? "translateX(-76px)" : sw === "edit" ? "translateX(76px)" : "none", transition: "transform .25s cubic-bezier(.4,0,.2,1)" }}
+              <div className="lift" style={{ ...H.row, transform: sw === "delete" ? "translateX(-76px)" : sw === "edit" ? "translateX(76px)" : "none", transition: "transform .25s cubic-bezier(.4,0,.2,1)" }}
                 onClick={() => onSubClick(sub)}>
-                <div style={{ ...H.subIcon, background: sub.color + "15", color: sub.color }}>{sub.icon}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={H.subName}>{sub.name}</div>
-                  <div style={H.subCat}>{sub.category} · {sub.cycle}</div>
+                <div style={H.rowTop}>
+                  <div style={{ display:"flex", alignItems:"center", gap:14, flex:1, minWidth:0 }}>
+                    <div style={{ ...H.subIcon, background: sub.color }}>{sub.icon}</div>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={H.subName}>{sub.name}</div>
+                      <div style={H.subCat}>{sub.category || "Sonstiges"}</div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign:"right" }}>
+                    <div style={H.subPrice}>{formatEur(sub.price)}</div>
+                    <div style={H.subCycleLabel}>{cycleLabel(sub).toUpperCase()}</div>
+                  </div>
                 </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={H.subPrice}>{formatEur(sub.price)}</div>
-                  <div style={{ ...H.subDate, color: d <= 2 ? "#F59E0B" : "#9CA3AF" }}>{daysLabel(d)}</div>
+                <div style={H.paymentPill}>
+                  <div>
+                    <div style={H.payLabel}>Nächste Zahlung</div>
+                    <div style={H.payDate}>{formatDate(sub._next)}</div>
+                  </div>
+                  <div style={{ ...H.dayBadge, background: d <= 3 ? "rgba(224,90,90,0.10)" : "#F2F5EF", color: d <= 3 ? "#E05A5A" : "#5E7840" }}>
+                    {d === 0 ? "Heute" : d < 0 ? "Überfällig" : daysLabel(d)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -269,38 +385,47 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
 }
 
 const H = {
-  screen: { flex: 1, overflowY: "auto", paddingBottom: 100, background: "#F7F7FB" },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 20px 12px", background: "#F7F7FB" },
-  greeting: { fontSize: 13, color: "#9CA3AF", fontWeight: 500 },
-  name: { fontSize: 20, color: "#111827", fontWeight: 800, letterSpacing: "-0.5px" },
-  avatar: { width: 42, height: 42, borderRadius: "50%", background: "linear-gradient(135deg,#6366F1,#8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 14 },
-  gloss1: { position: "absolute", top: -50, right: -50, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,0.09)", pointerEvents: "none" },
-  gloss2: { position: "absolute", bottom: -30, left: 20, width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" },
-  nextCard: { margin: "0 16px 12px", background: "#fff", borderRadius: 20, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", cursor: "pointer", position: "relative", overflow: "hidden" },
-  nextIcon: { width: 44, height: 44, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 },
-  nextLabel: { fontSize: 11, color: "#9CA3AF", fontWeight: 500 },
-  nextName: { fontSize: 16, color: "#111827", fontWeight: 700 },
-  nextAmount: { fontSize: 18, color: "#111827", fontWeight: 800 },
-  nextDays: { fontSize: 12, fontWeight: 600, marginTop: 2 },
-  insightBanner: { margin: "0 16px 14px", background: "#EEF2FF", borderRadius: 14, padding: "10px 14px", display: "flex", alignItems: "center", gap: 8 },
-  insightText: { fontSize: 13, color: "#4338CA", lineHeight: 1.4 },
-  sectionRow: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 20px 10px" },
-  sectionTitle: { fontSize: 16, color: "#111827", fontWeight: 800 },
-  sectionBadge: { background: "#EEF2FF", color: "#6366F1", fontSize: 12, fontWeight: 700, padding: "2px 9px", borderRadius: 20 },
-  list: { display: "flex", flexDirection: "column", gap: 8, padding: "0 16px" },
-  rowWrap: { position: "relative", borderRadius: 16, overflow: "hidden" },
-  row: { background: "#fff", borderRadius: 16, padding: "13px 14px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer", position: "relative", zIndex: 1, boxShadow: "0 1px 6px rgba(0,0,0,0.05)" },
-  subIcon: { width: 42, height: 42, borderRadius: 13, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, flexShrink: 0 },
-  subName: { fontSize: 15, color: "#111827", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-  subCat: { fontSize: 12, color: "#9CA3AF", marginTop: 2 },
-  subPrice: { fontSize: 15, color: "#111827", fontWeight: 700 },
-  subDate: { fontSize: 12, fontWeight: 500, marginTop: 2 },
-  swipeDel: { position: "absolute", right: 0, top: 0, bottom: 0, width: 76, background: "#EF4444", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "#fff", fontWeight: 700, fontSize: 18, cursor: "pointer", zIndex: 0, borderRadius: "0 16px 16px 0" },
-  swipeEdit: { position: "absolute", left: 0, top: 0, bottom: 0, width: 76, background: "#6366F1", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "#fff", fontWeight: 700, fontSize: 18, cursor: "pointer", zIndex: 0, borderRadius: "16px 0 0 16px" },
+  screen: { flex: 1, overflowY: "auto", paddingBottom: 110, background: "#F5F7F4" },
+  greetingRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 24px 4px", background: "#F5F7F4" },
+  greeting: { fontSize: 13, color: "#8A9A7B", fontWeight: 600, letterSpacing: "0.1px" },
+  userName: { fontSize: 18, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.4px", marginTop: 2 },
+  header: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 24px 20px", background: "#F5F7F4" },
+  title: { fontSize: 28, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.9px", lineHeight: 1.1 },
+  subtitle: { fontSize: 14, color: "#8A9A7B", fontWeight: 600, marginTop: 4 },
+  avatar: { width: 48, height: 48, borderRadius: "50%", background: "#7C9A57", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 14, boxShadow: "0 4px 12px rgba(124,154,87,0.35)" },
+  heroCard: { margin: "0 18px 24px", borderRadius: 32, padding: "26px 24px", background: "#7C9A57", color: "#fff", position: "relative", overflow: "hidden", boxShadow: "0 20px 40px -10px rgba(124,154,87,0.45)" },
+  heroBlob1: { position: "absolute", top: -50, right: -30, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.10)", filter: "blur(24px)", pointerEvents: "none" },
+  heroBlob2: { position: "absolute", bottom: -40, left: -40, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,0.10)", filter: "blur(20px)", pointerEvents: "none" },
+  heroLabel: { fontSize: 13, color: "#E1E8D9", fontWeight: 600, marginBottom: 4 },
+  heroAmount: { fontSize: 38, color: "#fff", fontWeight: 800, letterSpacing: "-1.2px", marginBottom: 18, lineHeight: 1.1 },
+  yearlyPill: { display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.18)", borderRadius: 18, padding: "12px 18px", border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(10px)" },
+  yearlyLabel: { fontSize: 12, color: "#E1E8D9", fontWeight: 600 },
+  yearlyVal: { fontSize: 17, color: "#fff", fontWeight: 700, letterSpacing: "-0.3px" },
+  sectionRow: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px 14px" },
+  sectionTitle: { fontSize: 20, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.5px" },
+  sectionLink: { fontSize: 12, color: "#8A9A7B", fontWeight: 700, cursor: "pointer", textTransform:"uppercase", letterSpacing:"0.8px" },
+  list: { display: "flex", flexDirection: "column", gap: 14, padding: "0 18px" },
+  rowWrap: { position: "relative", borderRadius: 28, overflow: "hidden" },
+  row: { background: "#fff", borderRadius: 28, padding: 18, cursor: "pointer", position: "relative", zIndex: 1, boxShadow: SHADOW_CARD, display: "flex", flexDirection: "column", gap: 14 },
+  rowTop: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  subIcon: { width: 52, height: 52, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, color: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.08)" },
+  subName: { fontSize: 17, color: "#1C2612", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", letterSpacing: "-0.2px" },
+  subCat: { fontSize: 13, color: "#8A9A7B", marginTop: 2, fontWeight: 500, textTransform: "capitalize" },
+  subPrice: { fontSize: 19, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.4px" },
+  subCycleLabel: { fontSize: 10, color: "#A4BC8E", fontWeight: 700, marginTop: 2, textTransform: "uppercase", letterSpacing: "0.8px" },
+  paymentPill: { background: "#F5F7F4", borderRadius: 18, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 },
+  payLabel: { fontSize: 11, color: "#8A9A7B", fontWeight: 600, marginBottom: 2 },
+  payDate: { fontSize: 13.5, color: "#1C2612", fontWeight: 700 },
+  dayBadge: { fontSize: 12, fontWeight: 700, padding: "6px 12px", borderRadius: 14 },
+  swipeDel: { position: "absolute", right: 0, top: 0, bottom: 0, width: 76, background: "#E05A5A", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "#fff", fontWeight: 700, fontSize: 18, cursor: "pointer", zIndex: 0, borderRadius: "0 28px 28px 0" },
+  swipeEdit: { position: "absolute", left: 0, top: 0, bottom: 0, width: 76, background: "#7C9A57", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "#fff", fontWeight: 700, fontSize: 18, cursor: "pointer", zIndex: 0, borderRadius: "28px 0 0 28px" },
 };
 
 // ─── Calendar Screen ────────────────────────────────────────────
-function CalendarScreen({ subs }) {
+function CalendarScreen({ subs, onAddOnDate }) {
+  function dateStr(year, month, d) {
+    return `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  }
   const today = new Date();
   const [selectedDay, setSelectedDay] = React.useState(null);
   const [year, setYear] = React.useState(today.getFullYear());
@@ -349,8 +474,28 @@ function CalendarScreen({ subs }) {
       if (anchor.getMonth() === month && viewEnd >= anchor) {
         pushEvent(anchor.getDate(), s);
       }
+    } else if (cycle === "Benutzerdefiniert") {
+      // alle N Tage ab Startdatum
+      const n = parseInt(s.customDays, 10) || 30;
+      if (n > 0) {
+        // Finde das erste Vorkommen, das >= viewStart ist
+        const a = new Date(anchor); a.setHours(0,0,0,0);
+        const vs = new Date(viewStart); vs.setHours(0,0,0,0);
+        let cursor = new Date(a);
+        if (cursor < vs) {
+          const diffDays = Math.ceil((vs - cursor) / (1000*60*60*24));
+          const cycles = Math.ceil(diffDays / n);
+          cursor.setDate(cursor.getDate() + cycles * n);
+        }
+        while (cursor <= viewEnd) {
+          if (cursor.getMonth() === month && cursor.getFullYear() === year) {
+            pushEvent(cursor.getDate(), s);
+          }
+          cursor.setDate(cursor.getDate() + n);
+        }
+      }
     } else {
-      // Benutzerdefiniert / einmalig
+      // einmalig
       if (anchor.getFullYear() === year && anchor.getMonth() === month) {
         pushEvent(anchor.getDate(), s);
       }
@@ -361,13 +506,13 @@ function CalendarScreen({ subs }) {
   const monthExpenses = Object.values(eventMap).flat().reduce((s,x) => s + x.price, 0);
 
   return (
-    <div style={CAL.screen}>
+    <div style={CAL.screen} className="page-in">
       <div style={CAL.header}>
         <div style={CAL.monthTitle}>{monthNames[month]} {year}</div>
         <div style={CAL.navRow}>
           <div style={CAL.navBtn} onClick={() => shiftMonth(-1)}>‹</div>
           {!isCurrentMonth && (
-            <div style={{ ...CAL.navBtn, width:"auto", padding:"0 12px", color:"#6366F1", fontSize:12, fontWeight:700 }}
+            <div className="press" style={{ ...CAL.navBtn, width:"auto", padding:"0 16px", background:"#7C9A57", color:"#fff", fontSize:12, fontWeight:800, boxShadow:"0 8px 18px -4px rgba(124,154,87,0.5)" }}
               onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); setSelectedDay(null); }}>Heute</div>
           )}
           <div style={CAL.navBtn} onClick={() => shiftMonth(1)}>›</div>
@@ -375,8 +520,11 @@ function CalendarScreen({ subs }) {
       </div>
 
       <div style={CAL.totalBanner}>
-        <span style={CAL.totalLabel}>Ausgaben im {monthNames[month]}</span>
-        <span style={CAL.totalAmount}>−{formatEur(monthExpenses)}</span>
+        <div>
+          <div style={CAL.totalLabel}>Ausgaben · {monthNames[month]}</div>
+          <div style={{ fontSize:11.5, color:"rgba(255,255,255,0.5)", marginTop:4 }}>{Object.keys(eventMap).length} Buchungen</div>
+        </div>
+        <span style={CAL.totalAmount}>{formatEur(monthExpenses)}</span>
       </div>
 
       <div style={CAL.dayNames}>
@@ -392,25 +540,28 @@ function CalendarScreen({ subs }) {
           const isSel = d === selectedDay;
           const isToday = d === todayDay;
           return (
-            <div key={d}
-              style={{ ...CAL.dayCell, cursor: hasEvents ? "pointer" : "default" }}
-              onClick={() => hasEvents && setSelectedDay(isSel ? null : d)}>
+            <div key={d} className="press"
+              style={{ ...CAL.dayCell, cursor: "pointer" }}
+              onClick={() => {
+                if (hasEvents) setSelectedDay(isSel ? null : d);
+                else if (onAddOnDate) onAddOnDate(dateStr(year, month, d));
+              }}>
               <span style={{
-                width: 30, height: 30, borderRadius: "50%",
+                width: 34, height: 34, borderRadius: "50%",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: 14,
-                background: isSel ? "linear-gradient(135deg,#6366F1,#8B5CF6)"
-                          : isToday ? "#EF4444"
-                          : "transparent",
-                color: isSel || isToday ? "#fff" : "#374151",
-                fontWeight: isSel || isToday ? 700 : 400,
-                boxShadow: isToday && !isSel ? "0 4px 12px rgba(239,68,68,0.35)" : "none",
-                transition: "all 0.15s"
+                background: isSel ? "#1C2612"
+                          : isToday ? "#7C9A57"
+                          : hasEvents ? "#F2F5EF" : "transparent",
+                color: isSel ? "#fff" : isToday ? "#fff" : hasEvents ? "#465A30" : "#1C2612",
+                fontWeight: isSel || isToday ? 800 : hasEvents ? 700 : 500,
+                boxShadow: isToday && !isSel ? "0 8px 16px -4px rgba(124,154,87,0.55)" : isSel ? "0 8px 16px -4px rgba(28,38,18,0.4)" : "none",
+                transition: "all 0.2s"
               }}>{d}</span>
               {hasEvents && (
                 <div style={CAL.dots}>
                   {events.slice(0,3).map((_, di) => (
-                    <div key={di} style={{ ...CAL.dot, background: isSel ? "#6366F1" : isToday ? "#EF4444" : "#9CA3AF" }} />
+                    <div key={di} style={{ ...CAL.dot, background: isSel ? "#1C2612" : isToday ? "#fff" : (events[di].color || "#7C9A57") }} />
                   ))}
                 </div>
               )}
@@ -423,22 +574,26 @@ function CalendarScreen({ subs }) {
         <div style={CAL.popup} className="fade-in">
           <div style={CAL.popupHeader}>
             <div style={CAL.popupTitle}>{selectedDay}. {monthNames[month]}</div>
-            <div style={CAL.popupClose} onClick={() => setSelectedDay(null)}>✕</div>
+            <div style={{ display:"flex", gap:8 }}>
+              <div className="press" style={{ ...CAL.popupClose, background:"#7C9A57", color:"#fff", fontSize:16, fontWeight:800, boxShadow:"0 6px 14px -4px rgba(124,154,87,0.5)" }}
+                onClick={() => onAddOnDate && onAddOnDate(dateStr(year, month, selectedDay))}>+</div>
+              <div className="press" style={CAL.popupClose} onClick={() => setSelectedDay(null)}>✕</div>
+            </div>
           </div>
           {selectedEvents.map((ev, i) => (
-            <div key={i} style={{ ...CAL.eventRow, borderBottom: i < selectedEvents.length-1 ? "1px solid #F3F4F6" : "none" }}>
-              <div style={{ ...CAL.eventIcon, background: ev.color+"18", color: ev.color }}>{ev.icon}</div>
+            <div key={i} style={{ ...CAL.eventRow, borderBottom: i < selectedEvents.length-1 ? "1px solid #F0EEE6" : "none" }}>
+              <div style={{ ...CAL.eventIcon, background: ev.color }}>{ev.icon}</div>
               <div style={{ flex:1 }}>
                 <div style={CAL.eventName}>{ev.name}</div>
-                <div style={CAL.eventCat}>{ev.category} · {ev.cycle}</div>
+                <div style={CAL.eventCat}>{cycleLabel(ev)}</div>
               </div>
-              <div style={CAL.eventAmount}>−{formatEur(ev.price)}</div>
+              <div style={CAL.eventAmount}>{formatEur(ev.price)}</div>
             </div>
           ))}
           {selectedEvents.length > 1 && (
             <div style={CAL.popupTotal}>
-              <span style={{ color:"#9CA3AF", fontSize:12 }}>Gesamt</span>
-              <span style={{ fontWeight:800, color:"#EF4444", fontSize:15 }}>−{formatEur(selectedEvents.reduce((s,e) => s + e.price, 0))}</span>
+              <span style={{ color:"#8A9A7B", fontSize:12, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.8px" }}>Gesamt</span>
+              <span style={{ fontWeight:800, color:"#7C9A57", fontSize:17 }}>{formatEur(selectedEvents.reduce((s,e) => s + e.price, 0))}</span>
             </div>
           )}
         </div>
@@ -448,117 +603,171 @@ function CalendarScreen({ subs }) {
 }
 
 const CAL = {
-  screen: { flex:1, overflowY:"auto", paddingBottom:100, background:"#F7F7FB" },
-  header: { display:"flex", justifyContent:"space-between", alignItems:"center", padding:"18px 20px 10px" },
-  monthTitle: { fontSize:22, color:"#111827", fontWeight:800, letterSpacing:"-0.5px" },
+  screen: { flex:1, overflowY:"auto", paddingBottom:110, background:"#F5F7F4" },
+  header: { display:"flex", justifyContent:"space-between", alignItems:"center", padding:"24px 24px 18px" },
+  monthTitle: { fontSize:28, color:"#1C2612", fontWeight:800, letterSpacing:"-0.9px" },
   navRow: { display:"flex", gap:8 },
-  navBtn: { width:34, height:34, borderRadius:10, background:"#fff", display:"flex", alignItems:"center", justifyContent:"center", color:"#6B7280", fontSize:18, cursor:"pointer", boxShadow:"0 1px 4px rgba(0,0,0,0.08)" },
-  totalBanner: { margin:"0 16px 14px", background:"#FEF2F2", border:"1px solid #FECACA", borderRadius:14, padding:"12px 16px", display:"flex", justifyContent:"space-between", alignItems:"center" },
-  totalLabel: { fontSize:13, color:"#9CA3AF", fontWeight:500 },
-  totalAmount: { fontSize:17, color:"#DC2626", fontWeight:800 },
-  dayNames: { display:"grid", gridTemplateColumns:"repeat(7,1fr)", padding:"0 14px", marginBottom:4 },
-  dayName: { textAlign:"center", fontSize:12, color:"#9CA3AF", fontWeight:600, padding:"6px 0" },
-  grid: { display:"grid", gridTemplateColumns:"repeat(7,1fr)", padding:"0 14px", gap:"4px 0" },
+  navBtn: { width:40, height:40, borderRadius:14, background:"#fff", display:"flex", alignItems:"center", justifyContent:"center", color:"#1C2612", fontSize:18, cursor:"pointer", boxShadow:SHADOW_CARD, fontWeight:700 },
+  totalBanner: { margin:"0 18px 18px", background:"#7C9A57", borderRadius:24, padding:"18px 22px", display:"flex", justifyContent:"space-between", alignItems:"center", boxShadow:"0 16px 32px -10px rgba(124,154,87,0.5)" },
+  totalLabel: { fontSize:12, color:"#E1E8D9", fontWeight:700, textTransform:"uppercase", letterSpacing:"1px" },
+  totalAmount: { fontSize:22, color:"#fff", fontWeight:800, letterSpacing:"-0.5px" },
+  dayNames: { display:"grid", gridTemplateColumns:"repeat(7,1fr)", padding:"0 18px", marginBottom:8 },
+  dayName: { textAlign:"center", fontSize:11, color:"#A4BC8E", fontWeight:700, padding:"8px 0", textTransform:"uppercase", letterSpacing:"1px" },
+  grid: { display:"grid", gridTemplateColumns:"repeat(7,1fr)", padding:"10px 8px", margin:"0 14px", gap:"4px 0", background:"#fff", borderRadius:28, boxShadow:SHADOW_CARD },
   dayCell: { display:"flex", flexDirection:"column", alignItems:"center", padding:"7px 0", borderRadius:14, transition:"background 0.15s" },
   dayNum: { fontSize:14, lineHeight:1 },
   dots: { display:"flex", gap:3, marginTop:4, height:6, alignItems:"center" },
-  dot: { width:6, height:6, borderRadius:"50%" },
-  popup: { margin:"12px 16px 0", background:"#fff", borderRadius:20, padding:"16px 16px 12px", boxShadow:"0 4px 20px rgba(0,0,0,0.1)" },
-  popupHeader: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 },
-  popupTitle: { fontSize:15, color:"#111827", fontWeight:800 },
-  popupClose: { width:28, height:28, borderRadius:8, background:"#F3F4F6", display:"flex", alignItems:"center", justifyContent:"center", color:"#9CA3AF", fontSize:13, cursor:"pointer", fontWeight:600 },
-  eventRow: { display:"flex", alignItems:"center", gap:12, padding:"10px 0" },
-  eventIcon: { width:40, height:40, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0 },
-  eventName: { fontSize:14, color:"#111827", fontWeight:600 },
-  eventCat: { fontSize:12, color:"#9CA3AF", marginTop:1 },
-  eventAmount: { fontSize:15, fontWeight:800, color:"#DC2626" },
-  popupTotal: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:10, marginTop:4, borderTop:"1px solid #F3F4F6" },
+  dot: { width:5, height:5, borderRadius:"50%" },
+  popup: { margin:"16px 18px 0", background:"#fff", borderRadius:28, padding:"20px 20px 16px", boxShadow:SHADOW_CARD },
+  popupHeader: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 },
+  popupTitle: { fontSize:17, color:"#1C2612", fontWeight:800, letterSpacing:"-0.3px" },
+  popupClose: { width:32, height:32, borderRadius:11, background:"#F5F7F4", display:"flex", alignItems:"center", justifyContent:"center", color:"#8A9A7B", fontSize:13, cursor:"pointer", fontWeight:700 },
+  eventRow: { display:"flex", alignItems:"center", gap:12, padding:"12px 0" },
+  eventIcon: { width:44, height:44, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, color:"#fff", boxShadow:"0 3px 8px rgba(0,0,0,0.06)" },
+  eventName: { fontSize:15, color:"#1C2612", fontWeight:700 },
+  eventCat: { fontSize:12.5, color:"#8A9A7B", marginTop:2, fontWeight:500 },
+  eventAmount: { fontSize:16, fontWeight:800, color:"#1C2612" },
+  popupTotal: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:14, marginTop:6, borderTop:"1px solid #F2F5EF" },
 };
 
 // ─── Add Screen ─────────────────────────────────────────────────
-function AddScreen({ onAdd, onClose, accentGradient }) {
+const CATEGORIES = ["Unterhaltung","Arbeit","Fitness","Internet","Versorgung","Sonstiges"];
+function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
   const [step, setStep] = React.useState(0);
-  const [form, setForm] = React.useState({ name: "", price: "", cycle: "Monatlich", startDate: "", icon: "⭐", color: "#6366F1" });
+  const [form, setForm] = React.useState({ name: "", price: "", cycle: "Monatlich", startDate: initialDate || "", icon: "⭐", color: "#7C9A57", category: "Unterhaltung" });
 
   const icons = ["⭐","🎵","🎬","☁️","🖌️","📰","🏋️","🎮","📚","🛒","🏠","✈️","💊","📱","🎧","📷"];
-  const colors = ["#6366F1","#8B5CF6","#EC4899","#EF4444","#F59E0B","#22C55E","#06B6D4","#0EA5E9"];
-  const steps = ["Name & Icon","Preis","Startdatum","Abrechnung"];
+  const colors = ["#7C9A57","#E8A34A","#E05A5A","#8A9A7B","#465A30","#1C2612","#4A90E2","#9013FE"];
+  const steps = ["Name & Icon","Kategorie","Preis","Startdatum","Abrechnung"];
 
-  const canNext = [form.name, form.price, form.startDate, true][step];
+  const cycleStepValid = form.cycle !== "Benutzerdefiniert" || (parseInt(form.customDays,10) > 0);
+  const canNext = [form.name, form.category, form.price, form.startDate, cycleStepValid][step];
 
   function nextStep() {
     if (step < steps.length - 1) setStep(s => s + 1);
     else { onAdd({ type: "sub", ...form, price: parseFloat(form.price) || 0 }); onClose(); }
   }
 
+  const currencySym = (() => { try { return (0).toLocaleString((window.__SUBLY_CURRENCY||"EUR")==="MAD"?"fr-MA":"de-DE", { style:"currency", currency: window.__SUBLY_CURRENCY||"EUR" }).replace(/[\d.,\s]/g,""); } catch { return "€"; } })();
+
   return (
     <div style={AS.sheet}>
       <div style={AS.handle} />
       <div style={AS.titleRow}>
         <div style={AS.sheetTitle}>Abonnement hinzufügen</div>
-        <div style={AS.closeBtn} onClick={onClose}>✕</div>
+        <div style={AS.closeBtn} className="press" onClick={onClose}>✕</div>
       </div>
 
+      {/* Live preview card */}
+      <div style={{ background:"#F2F5EF", borderRadius:20, padding:14, marginBottom:18, display:"flex", alignItems:"center", gap:12 }} className="scale-in">
+        <div style={{ width:54, height:54, borderRadius:16, background:form.color, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:24, boxShadow:"0 4px 10px rgba(0,0,0,0.08)" }}>{form.icon}</div>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontSize:16, color:"#1C2612", fontWeight:800, letterSpacing:"-0.2px" }}>{form.name || "Abo-Name"}</div>
+          <div style={{ fontSize:12.5, color:"#8A9A7B", marginTop:2, fontWeight:500 }}>{form.category}</div>
+        </div>
+        {form.price && (
+          <div style={{ textAlign:"right" }}>
+            <div style={{ fontSize:17, color:"#1C2612", fontWeight:800 }}>{formatEur(parseFloat(form.price)||0)}</div>
+            <div style={{ fontSize:10, color:"#A4BC8E", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px", marginTop:2 }}>{cycleLabel(form)}</div>
+          </div>
+        )}
+      </div>
+
+      {initialDate && (
+        <div style={{ background:"#F2F5EF", borderRadius:14, padding:"10px 14px", marginBottom:14, display:"flex", alignItems:"center", gap:10, fontSize:13, color:"#5E7840", fontWeight:700 }}>
+          <span style={{ fontSize:16 }}>📅</span>
+          <span style={{ flex:1 }}>Startdatum: <span style={{ color:"#1C2612" }}>{(() => { const [y,m,d] = initialDate.split("-").map(Number); return formatDate(new Date(y,(m||1)-1,d||1)); })()}</span></span>
+        </div>
+      )}
+
       <div style={AS.progress}>
-        {steps.map((_,i) => <div key={i} style={{ ...AS.progressDot, background: i <= step ? "#6366F1" : "#E5E7EB" }} />)}
+        {steps.map((_,i) => <div key={i} style={{ ...AS.progressDot, background: i <= step ? "#7C9A57" : "#E1E8D9" }} />)}
       </div>
       <div style={AS.stepTitle}>{steps[step]}</div>
 
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1 }} className="fade-in" key={step}>
         {step === 0 && (
           <div>
             <input style={AS.input} placeholder="z.B. Netflix, Spotify…" value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))} autoFocus />
             <div style={AS.iconGrid}>
               {icons.map(ic => (
-                <div key={ic} style={{ ...AS.iconOpt, background: form.icon===ic ? form.color+"20" : "#F9FAFB", border: `2px solid ${form.icon===ic ? form.color : "transparent"}` }}
+                <div key={ic} className="press" style={{ ...AS.iconOpt, background: form.icon===ic ? form.color : "#F2F5EF", color: form.icon===ic ? "#fff" : "#1C2612", boxShadow: form.icon===ic ? "0 6px 14px rgba(0,0,0,0.1)" : "none" }}
                   onClick={() => setForm(f => ({ ...f, icon: ic }))}>{ic}</div>
               ))}
             </div>
             <div style={AS.colorRow}>
               {colors.map(c => (
-                <div key={c} style={{ ...AS.colorDot, background: c, transform: form.color===c ? "scale(1.25)" : "scale(1)", boxShadow: form.color===c ? `0 0 0 2px #fff, 0 0 0 4px ${c}` : "none" }}
+                <div key={c} className="press" style={{ ...AS.colorDot, background: c, transform: form.color===c ? "scale(1.18)" : "scale(1)", boxShadow: form.color===c ? `0 0 0 2px #fff, 0 0 0 4px ${c}` : "none" }}
                   onClick={() => setForm(f => ({ ...f, color: c }))} />
               ))}
             </div>
           </div>
         )}
         {step === 1 && (
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10, paddingTop:6 }}>
+            {CATEGORIES.map(c => (
+              <div key={c} className="press" style={{ background: form.category===c ? "#7C9A57" : "#F2F5EF", color: form.category===c ? "#fff" : "#1C2612", padding:"16px 14px", borderRadius:18, fontWeight:700, fontSize:14, cursor:"pointer", transition:"all .2s", textAlign:"center", boxShadow: form.category===c ? "0 8px 20px -4px rgba(124,154,87,0.4)" : "none" }}
+                onClick={() => setForm(f => ({ ...f, category: c }))}>{c}</div>
+            ))}
+          </div>
+        )}
+        {step === 2 && (
           <div style={{ padding: "20px 0" }}>
             <div style={AS.bigInput}>
-              <span style={AS.bigCurr}>€</span>
+              <span style={AS.bigCurr}>{currencySym || "€"}</span>
               <input style={AS.bigField} type="number" placeholder="0.00" value={form.price}
                 onChange={e => setForm(f => ({ ...f, price: e.target.value }))} autoFocus />
             </div>
             <div style={AS.presets}>
               {[4.99,9.99,14.99,19.99].map(p => (
-                <div key={p} style={AS.preset} onClick={() => setForm(f => ({ ...f, price: p.toString() }))}>{formatEur(p)}</div>
+                <div key={p} className="press" style={AS.preset} onClick={() => setForm(f => ({ ...f, price: p.toString() }))}>{formatEur(p)}</div>
               ))}
             </div>
           </div>
         )}
-        {step === 2 && (
+        {step === 3 && (
           <div style={{ padding: "20px 0" }}>
             <input style={AS.input} type="date" value={form.startDate}
               onChange={e => setForm(f => ({ ...f, startDate: e.target.value }))} />
           </div>
         )}
-        {step === 3 && (
+        {step === 4 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingTop: 8 }}>
             {["Monatlich","Wöchentlich","Jährlich","Benutzerdefiniert"].map(c => (
-              <div key={c} style={{ ...AS.cycleOpt, background: form.cycle===c ? "#EEF2FF" : "#F9FAFB", border: `1.5px solid ${form.cycle===c ? "#6366F1" : "transparent"}` }}
+              <div key={c} className="press" style={{ ...AS.cycleOpt, background: form.cycle===c ? "#7C9A57" : "#F2F5EF" }}
                 onClick={() => setForm(f => ({ ...f, cycle: c }))}>
-                <span style={{ color:"#111827", fontWeight:600 }}>{c}</span>
-                {form.cycle===c && <span style={{ color:"#6366F1" }}>✓</span>}
+                <span style={{ color: form.cycle===c ? "#fff" : "#1C2612", fontWeight:700 }}>{c}</span>
+                {form.cycle===c && <span style={{ width:24, height:24, borderRadius:"50%", background:"#fff", color:"#7C9A57", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:13 }}>✓</span>}
               </div>
             ))}
+            {form.cycle === "Benutzerdefiniert" && (
+              <div style={{ background:"#F2F5EF", borderRadius:18, padding:16, marginTop:6 }} className="fade-in">
+                <div style={{ fontSize:13, color:"#5E7840", fontWeight:700, marginBottom:10, textTransform:"uppercase", letterSpacing:"0.6px" }}>Alle wieviel Tage?</div>
+                <div style={{ display:"flex", alignItems:"center", background:"#fff", borderRadius:14, padding:"10px 16px", marginBottom:12 }}>
+                  <input type="number" min="1" max="365" placeholder="z.B. 14" value={form.customDays || ""}
+                    onChange={e => setForm(f => ({ ...f, customDays: e.target.value }))}
+                    style={{ flex:1, background:"transparent", border:"none", outline:"none", fontSize:24, fontWeight:800, color:"#1C2612", letterSpacing:"-0.5px", width:"100%" }} />
+                  <span style={{ fontSize:14, color:"#8A9A7B", fontWeight:700 }}>Tage</span>
+                </div>
+                <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                  {[3,7,14,30,60,90].map(n => (
+                    <div key={n} className="press"
+                      onClick={() => setForm(f => ({ ...f, customDays: String(n) }))}
+                      style={{ background: String(form.customDays)===String(n) ? "#7C9A57" : "#fff", color: String(form.customDays)===String(n) ? "#fff" : "#5E7840", borderRadius:12, padding:"8px 14px", fontSize:13, fontWeight:800, cursor:"pointer", flex:"1 1 calc(33% - 6px)", textAlign:"center" }}>
+                      {n} T.
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
       <div style={AS.navRow}>
-        {step > 0 ? <div style={AS.backBtn} onClick={() => setStep(s=>s-1)}>Zurück</div> : <div />}
-        <div style={{ ...AS.nextBtn, background: canNext ? accentGradient : "#E5E7EB", color: canNext ? "#fff" : "#9CA3AF" }}
+        {step > 0 ? <div className="press" style={AS.backBtn} onClick={() => setStep(s=>s-1)}>Zurück</div> : <div />}
+        <div className="press" style={{ ...AS.nextBtn, background: canNext ? "#7C9A57" : "#E1E8D9", color: canNext ? "#fff" : "#8A9A7B", boxShadow: canNext ? "0 16px 32px -8px rgba(124,154,87,0.5)" : "none" }}
           onClick={canNext ? nextStep : null}>
           {step === steps.length-1 ? "Hinzufügen ✓" : "Weiter →"}
         </div>
@@ -568,105 +777,168 @@ function AddScreen({ onAdd, onClose, accentGradient }) {
 }
 
 const AS = {
-  sheet: { width:"100%", background:"#fff", borderRadius:"24px 24px 0 0", padding:"0 20px 32px", display:"flex", flexDirection:"column", maxHeight:"90%", overflowY:"auto" },
-  handle: { width:36, height:4, background:"#E5E7EB", borderRadius:2, margin:"12px auto 12px" },
-  titleRow: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 },
-  sheetTitle: { fontSize:18, color:"#111827", fontWeight:800 },
-  closeBtn: { width:30, height:30, borderRadius:9, background:"#F3F4F6", display:"flex", alignItems:"center", justifyContent:"center", color:"#9CA3AF", fontSize:14, cursor:"pointer", fontWeight:600 },
-  progress: { display:"flex", gap:6, marginBottom:14 },
-  progressDot: { flex:1, height:4, borderRadius:2, transition:"background 0.3s" },
-  stepTitle: { fontSize:20, color:"#111827", fontWeight:800, marginBottom:18 },
-  input: { width:"100%", background:"#F9FAFB", border:"1.5px solid #E5E7EB", borderRadius:14, padding:"14px 16px", color:"#111827", fontSize:16, outline:"none", boxSizing:"border-box", marginBottom:14 },
-  iconGrid: { display:"grid", gridTemplateColumns:"repeat(8,1fr)", gap:8, marginBottom:14 },
-  iconOpt: { aspectRatio:"1", borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, cursor:"pointer", transition:"all 0.15s" },
+  sheet: { width:"100%", background:"#fff", borderRadius:"32px 32px 0 0", padding:"0 22px 32px", display:"flex", flexDirection:"column", maxHeight:"90%", overflowY:"auto" },
+  handle: { width:42, height:5, background:"#E1E8D9", borderRadius:3, margin:"12px auto 14px" },
+  titleRow: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 },
+  sheetTitle: { fontSize:19, color:"#1C2612", fontWeight:800, letterSpacing:"-0.3px" },
+  closeBtn: { width:34, height:34, borderRadius:12, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", color:"#8A9A7B", fontSize:14, cursor:"pointer", fontWeight:700 },
+  progress: { display:"flex", gap:6, marginBottom:18 },
+  progressDot: { flex:1, height:5, borderRadius:3, transition:"background 0.3s" },
+  stepTitle: { fontSize:22, color:"#1C2612", fontWeight:800, marginBottom:20, letterSpacing:"-0.5px" },
+  input: { width:"100%", background:"#F2F5EF", border:"none", borderRadius:16, padding:"16px 18px", color:"#1C2612", fontSize:16, fontWeight:600, outline:"none", boxSizing:"border-box", marginBottom:16 },
+  iconGrid: { display:"grid", gridTemplateColumns:"repeat(8,1fr)", gap:8, marginBottom:16 },
+  iconOpt: { aspectRatio:"1", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, cursor:"pointer", transition:"all 0.15s" },
   colorRow: { display:"flex", gap:10, paddingBottom:8 },
-  colorDot: { width:28, height:28, borderRadius:"50%", cursor:"pointer", transition:"transform 0.15s, box-shadow 0.15s" },
-  bigInput: { display:"flex", alignItems:"center", background:"#F9FAFB", borderRadius:16, padding:"10px 18px", marginBottom:16, border:"1.5px solid #E5E7EB" },
-  bigCurr: { fontSize:28, color:"#D1D5DB", fontWeight:700, marginRight:8 },
-  bigField: { flex:1, background:"transparent", border:"none", outline:"none", fontSize:36, fontWeight:800, color:"#111827", width:"100%" },
+  colorDot: { width:30, height:30, borderRadius:"50%", cursor:"pointer", transition:"transform 0.15s, box-shadow 0.15s" },
+  bigInput: { display:"flex", alignItems:"center", background:"#F2F5EF", borderRadius:18, padding:"14px 20px", marginBottom:18 },
+  bigCurr: { fontSize:30, color:"#A4BC8E", fontWeight:700, marginRight:8 },
+  bigField: { flex:1, background:"transparent", border:"none", outline:"none", fontSize:40, fontWeight:800, color:"#1C2612", width:"100%", letterSpacing:"-1px" },
   presets: { display:"flex", gap:8 },
-  preset: { flex:1, background:"#EEF2FF", borderRadius:10, padding:"8px 0", textAlign:"center", fontSize:13, color:"#6366F1", fontWeight:600, cursor:"pointer" },
-  cycleOpt: { display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 16px", borderRadius:14, cursor:"pointer", transition:"all 0.15s" },
-  navRow: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:16, gap:12 },
-  backBtn: { padding:"14px 20px", borderRadius:14, color:"#9CA3AF", fontWeight:600, fontSize:15, cursor:"pointer" },
-  nextBtn: { flex:1, padding:"15px 0", borderRadius:16, textAlign:"center", fontWeight:700, fontSize:16, cursor:"pointer", transition:"all 0.2s" },
+  preset: { flex:1, background:"#E8EFD8", borderRadius:12, padding:"10px 0", textAlign:"center", fontSize:13, color:"#5B7A3C", fontWeight:700, cursor:"pointer" },
+  cycleOpt: { display:"flex", justifyContent:"space-between", alignItems:"center", padding:"16px 18px", borderRadius:16, cursor:"pointer", transition:"all 0.15s" },
+  navRow: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:18, gap:12 },
+  backBtn: { padding:"16px 22px", borderRadius:16, color:"#8A9A7B", fontWeight:700, fontSize:15, cursor:"pointer" },
+  nextBtn: { flex:1, padding:"17px 0", borderRadius:18, textAlign:"center", fontWeight:800, fontSize:16, cursor:"pointer", transition:"all 0.2s", letterSpacing:"-0.2px" },
 };
 
 // ─── Insights Screen ────────────────────────────────────────────
+function monthlyEquivalent(sub) {
+  const c = (sub.cycle || "Monatlich");
+  if (c === "Wöchentlich") return sub.price * 4.33;
+  if (c === "Jährlich") return sub.price / 12;
+  if (c === "Benutzerdefiniert") {
+    const n = parseInt(sub.customDays, 10) || 30;
+    return sub.price * (30.4375 / n);
+  }
+  return sub.price;
+}
 function InsightsScreen({ subs, accentGradient }) {
-  const totalExpenses = subs.reduce((s, x) => s + x.price, 0);
+  const totalExpenses = subs.reduce((s, x) => s + monthlyEquivalent(x), 0);
   const catMap = {};
-  subs.forEach(s => { catMap[s.category] = (catMap[s.category] || 0) + s.price; });
+  subs.forEach(s => { const c = s.category || "Sonstiges"; catMap[c] = (catMap[c] || 0) + monthlyEquivalent(s); });
   const cats = Object.entries(catMap).sort((a,b) => b[1]-a[1]);
-  const catColors = ["#6366F1","#8B5CF6","#EC4899","#F59E0B","#22C55E","#06B6D4"];
+  const catColors = ["#7C9A57","#E8A34A","#E05A5A","#8A9A7B","#465A30","#1C2612","#4A90E2","#9013FE"];
 
-  const months = ["Jan","Feb","Mär","Apr","Mai","Jun"];
-  const expData = [72, 85, 92, 78, totalExpenses, 88];
-  const maxVal = Math.max(...expData) * 1.2;
-  const [activeBar, setActiveBar] = React.useState(4);
+  // Build SVG donut paths
+  function donutSlices(values, colors) {
+    const total = values.reduce((a,b)=>a+b,0) || 1;
+    const cx=80, cy=80, r=58, sw=18;
+    let acc = -Math.PI/2; // start from top
+    const gap = 0.04;
+    return values.map((v,i) => {
+      const frac = v/total;
+      const ang = Math.max(0, frac*2*Math.PI - gap);
+      const a0 = acc, a1 = acc + ang;
+      acc += frac*2*Math.PI;
+      const x0 = cx + r*Math.cos(a0), y0 = cy + r*Math.sin(a0);
+      const x1 = cx + r*Math.cos(a1), y1 = cy + r*Math.sin(a1);
+      const large = ang > Math.PI ? 1 : 0;
+      const d = `M ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}`;
+      return <path key={i} d={d} stroke={colors[i%colors.length]} strokeWidth={sw} fill="none" strokeLinecap="round" />;
+    });
+  }
+
+  const monthShort = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+  const today = new Date();
+  const monthList = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    monthList.push({ y: d.getFullYear(), m: d.getMonth(), label: monthShort[d.getMonth()] });
+  }
+  const months = monthList.map(x => x.label);
+  const expData = monthList.map(x => monthlySpending(subs, x.y, x.m));
+  const maxVal = Math.max(...expData, 1) * 1.2;
+  const [activeBar, setActiveBar] = React.useState(5);
 
   return (
-    <div style={INS.screen}>
+    <div style={INS.screen} className="page-in">
       <div style={INS.header}>
-        <div style={INS.title}>Einblicke</div>
-        <div style={INS.period}>Mai 2026</div>
+        <div>
+          <div style={INS.title}>Einblicke</div>
+          <div style={{ fontSize:14, color:"#8A9A7B", fontWeight:600, marginTop:4 }}>Deine Ausgabenanalyse</div>
+        </div>
+        <div style={INS.period}>Mai '26</div>
       </div>
 
-      <div style={{ ...INS.heroCard, background: accentGradient }}>
-        <div style={INS.heroLabel}>Monatliche Ausgaben</div>
-        <div style={INS.heroAmount}>−{formatEur(totalExpenses)}</div>
-        <div style={INS.heroSub}>{subs.length} aktive Abonnements</div>
-        <div style={INS.gloss1} /><div style={INS.gloss2} />
+      <div style={INS.heroCard}>
+        <div style={INS.heroBlob1} />
+        <div style={INS.heroBlob2} />
+        <div style={{ position:"relative" }}>
+          <div style={INS.heroLabel}>Monatliche Ausgaben</div>
+          <div style={INS.heroAmount}>{formatEur(totalExpenses)}</div>
+          <div style={{ display:"flex", alignItems:"center", gap:10, marginTop:14 }}>
+            <div style={{ background:"rgba(255,255,255,0.20)", color:"#fff", fontSize:11, fontWeight:800, padding:"6px 12px", borderRadius:14, border:"1px solid rgba(255,255,255,0.25)" }}>{subs.length} AKTIV</div>
+            <div style={INS.heroSub}>{formatEur(totalExpenses*12)} pro Jahr</div>
+          </div>
+        </div>
       </div>
 
       <div style={INS.card}>
-        <div style={INS.cardTitle}>Verlauf der letzten Monate</div>
+        <div style={INS.cardTitle}>6-Monats-Verlauf</div>
         <div style={INS.chartArea}>
           {months.map((m,i) => (
-            <div key={m} style={INS.barGroup} onClick={() => setActiveBar(i)}>
-              <div style={INS.barLabel2}>{i===activeBar ? "−"+formatEur(expData[i]) : ""}</div>
-              <div style={{ ...INS.bar, height:`${(expData[i]/maxVal)*80}px`, background: i===activeBar ? "#EF4444" : "#FEE2E2", borderRadius:"6px 6px 0 0", transition:"all 0.2s" }} />
-              <div style={{ ...INS.barLabel, color: i===activeBar ? "#111827" : "#9CA3AF", fontWeight: i===activeBar ? 700 : 400 }}>{m}</div>
+            <div key={m} style={INS.barGroup} className="press" onClick={() => setActiveBar(i)}>
+              <div style={INS.barLabel2}>{i===activeBar ? formatEur(expData[i]) : ""}</div>
+              <div style={{ ...INS.bar, height:`${(expData[i]/maxVal)*80}px`, background: i===activeBar ? "#7C9A57" : "#E1E8D9", borderRadius:"10px 10px 4px 4px", transition:"all 0.25s cubic-bezier(.22,1,.36,1)", boxShadow: i===activeBar ? "0 8px 16px rgba(124,154,87,0.35)" : "none" }} />
+              <div style={{ ...INS.barLabel, color: i===activeBar ? "#1C2612" : "#8A9A7B", fontWeight: i===activeBar ? 800 : 500 }}>{m}</div>
             </div>
           ))}
         </div>
       </div>
 
       <div style={INS.card}>
-        <div style={INS.cardTitle}>Nach Kategorie</div>
-        <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
-          {cats.map(([cat,val],i) => (
-            <div key={cat} style={INS.catRow}>
-              <div style={{ ...INS.catDot, background: catColors[i%catColors.length] }} />
-              <div style={{ flex:1 }}>
-                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
-                  <span style={INS.catName}>{cat}</span>
-                  <span style={INS.catVal}>{formatEur(val)}</span>
-                </div>
-                <div style={INS.catBg}>
-                  <div style={{ ...INS.catFill, width:`${(val/totalExpenses)*100}%`, background:catColors[i%catColors.length] }} />
-                </div>
+        <div style={INS.cardTitle}>Kategorien-Verteilung</div>
+        {cats.length > 0 ? (
+          <>
+            <div style={{ display:"flex", justifyContent:"center", marginBottom:16, position:"relative" }}>
+              <svg width="160" height="160" viewBox="0 0 160 160">
+                {donutSlices(cats.map(c=>c[1]), catColors)}
+              </svg>
+              <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", textAlign:"center" }}>
+                <div style={{ fontSize:11, color:"#8A9A7B", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px" }}>Monat</div>
+                <div style={{ fontSize:18, color:"#1C2612", fontWeight:800, letterSpacing:"-0.4px", marginTop:2 }}>{formatEur(totalExpenses)}</div>
               </div>
             </div>
-          ))}
-        </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
+              {cats.map(([cat,val],i) => (
+                <div key={cat} style={INS.catRow}>
+                  <div style={{ ...INS.catDot, background: catColors[i%catColors.length] }} />
+                  <div style={{ flex:1 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+                      <span style={INS.catName}>{cat}</span>
+                      <span style={{ display:"flex", gap:10, alignItems:"baseline" }}>
+                        <span style={{ fontSize:12, color:"#8A9A7B", fontWeight:600 }}>{Math.round((val/totalExpenses)*100)}%</span>
+                        <span style={INS.catVal}>{formatEur(val)}</span>
+                      </span>
+                    </div>
+                    <div style={INS.catBg}>
+                      <div style={{ ...INS.catFill, width:`${(val/totalExpenses)*100}%`, background:catColors[i%catColors.length] }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div style={{ textAlign:"center", color:"#8A9A7B", padding:"30px 0", fontSize:13.5 }}>Füge Abos hinzu, um Statistiken zu sehen</div>
+        )}
       </div>
 
       <div style={INS.card}>
         <div style={INS.cardTitle}>Alle Abonnements</div>
-        {[...subs].sort((a,b)=>b.price-a.price).map((s,i) => (
-          <div key={s.id} style={{ ...INS.subRow, borderBottom: i < subs.length-1 ? "1px solid #F3F4F6" : "none" }}>
-            <div style={{ ...INS.subIcon, background:s.color+"18", color:s.color }}>{s.icon}</div>
+        {[...subs].sort((a,b)=>monthlyEquivalent(b)-monthlyEquivalent(a)).map((s,i) => (
+          <div key={s.id} style={{ ...INS.subRow, borderBottom: i < subs.length-1 ? "1px solid #F2F5EF" : "none" }}>
+            <div style={{ ...INS.subIcon, background:s.color }}>{s.icon}</div>
             <div style={{ flex:1 }}>
               <div style={INS.subName}>{s.name}</div>
-              <div style={INS.subPct}>{Math.round((s.price/totalExpenses)*100)}% der Ausgaben</div>
+              <div style={INS.subPct}>{Math.round((monthlyEquivalent(s)/totalExpenses)*100)}% · {cycleLabel(s)}</div>
             </div>
-            <div style={INS.subPrice}>−{formatEur(s.price)}</div>
+            <div style={INS.subPrice}>{formatEur(s.price)}</div>
           </div>
         ))}
         <div style={INS.totalRow}>
-          <span style={{ color:"#9CA3AF", fontSize:13 }}>Gesamt / Monat</span>
-          <span style={{ color:"#DC2626", fontWeight:800, fontSize:16 }}>−{formatEur(totalExpenses)}</span>
+          <span style={{ color:"#8A9A7B", fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px" }}>Gesamt / Monat</span>
+          <span style={{ color:"#7C9A57", fontWeight:800, fontSize:19 }}>{formatEur(totalExpenses)}</span>
         </div>
       </div>
     </div>
@@ -674,46 +946,46 @@ function InsightsScreen({ subs, accentGradient }) {
 }
 
 const INS = {
-  screen: { flex:1, overflowY:"auto", paddingBottom:100, background:"#F7F7FB" },
-  header: { display:"flex", justifyContent:"space-between", alignItems:"center", padding:"18px 20px 14px" },
-  title: { fontSize:22, color:"#111827", fontWeight:800, letterSpacing:"-0.5px" },
-  period: { fontSize:13, color:"#6366F1", background:"#EEF2FF", padding:"5px 12px", borderRadius:20, fontWeight:700 },
-  heroCard: { margin:"0 16px 14px", borderRadius:20, padding:"22px 20px", position:"relative", overflow:"hidden", boxShadow:"0 8px 28px rgba(99,102,241,0.3)" },
-  heroLabel: { fontSize:11, color:"rgba(255,255,255,0.75)", fontWeight:600, textTransform:"uppercase", letterSpacing:1, marginBottom:4 },
-  heroAmount: { fontSize:36, color:"#fff", fontWeight:800, letterSpacing:"-1px", marginBottom:4 },
-  heroSub: { fontSize:13, color:"rgba(255,255,255,0.65)" },
-  gloss1: { position:"absolute", top:-50, right:-50, width:140, height:140, borderRadius:"50%", background:"rgba(255,255,255,0.09)", pointerEvents:"none" },
-  gloss2: { position:"absolute", bottom:-30, left:20, width:80, height:80, borderRadius:"50%", background:"rgba(255,255,255,0.05)", pointerEvents:"none" },
-  card: { margin:"0 16px 14px", background:"#fff", borderRadius:20, padding:18, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" },
-  cardTitle: { fontSize:15, color:"#111827", fontWeight:700, marginBottom:14 },
-  chartArea: { display:"flex", justifyContent:"space-between", alignItems:"flex-end", height:110, paddingBottom:0 },
-  barGroup: { flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3, cursor:"pointer" },
-  barLabel2: { fontSize:9, color:"#EF4444", fontWeight:700, height:14, textAlign:"center" },
-  bar: { width:22, minHeight:4 },
-  barLabel: { fontSize:11 },
-  catRow: { display:"flex", alignItems:"center", gap:10 },
-  catDot: { width:10, height:10, borderRadius:"50%", flexShrink:0 },
-  catName: { fontSize:13, color:"#374151" },
-  catVal: { fontSize:13, color:"#111827", fontWeight:700 },
-  catBg: { height:5, background:"#F3F4F6", borderRadius:3, overflow:"hidden" },
-  catFill: { height:"100%", borderRadius:3 },
-  subRow: { display:"flex", alignItems:"center", gap:12, padding:"10px 0" },
-  subIcon: { width:38, height:38, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:17, flexShrink:0 },
-  subName: { fontSize:14, color:"#111827", fontWeight:600 },
-  subPct: { fontSize:12, color:"#9CA3AF", marginTop:1 },
-  subPrice: { fontSize:14, color:"#DC2626", fontWeight:700 },
-  totalRow: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:12, marginTop:4, borderTop:"1px solid #F3F4F6" },
+  screen: { flex:1, overflowY:"auto", paddingBottom:110, background:"#F5F7F4" },
+  header: { display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"24px 24px 20px" },
+  title: { fontSize:28, color:"#1C2612", fontWeight:800, letterSpacing:"-0.9px" },
+  period: { fontSize:12, color:"#fff", background:"#7C9A57", padding:"8px 16px", borderRadius:20, fontWeight:800, boxShadow:"0 8px 18px rgba(124,154,87,0.45)" },
+  heroCard: { margin:"0 18px 18px", background:"#7C9A57", borderRadius:32, padding:"26px 24px", position:"relative", overflow:"hidden", boxShadow:"0 20px 40px -10px rgba(124,154,87,0.45)" },
+  heroLabel: { fontSize:13, color:"#E1E8D9", fontWeight:600, marginBottom:6 },
+  heroAmount: { fontSize:42, color:"#fff", fontWeight:800, letterSpacing:"-1.5px", lineHeight:1 },
+  heroSub: { fontSize:13, color:"#E1E8D9", fontWeight:500 },
+  heroBlob1: { position:"absolute", top:-50, right:-30, width:180, height:180, borderRadius:"50%", background:"rgba(255,255,255,0.10)", filter:"blur(24px)" },
+  heroBlob2: { position:"absolute", bottom:-40, left:-40, width:140, height:140, borderRadius:"50%", background:"rgba(255,255,255,0.10)", filter:"blur(20px)" },
+  card: { margin:"0 18px 16px", background:"#fff", borderRadius:28, padding:22, boxShadow:SHADOW_CARD },
+  cardTitle: { fontSize:17, color:"#1C2612", fontWeight:800, marginBottom:18, letterSpacing:"-0.3px" },
+  chartArea: { display:"flex", justifyContent:"space-between", alignItems:"flex-end", height:130, paddingBottom:0 },
+  barGroup: { flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:6, cursor:"pointer" },
+  barLabel2: { fontSize:10, color:"#7C9A57", fontWeight:800, height:14, textAlign:"center" },
+  bar: { width:26, minHeight:6 },
+  barLabel: { fontSize:11.5 },
+  catRow: { display:"flex", alignItems:"center", gap:12 },
+  catDot: { width:12, height:12, borderRadius:4, flexShrink:0 },
+  catName: { fontSize:14, color:"#1C2612", fontWeight:600 },
+  catVal: { fontSize:14, color:"#1C2612", fontWeight:800 },
+  catBg: { height:6, background:"#F2F5EF", borderRadius:3, overflow:"hidden" },
+  catFill: { height:"100%", borderRadius:3, transition:"width .5s ease" },
+  subRow: { display:"flex", alignItems:"center", gap:12, padding:"12px 0" },
+  subIcon: { width:42, height:42, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, color:"#fff", boxShadow:"0 3px 8px rgba(0,0,0,0.06)" },
+  subName: { fontSize:14.5, color:"#1C2612", fontWeight:700 },
+  subPct: { fontSize:12, color:"#8A9A7B", marginTop:2, fontWeight:500 },
+  subPrice: { fontSize:15, color:"#1C2612", fontWeight:800 },
+  totalRow: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:14, marginTop:6, borderTop:"1px solid #F2F5EF" },
 };
 
 // ─── Settings Screen ────────────────────────────────────────────
-function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, pushEnabled, onTogglePush, onChangeName, onResetSubs, onResetApp, subCount }) {
+function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, pushEnabled, onTogglePush, onTestPush, onChangeName, onResetSubs, onResetApp, subCount }) {
   const [editingName, setEditingName] = React.useState(false);
   const [tempName, setTempName] = React.useState(userName);
   const [confirmReset, setConfirmReset] = React.useState(null);
 
   const Toggle = ({ value, onChange }) => (
-    <div onClick={() => onChange(!value)} style={{ width: 46, height: 26, borderRadius: 13, background: value ? "#6366F1" : "#E5E7EB", position: "relative", cursor: "pointer", transition: "background 0.25s", flexShrink: 0 }}>
-      <div style={{ position: "absolute", top: 3, left: value ? 23 : 3, width: 20, height: 20, borderRadius: "50%", background: "#fff", transition: "left 0.25s", boxShadow: "0 1px 4px rgba(0,0,0,0.2)" }} />
+    <div onClick={() => onChange(!value)} style={{ width: 48, height: 28, borderRadius: 14, background: value ? "#7C9A57" : "#E1E8D9", position: "relative", cursor: "pointer", transition: "background 0.25s", flexShrink: 0, boxShadow: value ? "0 4px 10px rgba(124,154,87,0.35)" : "none" }}>
+      <div style={{ position: "absolute", top: 3, left: value ? 23 : 3, width: 22, height: 22, borderRadius: "50%", background: "#fff", transition: "left 0.25s", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }} />
     </div>
   );
 
@@ -724,9 +996,9 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
     </div>
   );
   const Row = ({ icon, label, right, border=true, onClick, danger }) => (
-    <div onClick={onClick} style={{ ...S.row, borderBottom: border ? "1px solid #F3F4F6" : "none", cursor: onClick ? "pointer" : "default" }}>
-      <span style={S.rowIcon}>{icon}</span>
-      <span style={{ ...S.rowLabel, color: danger ? "#DC2626" : "#374151" }}>{label}</span>
+    <div onClick={onClick} style={{ ...S.row, borderBottom: border ? "1px solid #F2F5EF" : "none", cursor: onClick ? "pointer" : "default" }}>
+      <span style={{ ...S.rowIcon, background: danger ? "#FCE9DD" : "#F2F5EF" }}>{icon}</span>
+      <span style={{ ...S.rowLabel, color: danger ? "#E05A5A" : "#1C2612" }}>{label}</span>
       <div>{right}</div>
     </div>
   );
@@ -737,7 +1009,7 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
   }
 
   return (
-    <div style={S.screen}>
+    <div style={S.screen} className="page-in">
       <div style={S.header}><div style={S.title}>Einstellungen</div></div>
 
       <div style={{ ...S.profileCard, background: accentGradient }}>
@@ -762,13 +1034,14 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
       </div>
 
       <Section title="Benachrichtigungen">
-        <Row icon="🔔" label="Push-Benachrichtigungen" right={<Toggle value={pushEnabled} onChange={onTogglePush} />} border={false} />
+        <Row icon="🔔" label="Push-Benachrichtigungen" right={<Toggle value={pushEnabled} onChange={onTogglePush} />} />
+        <Row icon="📨" label="Test-Benachrichtigung senden" right={<span style={{ ...S.badge, background:"#7C9A57", color:"#fff", cursor:"pointer" }} onClick={() => onTestPush && onTestPush()}>Senden</span>} border={false} />
       </Section>
 
       <Section title="Darstellung">
         <Row icon="💱" label="Währung" right={
           <select style={S.select} value={currency} onChange={e => onChangeCurrency(e.target.value)}>
-            <option>EUR</option><option>USD</option><option>GBP</option><option>CHF</option>
+            <option>EUR</option><option>USD</option><option>GBP</option><option>CHF</option><option>MAD</option>
           </select>
         } border={false} />
       </Section>
@@ -778,8 +1051,8 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
         {confirmReset === "subs" ? (
           <Row icon="⚠️" label="Wirklich alle Abos zurücksetzen?" right={
             <div style={{ display:"flex", gap:6 }}>
-              <span style={{ ...S.badge, background:"#F3F4F6", color:"#6B7280", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>Abbrechen</span>
-              <span style={{ ...S.badge, background:"#FEE2E2", color:"#DC2626", cursor:"pointer" }} onClick={() => { onResetSubs(); setConfirmReset(null); }}>Ja</span>
+              <span style={{ ...S.badge, background:"#F2F5EF", color:"#8A9A7B", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>Abbrechen</span>
+              <span style={{ ...S.badge, background:"#FCE9DD", color:"#E05A5A", cursor:"pointer" }} onClick={() => { onResetSubs(); setConfirmReset(null); }}>Ja</span>
             </div>
           } border={false} />
         ) : (
@@ -791,8 +1064,8 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
         {confirmReset === "app" ? (
           <Row icon="⚠️" label="Wirklich alles zurücksetzen?" right={
             <div style={{ display:"flex", gap:6 }}>
-              <span style={{ ...S.badge, background:"#F3F4F6", color:"#6B7280", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>Abbrechen</span>
-              <span style={{ ...S.badge, background:"#FEE2E2", color:"#DC2626", cursor:"pointer" }} onClick={() => { onResetApp(); setConfirmReset(null); }}>Ja</span>
+              <span style={{ ...S.badge, background:"#F2F5EF", color:"#8A9A7B", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>Abbrechen</span>
+              <span style={{ ...S.badge, background:"#FCE9DD", color:"#E05A5A", cursor:"pointer" }} onClick={() => { onResetApp(); setConfirmReset(null); }}>Ja</span>
             </div>
           } border={false} />
         ) : (
@@ -806,25 +1079,25 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
 }
 
 const S = {
-  screen: { flex:1, overflowY:"auto", paddingBottom:100, background:"#F7F7FB" },
-  header: { padding:"18px 20px 8px" },
-  title: { fontSize:22, color:"#111827", fontWeight:800, letterSpacing:"-0.5px" },
-  profileCard: { margin:"8px 16px 6px", borderRadius:20, padding:18, display:"flex", alignItems:"center", gap:14, position:"relative", overflow:"hidden", boxShadow:"0 8px 28px rgba(99,102,241,0.3)" },
-  avatar: { width:50, height:50, borderRadius:"50%", background:"rgba(255,255,255,0.25)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontWeight:800, fontSize:16 },
-  profileName: { fontSize:17, color:"#fff", fontWeight:700 },
-  profileEmail: { fontSize:13, color:"rgba(255,255,255,0.7)", marginTop:2 },
-  profileEdit: { marginLeft:"auto", fontSize:18, cursor:"pointer" },
-  gloss: { position:"absolute", top:-30, right:-30, width:90, height:90, borderRadius:"50%", background:"rgba(255,255,255,0.1)", pointerEvents:"none" },
-  section: { margin:"0 16px 8px" },
-  sectionLabel: { fontSize:12, color:"#9CA3AF", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.8px", marginBottom:6, paddingLeft:4 },
-  sectionCard: { background:"#fff", borderRadius:16, boxShadow:"0 1px 6px rgba(0,0,0,0.05)" },
-  row: { display:"flex", alignItems:"center", gap:12, padding:"13px 14px" },
-  rowIcon: { fontSize:18, width:26, textAlign:"center" },
-  rowLabel: { flex:1, fontSize:15, color:"#374151", fontWeight:500 },
-  chevron: { color:"#D1D5DB", fontSize:20 },
-  badge: { background:"#EEF2FF", color:"#6366F1", fontSize:12, fontWeight:600, padding:"3px 8px", borderRadius:8 },
-  select: { background:"transparent", color:"#6366F1", border:"none", outline:"none", fontSize:14, fontWeight:700, cursor:"pointer" },
-  version: { textAlign:"center", color:"#D1D5DB", fontSize:12, padding:"16px 0 4px" },
+  screen: { flex:1, overflowY:"auto", paddingBottom:110, background:"#F5F7F4" },
+  header: { padding:"24px 24px 14px" },
+  title: { fontSize:28, color:"#1C2612", fontWeight:800, letterSpacing:"-0.9px" },
+  profileCard: { margin:"6px 18px 18px", background:"#7C9A57", borderRadius:28, padding:22, display:"flex", alignItems:"center", gap:16, position:"relative", overflow:"hidden", boxShadow:"0 20px 40px -10px rgba(124,154,87,0.45)" },
+  avatar: { width:58, height:58, borderRadius:"50%", background:"#fff", display:"flex", alignItems:"center", justifyContent:"center", color:"#7C9A57", fontWeight:800, fontSize:18, boxShadow:"0 6px 14px rgba(0,0,0,0.12)" },
+  profileName: { fontSize:19, color:"#fff", fontWeight:800, letterSpacing:"-0.3px" },
+  profileEmail: { fontSize:13, color:"#E1E8D9", marginTop:3, fontWeight:600 },
+  profileEdit: { marginLeft:"auto", width:38, height:38, borderRadius:12, background:"rgba(255,255,255,0.18)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, cursor:"pointer", color:"#fff" },
+  gloss: { position:"absolute", top:-40, right:-40, width:160, height:160, borderRadius:"50%", background:"rgba(255,255,255,0.12)", filter:"blur(20px)", pointerEvents:"none" },
+  section: { margin:"0 18px 14px" },
+  sectionLabel: { fontSize:11, color:"#8A9A7B", fontWeight:800, textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:10, paddingLeft:8 },
+  sectionCard: { background:"#fff", borderRadius:24, boxShadow:SHADOW_CARD, overflow:"hidden" },
+  row: { display:"flex", alignItems:"center", gap:14, padding:"16px 18px" },
+  rowIcon: { fontSize:18, width:40, height:40, borderRadius:13, background:"#F2F5EF", color:"#5E7840", display:"flex", alignItems:"center", justifyContent:"center" },
+  rowLabel: { flex:1, fontSize:15, color:"#1C2612", fontWeight:700 },
+  chevron: { color:"#C4D4B4", fontSize:22, fontWeight:300 },
+  badge: { background:"#F2F5EF", color:"#5E7840", fontSize:12, fontWeight:800, padding:"5px 12px", borderRadius:12 },
+  select: { background:"transparent", color:"#7C9A57", border:"none", outline:"none", fontSize:14, fontWeight:800, cursor:"pointer" },
+  version: { textAlign:"center", color:"#A4BC8E", fontSize:11, padding:"18px 0 6px", fontWeight:700, letterSpacing:"0.6px" },
 };
 
 // ─── Sub Detail Screen ──────────────────────────────────────────
@@ -835,8 +1108,8 @@ function SubDetailScreen({ sub, onClose, onDelete, accentGradient }) {
   const days = daysUntil(nextDate);
 
   const Toggle = ({ value, onChange }) => (
-    <div onClick={() => onChange(!value)} style={{ width:50, height:28, borderRadius:14, background:value?"#6366F1":"#E5E7EB", position:"relative", cursor:"pointer", transition:"background 0.25s", flexShrink:0 }}>
-      <div style={{ position:"absolute", top:4, left:value?26:4, width:20, height:20, borderRadius:"50%", background:"#fff", transition:"left 0.25s", boxShadow:"0 1px 4px rgba(0,0,0,0.2)" }} />
+    <div onClick={() => onChange(!value)} style={{ width:50, height:28, borderRadius:14, background:value?"#7C9A57":"#E1E8D9", position:"relative", cursor:"pointer", transition:"background 0.25s", flexShrink:0, boxShadow: value ? "0 4px 10px rgba(124,154,87,0.35)" : "none" }}>
+      <div style={{ position:"absolute", top:4, left:value?26:4, width:20, height:20, borderRadius:"50%", background:"#fff", transition:"left 0.25s", boxShadow:"0 2px 6px rgba(0,0,0,0.2)" }} />
     </div>
   );
 
@@ -844,23 +1117,23 @@ function SubDetailScreen({ sub, onClose, onDelete, accentGradient }) {
     <div style={SD.sheet}>
       <div style={SD.handle} />
 
-      <div style={{ ...SD.hero, background: sub.color+"12", border:`1px solid ${sub.color}25` }}>
-        <div style={{ ...SD.heroIcon, background:sub.color+"20", color:sub.color }}>{sub.icon}</div>
-        <div style={{ flex:1 }}>
+      <div style={{ ...SD.hero, background: "#F2F5EF" }}>
+        <div style={{ ...SD.heroIcon, background:sub.color }}>{sub.icon}</div>
+        <div style={{ flex:1, minWidth:0 }}>
           <div style={SD.heroName}>{sub.name}</div>
           <div style={SD.heroCat}>{sub.category}</div>
         </div>
         <div style={{ textAlign:"right" }}>
           <div style={SD.heroPrice}>{formatEur(sub.price)}</div>
-          <div style={SD.heroCycle}>{sub.cycle}</div>
+          <div style={SD.heroCycle}>{cycleLabel(sub)}</div>
         </div>
       </div>
 
-      <div style={{ ...SD.countdown, borderColor: days<=2 ? "#FDE68A" : "#E0E7FF" }}>
+      <div style={SD.countdown}>
         <div style={SD.countLabel}>Nächste Abbuchung</div>
-        <div style={{ ...SD.countDays, color:days<=2?"#F59E0B":"#6366F1" }}>{daysLabel(days)}</div>
+        <div style={{ ...SD.countDays, color:days<=2?"#E05A5A":"#7C9A57" }}>{daysLabel(days)}</div>
         <div style={SD.countDate}>{formatDate(nextDate)}</div>
-        {days<=2 && <div style={SD.warn}>⚠️ Bald fällig</div>}
+        {days<=2 && <div style={SD.warn}>⚠ Bald fällig</div>}
       </div>
 
       <div style={SD.settingRow}>
@@ -878,7 +1151,7 @@ function SubDetailScreen({ sub, onClose, onDelete, accentGradient }) {
         </div>
         <div style={SD.statDiv} />
         <div style={SD.statBox}>
-          <div style={SD.statVal}>{sub.cycle}</div>
+          <div style={SD.statVal}>{cycleLabel(sub)}</div>
           <div style={SD.statLabel}>Zyklus</div>
         </div>
         <div style={SD.statDiv} />
@@ -889,15 +1162,15 @@ function SubDetailScreen({ sub, onClose, onDelete, accentGradient }) {
       </div>
 
       <div style={{ marginBottom:16 }}>
-        <div style={{ fontSize:14, color:"#9CA3AF", fontWeight:600, marginBottom:10 }}>Zahlungsverlauf</div>
+        <div style={{ fontSize:13, color:"#8A9A7B", fontWeight:700, marginBottom:12, textTransform:"uppercase", letterSpacing:"0.8px" }}>Zahlungsverlauf</div>
         {[nextDate,...sub.history].map((d,i) => (
-          <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 0", borderBottom:"1px solid #F3F4F6" }}>
-            <div style={{ width:8, height:8, borderRadius:"50%", background:i===0?"#6366F1":"#E5E7EB", flexShrink:0 }} />
+          <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:"1px solid #F2F5EF" }}>
+            <div style={{ width:8, height:8, borderRadius:"50%", background:i===0?"#7C9A57":"#E1E8D9", flexShrink:0 }} />
             <div style={{ flex:1 }}>
-              <div style={{ fontSize:14, color:"#374151", fontWeight:500 }}>{formatDate(d)}</div>
-              <div style={{ fontSize:12, marginTop:1, color:i===0?"#F59E0B":"#9CA3AF" }}>{i===0?"Ausstehend":"Bezahlt"}</div>
+              <div style={{ fontSize:14, color:"#1C2612", fontWeight:600 }}>{formatDate(d)}</div>
+              <div style={{ fontSize:12, marginTop:2, color:i===0?"#E8A34A":"#8A9A7B", fontWeight:600 }}>{i===0?"Ausstehend":"Bezahlt"}</div>
             </div>
-            <div style={{ fontSize:14, color:"#111827", fontWeight:700 }}>{formatEur(sub.price)}</div>
+            <div style={{ fontSize:14.5, color:"#1C2612", fontWeight:700 }}>{formatEur(sub.price)}</div>
           </div>
         ))}
       </div>
@@ -919,29 +1192,29 @@ function SubDetailScreen({ sub, onClose, onDelete, accentGradient }) {
 }
 
 const SD = {
-  sheet: { width:"100%", background:"#fff", borderRadius:"24px 24px 0 0", padding:"0 20px 32px", maxHeight:"90%", overflowY:"auto" },
-  handle: { width:36, height:4, background:"#E5E7EB", borderRadius:2, margin:"12px auto 16px" },
-  hero: { borderRadius:18, padding:16, display:"flex", alignItems:"center", gap:12, marginBottom:12 },
-  heroIcon: { width:52, height:52, borderRadius:16, display:"flex", alignItems:"center", justifyContent:"center", fontSize:24, flexShrink:0 },
-  heroName: { fontSize:20, color:"#111827", fontWeight:800 },
-  heroCat: { fontSize:13, color:"#9CA3AF", marginTop:2 },
-  heroPrice: { fontSize:22, color:"#111827", fontWeight:800 },
-  heroCycle: { fontSize:12, color:"#9CA3AF", marginTop:2 },
-  countdown: { background:"#F9FAFB", borderRadius:16, padding:16, marginBottom:12, border:"1px solid", position:"relative" },
-  countLabel: { fontSize:12, color:"#9CA3AF", fontWeight:500, marginBottom:4 },
-  countDays: { fontSize:24, fontWeight:800, marginBottom:2 },
-  countDate: { fontSize:14, color:"#6B7280" },
-  warn: { position:"absolute", top:12, right:14, background:"#FEF3C7", color:"#F59E0B", fontSize:12, fontWeight:600, padding:"3px 8px", borderRadius:8 },
-  settingRow: { display:"flex", justifyContent:"space-between", alignItems:"center", background:"#F9FAFB", borderRadius:16, padding:"14px 16px", marginBottom:12 },
-  settingLabel: { fontSize:15, color:"#111827", fontWeight:600 },
-  settingHint: { fontSize:12, color:"#9CA3AF", marginTop:2 },
-  stats: { display:"flex", background:"#F9FAFB", borderRadius:16, padding:"14px 0", marginBottom:12, justifyContent:"space-around", alignItems:"center" },
+  sheet: { width:"100%", background:"#fff", borderRadius:"32px 32px 0 0", padding:"0 22px 32px", maxHeight:"90%", overflowY:"auto" },
+  handle: { width:42, height:5, background:"#E1E8D9", borderRadius:3, margin:"12px auto 18px" },
+  hero: { borderRadius:24, padding:18, display:"flex", alignItems:"center", gap:14, marginBottom:14 },
+  heroIcon: { width:58, height:58, borderRadius:18, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, flexShrink:0, color:"#fff" },
+  heroName: { fontSize:22, color:"#1C2612", fontWeight:800, letterSpacing:"-0.4px" },
+  heroCat: { fontSize:13, color:"#8A9A7B", marginTop:2, fontWeight:500 },
+  heroPrice: { fontSize:23, color:"#1C2612", fontWeight:800, letterSpacing:"-0.3px" },
+  heroCycle: { fontSize:11, color:"#A4BC8E", marginTop:2, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px" },
+  countdown: { background:"#F2F5EF", borderRadius:20, padding:18, marginBottom:14, position:"relative" },
+  countLabel: { fontSize:12, color:"#8A9A7B", fontWeight:600, marginBottom:6, textTransform:"uppercase", letterSpacing:"0.8px" },
+  countDays: { fontSize:26, fontWeight:800, marginBottom:2, letterSpacing:"-0.5px" },
+  countDate: { fontSize:14, color:"#5E7840", fontWeight:600 },
+  warn: { position:"absolute", top:14, right:16, background:"#E05A5A", color:"#fff", fontSize:11, fontWeight:800, padding:"5px 10px", borderRadius:10, textTransform:"uppercase", letterSpacing:"0.6px" },
+  settingRow: { display:"flex", justifyContent:"space-between", alignItems:"center", background:"#F2F5EF", borderRadius:20, padding:"16px 18px", marginBottom:14 },
+  settingLabel: { fontSize:15, color:"#1C2612", fontWeight:700 },
+  settingHint: { fontSize:12, color:"#8A9A7B", marginTop:2, fontWeight:500 },
+  stats: { display:"flex", background:"#F2F5EF", borderRadius:20, padding:"16px 0", marginBottom:14, justifyContent:"space-around", alignItems:"center" },
   statBox: { textAlign:"center", flex:1 },
-  statVal: { fontSize:16, color:"#111827", fontWeight:800 },
-  statLabel: { fontSize:11, color:"#9CA3AF", marginTop:2 },
-  statDiv: { width:1, height:32, background:"#E5E7EB" },
-  editBtn: { flex:1, background:"#F3F4F6", borderRadius:14, padding:"14px 0", textAlign:"center", color:"#374151", fontWeight:700, fontSize:15, cursor:"pointer" },
-  deleteBtn: { flex:1, background:"#FEF2F2", border:"1px solid #FECACA", borderRadius:14, padding:"14px 0", textAlign:"center", color:"#DC2626", fontWeight:700, fontSize:15, cursor:"pointer", transition:"all 0.2s" },
+  statVal: { fontSize:16, color:"#1C2612", fontWeight:800 },
+  statLabel: { fontSize:11, color:"#8A9A7B", marginTop:3, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.6px" },
+  statDiv: { width:1, height:36, background:"#E1E8D9" },
+  editBtn: { flex:1, background:"#F2F5EF", borderRadius:18, padding:"16px 0", textAlign:"center", color:"#5E7840", fontWeight:800, fontSize:15, cursor:"pointer" },
+  deleteBtn: { flex:1, background:"rgba(224,90,90,0.10)", borderRadius:18, padding:"16px 0", textAlign:"center", color:"#E05A5A", fontWeight:800, fontSize:15, cursor:"pointer", transition:"all 0.2s" },
 };
 
 // ─── Install Prompt ─────────────────────────────────────────────
@@ -990,25 +1263,25 @@ function InstallPrompt({ accentGradient }) {
   if (!show) return null;
 
   return (
-    <div style={{ position:"absolute", bottom:90, left:12, right:12, background:"#fff", borderRadius:18, padding:14, boxShadow:"0 12px 40px rgba(0,0,0,0.22)", border:"1px solid #E5E7EB", zIndex:300 }} className="slide-up">
+    <div style={{ position:"absolute", bottom:96, left:12, right:12, background:"#fff", borderRadius:24, padding:16, boxShadow:"0 18px 44px -8px rgba(0,0,0,0.18)", zIndex:300 }} className="slide-up">
       <div style={{ display:"flex", alignItems:"flex-start", gap:12 }}>
-        <div style={{ width:44, height:44, borderRadius:12, background: accentGradient, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:22, color:"#fff" }}>📲</div>
+        <div style={{ width:46, height:46, borderRadius:14, background: "#7C9A57", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:22, color:"#fff", boxShadow:"0 8px 18px -4px rgba(124,154,87,0.45)" }}>📲</div>
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontSize:14, fontWeight:800, color:"#111827", marginBottom:4 }}>Subly auf dem Handy installieren</div>
+          <div style={{ fontSize:14.5, fontWeight:800, color:"#1C2612", marginBottom:4, letterSpacing:"-0.2px" }}>Subly installieren</div>
           {platform === "ios" ? (
-            <div style={{ fontSize:12.5, color:"#6B7280", lineHeight:1.5 }}>
-              Tippe unten in Safari auf <span style={{ display:"inline-block", padding:"1px 6px", background:"#EEF2FF", borderRadius:5, color:"#6366F1", fontWeight:700 }}>Teilen ⬆︎</span> und dann auf <strong style={{ color:"#111827" }}>„Zum Home-Bildschirm“</strong>, um Subly wie eine App zu nutzen.
+            <div style={{ fontSize:12.5, color:"#5E7840", lineHeight:1.55 }}>
+              Tippe unten in Safari auf <span style={{ display:"inline-block", padding:"2px 7px", background:"#F2F5EF", borderRadius:6, color:"#5E7840", fontWeight:700 }}>Teilen ⬆︎</span> und dann auf <strong style={{ color:"#1C2612" }}>„Zum Home-Bildschirm"</strong>.
             </div>
           ) : (
-            <div style={{ fontSize:12.5, color:"#6B7280", lineHeight:1.5 }}>
+            <div style={{ fontSize:12.5, color:"#5E7840", lineHeight:1.55 }}>
               Füge Subly zu deinem Startbildschirm hinzu, um sie wie eine App zu nutzen.
             </div>
           )}
         </div>
-        <div onClick={dismiss} style={{ width:26, height:26, borderRadius:7, background:"#F3F4F6", display:"flex", alignItems:"center", justifyContent:"center", color:"#9CA3AF", cursor:"pointer", flexShrink:0, fontSize:12, fontWeight:700 }}>✕</div>
+        <div onClick={dismiss} className="press" style={{ width:28, height:28, borderRadius:9, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", color:"#8A9A7B", cursor:"pointer", flexShrink:0, fontSize:13, fontWeight:700 }}>✕</div>
       </div>
       {platform === "android" && (
-        <div onClick={install} style={{ marginTop:12, background: accentGradient, color:"#fff", borderRadius:12, padding:"10px 0", textAlign:"center", fontWeight:700, fontSize:14, cursor:"pointer" }}>
+        <div onClick={install} className="press" style={{ marginTop:12, background: "#7C9A57", color:"#fff", borderRadius:14, padding:"12px 0", textAlign:"center", fontWeight:800, fontSize:14, cursor:"pointer", boxShadow:"0 12px 24px -6px rgba(124,154,87,0.45)" }}>
           Installieren
         </div>
       )}
@@ -1017,9 +1290,20 @@ function InstallPrompt({ accentGradient }) {
 }
 
 // ─── App ────────────────────────────────────────────────────────
-const ACCENT_START = "#6366F1";
-const ACCENT_END = "#8B5CF6";
-const ROUNDNESS = 20;
+const ACCENT_START = "#8EB073";
+const ACCENT_END = "#7C9A57";
+const ACCENT_DARK = "#465A30";
+const ACCENT_LIGHT = "#E1E8D9";
+const ACCENT_TINT = "#F2F5EF";
+const BG_WARM = "#F5F7F4";
+const BG_CARD = "#FFFFFF";
+const TEXT_DARK = "#1C2612";
+const TEXT_MUTED = "#8A9A7B";
+const DANGER = "#E05A5A";
+const WARNING = "#E8A34A";
+const ROUNDNESS = 28;
+const SHADOW_CARD = "0 12px 36px -8px rgba(0,0,0,0.06), 0 4px 12px -4px rgba(0,0,0,0.04)";
+const SHADOW_FLOAT = "0 20px 40px -10px rgba(124, 154, 87, 0.4)";
 
 function App() {
   const accentGradient = `linear-gradient(135deg, ${ACCENT_START}, ${ACCENT_END})`;
@@ -1042,6 +1326,9 @@ function App() {
   }, [subs]);
   const [activeTab, setActiveTab] = React.useState("home");
   const [showAdd, setShowAdd] = React.useState(false);
+  const [addPrefillDate, setAddPrefillDate] = React.useState("");
+  function openAddOnDate(dateISO) { setAddPrefillDate(dateISO); setShowAdd(true); setActiveTab(prev => prev); }
+  function closeAdd() { setShowAdd(false); setAddPrefillDate(""); }
   const [selectedSub, setSelectedSub] = React.useState(null);
   const [notification, setNotification] = React.useState(null);
 
@@ -1057,10 +1344,26 @@ function App() {
     window.__SUBLY_CURRENCY = c;
     setCurrency(c);
   }
-  function handleTogglePush(v) {
+  async function handleTogglePush(v) {
     try { localStorage.setItem("subly:push", v ? "1" : "0"); } catch {}
     setPushEnabled(v);
-    if (!v) setNotification(null);
+    if (!v) { setNotification(null); return; }
+    if ("Notification" in window && Notification.permission === "default") {
+      try { await Notification.requestPermission(); } catch {}
+    }
+  }
+  function fireBrowserNotification(title, body) {
+    if (!("Notification" in window)) return false;
+    if (Notification.permission !== "granted") return false;
+    try { new Notification(title, { body, icon: "icon.svg", badge: "icon.svg", tag: "subly-reminder" }); return true; } catch { return false; }
+  }
+  function sendTestNotification() {
+    const msg = subs.length === 0
+      ? "Test-Benachrichtigung: Subly funktioniert! 🎉"
+      : `Test: Dein nächstes Abo wird in Kürze fällig`;
+    setNotification(msg);
+    fireBrowserNotification("Subly · Test", msg);
+    setTimeout(() => setNotification(null), 4500);
   }
   function handleResetSubs() {
     setSubs(INITIAL_SUBS);
@@ -1083,16 +1386,16 @@ function App() {
   React.useEffect(() => {
     if (!userName || !pushEnabled || subs.length === 0) return;
     const upcoming = subs
-      .map(s => ({ s, next: nextOccurrence(s) }))
+      .map(s => ({ s, next: nextOccurrence(s), days: daysUntil(nextOccurrence(s)) }))
+      .filter(x => x.days >= 0 && x.days <= 7)
       .sort((a, b) => a.next - b.next)[0];
     if (!upcoming) return;
-    const d = daysUntil(upcoming.next);
-    const sub = upcoming.s;
-    if (d < 0 || d > 3) return;
     const t = setTimeout(() => {
-      setNotification(`Dein ${sub.name}-Abonnement wird ${daysLabel(d).toLowerCase()} abgebucht`);
-      setTimeout(() => setNotification(null), 4000);
-    }, 2000);
+      const msg = `Dein ${upcoming.s.name}-Abo wird ${daysLabel(upcoming.days).toLowerCase()} abgebucht (${formatEur(upcoming.s.price)})`;
+      setNotification(msg);
+      fireBrowserNotification("Subly · Erinnerung", msg);
+      setTimeout(() => setNotification(null), 5500);
+    }, 1200);
     return () => clearTimeout(t);
   }, [userName, pushEnabled, subs]);
 
@@ -1104,35 +1407,35 @@ function App() {
     } else {
       nd = new Date(2026, 4, 10);
     }
-    setSubs(s => [...s, { id: Date.now(), ...data, nextDate: nd, autoRenew: true, history: [], category: "Sonstiges", cycle: data.cycle || "Monatlich" }]);
+    setSubs(s => [...s, { id: Date.now(), ...data, nextDate: nd, autoRenew: true, history: [], category: data.category || "Sonstiges", cycle: data.cycle || "Monatlich" }]);
   }
 
   function handleDelete(id) { setSubs(s => s.filter(x => x.id !== id)); }
 
   const tabs = [
-    { id: "home",     icon: "⊞", label: "Übersicht" },
+    { id: "home",     icon: "🏠", label: "Home" },
     { id: "calendar", icon: "📅", label: "Kalender" },
     { id: "add",      icon: "+",  label: "",         special: true },
     { id: "insights", icon: "📊", label: "Einblicke" },
-    { id: "settings", icon: "⚙️", label: "Einstellungen" },
+    { id: "settings", icon: "⚙️", label: "Optionen" },
   ];
 
   const screens = {
     home:     <HomeScreen key="home" subs={subs} onSwipeDelete={handleDelete} onSubClick={setSelectedSub} accentGradient={accentGradient} userName={userName} />,
-    calendar: <CalendarScreen key="cal" subs={subs} />,
+    calendar: <CalendarScreen key="cal" subs={subs} onAddOnDate={openAddOnDate} />,
     insights: <InsightsScreen key="ins" subs={subs} accentGradient={accentGradient} />,
-    settings: <SettingsScreen key="set" accentGradient={accentGradient} userName={userName} currency={currency} onChangeCurrency={handleChangeCurrency} pushEnabled={pushEnabled} onTogglePush={handleTogglePush} onChangeName={handleNameSubmit} onResetSubs={handleResetSubs} onResetApp={handleResetApp} subCount={subs.length} />,
+    settings: <SettingsScreen key="set" accentGradient={accentGradient} userName={userName} currency={currency} onChangeCurrency={handleChangeCurrency} pushEnabled={pushEnabled} onTogglePush={handleTogglePush} onTestPush={sendTestNotification} onChangeName={handleNameSubmit} onResetSubs={handleResetSubs} onResetApp={handleResetApp} subCount={subs.length} />,
   };
 
   const br = ROUNDNESS + 8;
 
   return (
     <div className="app-wrap" style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"100vh", padding:16 }}>
-      <div className="phone-shell" style={{ width:390, height:844, background:"#F7F7FB", borderRadius:br, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:`0 32px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.05) inset, 0 0 0 10px #CBCBDB`, position:"relative", flexShrink:0 }}>
+      <div className="phone-shell" style={{ width:390, height:844, background:"#F5F7F4", borderRadius:br, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:`0 32px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.05) inset, 0 0 0 10px #C4D4B4`, position:"relative", flexShrink:0 }}>
 
-        <div className="fake-statusbar" style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 24px 6px", flexShrink:0, background:"#F7F7FB" }}>
-          <span style={{ fontSize:15, color:"#111827", fontWeight:700 }}>9:41</span>
-          <div style={{ display:"flex", gap:6, fontSize:10, color:"#6B7280", alignItems:"center" }}>
+        <div className="fake-statusbar" style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 24px 6px", flexShrink:0, background:"#F5F7F4" }}>
+          <span style={{ fontSize:15, color:"#1C2612", fontWeight:700 }}>9:41</span>
+          <div style={{ display:"flex", gap:6, fontSize:10, color:"#8A9A7B", alignItems:"center" }}>
             <span>●●●</span><span>WiFi</span><span>🔋</span>
           </div>
         </div>
@@ -1147,15 +1450,15 @@ function App() {
 
 
         {showAdd && (
-          <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"flex-end", zIndex:200, background:"rgba(17,24,39,0.45)", backdropFilter:"blur(6px)" }} onClick={e => e.target===e.currentTarget && setShowAdd(false)}>
+          <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"flex-end", zIndex:200, background:"rgba(28,38,18,0.45)", backdropFilter:"blur(6px)" }} onClick={e => e.target===e.currentTarget && closeAdd()}>
             <div style={{ width:"100%", position:"relative" }} className="slide-up">
-              <AddScreen onAdd={handleAdd} onClose={() => setShowAdd(false)} accentGradient={accentGradient} />
+              <AddScreen onAdd={handleAdd} onClose={closeAdd} accentGradient={accentGradient} initialDate={addPrefillDate} />
             </div>
           </div>
         )}
 
         {selectedSub && (
-          <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"flex-end", zIndex:200, background:"rgba(17,24,39,0.45)", backdropFilter:"blur(6px)" }} onClick={e => e.target===e.currentTarget && setSelectedSub(null)}>
+          <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"flex-end", zIndex:200, background:"rgba(28,38,18,0.45)", backdropFilter:"blur(6px)" }} onClick={e => e.target===e.currentTarget && setSelectedSub(null)}>
             <div style={{ width:"100%", position:"relative" }} className="slide-up">
               <SubDetailScreen sub={selectedSub} onClose={() => setSelectedSub(null)} onDelete={handleDelete} accentGradient={accentGradient} />
             </div>
@@ -1164,9 +1467,9 @@ function App() {
 
         <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden", position:"relative" }}>
           {notification && (
-            <div style={{ position:"absolute", top:8, left:16, right:16, background:"#fff", borderRadius:16, padding:"12px 14px", display:"flex", alignItems:"center", gap:10, zIndex:40, boxShadow:"0 8px 24px rgba(0,0,0,0.1)", border:"1px solid #E5E7EB" }} className="notif-in">
-              <span style={{ fontSize:18 }}>🔔</span>
-              <span style={{ fontSize:13, color:"#374151", lineHeight:1.4, flex:1 }}>{notification}</span>
+            <div style={{ position:"absolute", top:10, left:16, right:16, background:"#1C2612", borderRadius:20, padding:"14px 16px", display:"flex", alignItems:"center", gap:12, zIndex:40, boxShadow:"0 14px 30px -6px rgba(28,38,18,0.4)" }} className="notif-in">
+              <div style={{ width:36, height:36, borderRadius:11, background:"rgba(168,210,106,0.18)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>🔔</div>
+              <span style={{ fontSize:13, color:"#E1E8D9", lineHeight:1.4, flex:1, fontWeight:500 }}>{notification}</span>
             </div>
           )}
           <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }} className="fade-in" key={activeTab}>
@@ -1175,25 +1478,29 @@ function App() {
           <InstallPrompt accentGradient={accentGradient} />
         </div>
 
-        <div style={{ display:"flex", alignItems:"center", background:"#fff", borderTop:"1px solid #F3F4F6", paddingBottom:4, height:72, flexShrink:0, boxShadow:"0 -4px 20px rgba(0,0,0,0.04)" }}>
-          {tabs.map(t => t.special ? (
-            <div key="add" style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }} onClick={() => setShowAdd(true)}>
-              <div style={{ width:56, height:56, borderRadius:18, background:accentGradient, display:"flex", alignItems:"center", justifyContent:"center", boxShadow:`0 4px 20px rgba(99,102,241,0.4)`, marginTop:-20 }}>
-                <span style={{ color:"#fff", fontSize:28, fontWeight:300, lineHeight:1, marginTop:-2 }}>+</span>
-              </div>
-            </div>
-          ) : (
-            <div key={t.id} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:2, cursor:"pointer", position:"relative", paddingTop:8, height:"100%" }}
-              onClick={() => setActiveTab(t.id)}>
-              <span style={{ fontSize: t.id==="settings" ? 16 : 18, lineHeight:1 }}>{t.icon}</span>
-              <span style={{ fontSize:10, fontWeight:600, color: activeTab===t.id ? ACCENT_END : "#9CA3AF", transition:"color 0.2s" }}>{t.label}</span>
-              {activeTab===t.id && <div style={{ width:4, height:4, borderRadius:"50%", background:ACCENT_END, position:"absolute", bottom:6 }} />}
-            </div>
-          ))}
+        <div style={{ position:"relative", flexShrink:0 }}>
+          {/* Floating + FAB raised above the bar */}
+          <div onClick={() => { setAddPrefillDate(""); setShowAdd(true); }} className="press fab-glow"
+               style={{ position:"absolute", left:"50%", top:-26, transform:"translateX(-50%)", width:60, height:60, borderRadius:"50%", background:"#7C9A57", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", border:"5px solid #fff", zIndex:10 }}>
+            <span style={{ color:"#fff", fontSize:30, fontWeight:300, lineHeight:1, marginTop:-3 }}>+</span>
+          </div>
+          <div style={{ display:"flex", alignItems:"flex-end", background:"#fff", borderRadius:"28px 28px 0 0", paddingBottom:4, height:78, boxShadow:"0 -10px 40px -10px rgba(0,0,0,0.08)" }}>
+            {tabs.filter(t => !t.special).map((t, idx) => (
+              <React.Fragment key={t.id}>
+                {idx === 2 && <div style={{ flex:1 }} />}
+                <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:3, cursor:"pointer", position:"relative", paddingTop:14, height:"100%" }}
+                     onClick={() => setActiveTab(t.id)}>
+                  <span style={{ fontSize:20, lineHeight:1, filter: activeTab===t.id ? "none" : "grayscale(100%) opacity(0.55)", transition:"filter 0.25s" }}>{t.icon}</span>
+                  <span style={{ fontSize:11, fontWeight:800, color: activeTab===t.id ? "#5E7840" : "#A4BC8E", transition:"color 0.2s", letterSpacing:"-0.1px" }}>{t.label}</span>
+                  {activeTab===t.id && <div className="dot-pop" style={{ width:5, height:5, borderRadius:"50%", background:"#7C9A57", position:"absolute", bottom:8 }} />}
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
         </div>
 
         <div className="home-indicator" style={{ height:20, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, background:"#fff" }}>
-          <div style={{ width:120, height:4, borderRadius:2, background:"#D1D5DB" }} />
+          <div style={{ width:120, height:4, borderRadius:2, background:"#E1E8D9" }} />
         </div>
         </>)}
       </div>
