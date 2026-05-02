@@ -1247,9 +1247,10 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate, onOpenPicker }
         )}
         {step === 3 && (
           <div style={{ padding: "20px 0" }}>
-            <div style={{ position: "relative" }}>
+            <div style={{ position: "relative", cursor: "pointer" }} onClick={() => onOpenPicker(form.startDate, d => setForm(f => ({ ...f, startDate: d, startDateInput: undefined })))}>
               <input style={{ ...AS.input, paddingLeft: 46 }} type="text" placeholder="dd.mm.yyyy" 
                 value={form.startDateInput !== undefined ? form.startDateInput : formatDateLong(form.startDate)}
+                onClick={e => e.stopPropagation()}
                 onChange={e => {
                   const val = maskDateInput(e.target.value);
                   setForm(f => ({ ...f, startDateInput: val }));
@@ -1258,7 +1259,7 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate, onOpenPicker }
                 }}
                 onBlur={() => setForm(f => ({ ...f, startDateInput: undefined }))}
               />
-              <span className="press" onClick={() => onOpenPicker(form.startDate, d => setForm(f => ({ ...f, startDate: d, startDateInput: undefined })))} style={{ position: "absolute", left: 16, top: 22, fontSize: 18, cursor:"pointer" }}>📅</span>
+              <span className="press" style={{ position: "absolute", left: 16, top: 22, fontSize: 18 }}>📅</span>
             </div>
           </div>
         )}
@@ -1992,9 +1993,10 @@ function EditSubScreen({ sub, onSave, onClose, onDelete, onOpenPicker }) {
         {/* Start date */}
         <div>
           <div style={ES.label}>{t("card.nextPayment")}</div>
-          <div style={{ position: "relative" }}>
+          <div style={{ position: "relative", cursor: "pointer" }} onClick={() => onOpenPicker(form.startDate, d => setForm(f => ({ ...f, startDate: d, startDateInput: undefined })))}>
             <input style={{ ...AS.input, paddingLeft: 46 }} type="text" placeholder="dd.mm.yyyy" 
               value={form.startDateInput !== undefined ? form.startDateInput : formatDateLong(form.startDate)}
+              onClick={e => e.stopPropagation()}
               onChange={e => {
                 const val = maskDateInput(e.target.value);
                 setForm(f => ({ ...f, startDateInput: val }));
@@ -2003,7 +2005,7 @@ function EditSubScreen({ sub, onSave, onClose, onDelete, onOpenPicker }) {
               }}
               onBlur={() => setForm(f => ({ ...f, startDateInput: undefined }))}
             />
-            <span className="press" onClick={() => onOpenPicker(form.startDate, d => setForm(f => ({ ...f, startDate: d, startDateInput: undefined })))} style={{ position: "absolute", left: 16, top: 22, fontSize: 18, cursor:"pointer" }}>📅</span>
+            <span className="press" style={{ position: "absolute", left: 16, top: 22, fontSize: 18 }}>📅</span>
           </div>
         </div>
 
