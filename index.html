@@ -626,6 +626,7 @@ function WelcomeScreen({ onSubmit, accentGradient }) {
           value={name}
           onChange={e => setName(e.target.value)}
           onKeyDown={e => e.key === "Enter" && submit()}
+          onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
           style={{ width:"100%", background:"#fff", border:"none", borderRadius:24, padding:"18px 22px", color:"#1C2612", fontSize:16, fontWeight:600, outline:"none", marginBottom:14, boxShadow:"0 12px 36px -8px rgba(0,0,0,0.06), 0 4px 12px -4px rgba(0,0,0,0.04)" }}
         />
         <div
@@ -668,7 +669,7 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName,
   const upcoming = sortedByNext;
 
   return (
-    <div style={H.screen} className="page-in">
+    <div style={{ ...H.screen, height: "100dvh" }} className="page-in">
       <div style={H.greetingRow}>
         <div style={{ minWidth:0, flex:1 }}>
           <div style={H.greeting}>{t("home.greeting")} 👋</div>
@@ -908,7 +909,7 @@ function CalendarScreen({ subs, onAddOnDate }) {
   const monthExpenses = Object.values(eventMap).flat().reduce((s,x) => s + x.price, 0);
 
   return (
-    <div style={CAL.screen} className="page-in">
+    <div style={{ ...CAL.screen, height: "100dvh" }} className="page-in">
       <div style={CAL.header}>
         <div style={CAL.monthTitle}>{monthNames[month]} {year}</div>
         <div style={CAL.navRow}>
@@ -1088,10 +1089,11 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
       </div>
       <div style={AS.stepTitle}>{steps[step]}</div>
 
-      <div style={{ flex: 1 }} className="fade-in" key={step}>
+      <div style={{ flex: 1, overflowY: "auto", paddingBottom: 20 }} className="fade-in" key={step}>
         {step === 0 && (
           <div>
             <input style={AS.input} placeholder="z.B. Netflix, Spotify…" value={form.name}
+              onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))} autoFocus />
             <div style={AS.iconGrid}>
               {icons.map(ic => (
@@ -1118,7 +1120,7 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
         {step === 1 && (
           <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10, paddingTop:6 }}>
             {CATEGORIES.map(c => (
-              <div key={c} className="press" style={{ background: form.category===c ? "#7C9A57" : "#F2F5EF", color: form.category===c ? "#fff" : "#1C2612", padding:"16px 14px", borderRadius:18, fontWeight:700, fontSize:14, cursor:"pointer", transition:"all .2s", textAlign:"center", boxShadow: form.category===c ? "0 8px 20px -4px rgba(124,154,87,0.4)" : "none" }}
+              <div key={c} className="press" style={{ background: form.category===c ? "#7C9A57" : "#F2F5EF", color: form.category===c ? "#fff" : "#1C2612", padding:"16px 14px", borderRadius:18, fontWeight:700, fontSize:14, cursor:"pointer", transition:"all 0.2s", textAlign:"center", boxShadow: form.category===c ? "0 8px 20px -4px rgba(124,154,87,0.4)" : "none" }}
                 onClick={() => setForm(f => ({ ...f, category: c }))}>{c}</div>
             ))}
           </div>
@@ -1128,6 +1130,7 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
             <div style={AS.bigInput}>
               <span style={AS.bigCurr}>{currencySym || "€"}</span>
               <input style={AS.bigField} type="number" placeholder="0.00" value={form.price}
+                onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
                 onChange={e => setForm(f => ({ ...f, price: e.target.value }))} autoFocus />
             </div>
             <div style={AS.presets}>
@@ -1140,6 +1143,7 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
         {step === 3 && (
           <div style={{ padding: "20px 0" }}>
             <input style={AS.input} type="date" value={form.startDate}
+              onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
               onChange={e => setForm(f => ({ ...f, startDate: e.target.value }))} />
           </div>
         )}
@@ -1157,6 +1161,7 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
                 <div style={{ fontSize:13, color:"#5E7840", fontWeight:700, marginBottom:10, textTransform:"uppercase", letterSpacing:"0.6px" }}>{t("add.customDaysLabel")}</div>
                 <div style={{ display:"flex", alignItems:"center", background:"#fff", borderRadius:14, padding:"10px 16px", marginBottom:12 }}>
                   <input type="number" min="1" max="365" placeholder="z.B. 14" value={form.customDays || ""}
+                    onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
                     onChange={e => setForm(f => ({ ...f, customDays: e.target.value }))}
                     style={{ flex:1, background:"transparent", border:"none", outline:"none", fontSize:24, fontWeight:800, color:"#1C2612", letterSpacing:"-0.5px", width:"100%" }} />
                   <span style={{ fontSize:14, color:"#8A9A7B", fontWeight:700 }}>{t("add.daysLabel")}</span>
@@ -1179,9 +1184,11 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
           <div style={{ padding: "20px 0" }}>
             <div style={ES.label}>{t("add.bankName")}</div>
             <input style={AS.input} placeholder={t("add.bankNamePlaceholder")} value={form.paymentMethod?.bankName || ""}
+              onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
               onChange={e => setForm(f => ({ ...f, paymentMethod: { ...f.paymentMethod, bankName: e.target.value } }))} autoFocus />
             <div style={{ ...ES.label, marginTop: 12 }}>{t("add.last4")}</div>
             <input style={AS.input} placeholder={t("add.last4Placeholder")} maxLength="4" value={form.paymentMethod?.last4 || ""}
+              onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
               onChange={e => setForm(f => ({ ...f, paymentMethod: { ...f.paymentMethod, last4: e.target.value } }))} />
           </div>
         )}
@@ -1198,7 +1205,7 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
 }
 
 const AS = {
-  sheet: { width:"100%", background:"#fff", borderRadius:"32px 32px 0 0", padding:"0 22px 32px", display:"flex", flexDirection:"column", maxHeight:"90%", overflowY:"auto" },
+  sheet: { width:"100%", background:"#fff", borderRadius:"32px 32px 0 0", padding:"0 22px 32px", display:"flex", flexDirection:"column", maxHeight:"85dvh", overflowY:"auto" },
   handle: { width:42, height:5, background:"#E1E8D9", borderRadius:3, margin:"12px auto 14px" },
   titleRow: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 },
   sheetTitle: { fontSize:19, color:"#1C2612", fontWeight:800, letterSpacing:"-0.3px" },
@@ -1287,7 +1294,7 @@ function InsightsScreen({ subs, accentGradient }) {
   const [activeBar, setActiveBar] = React.useState(5);
 
   return (
-    <div style={INS.screen} className="page-in">
+    <div style={{ ...INS.screen, height: "100dvh" }} className="page-in">
       <div style={INS.header}>
         <div>
           <div style={INS.title}>{t("insights.title")}</div>
@@ -1481,7 +1488,7 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
   }
 
   return (
-    <div style={S.screen} className="page-in">
+    <div style={{ ...S.screen, height: "100dvh" }} className="page-in">
       <div style={S.header}><div style={S.title}>{t("settings.title")}</div></div>
 
       <div style={{ ...S.profileCard, background: accentGradient }}>
@@ -1500,6 +1507,7 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
             <input
               autoFocus
               value={tempName}
+              onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
               onChange={e => setTempName(e.target.value)}
               onBlur={saveName}
               onKeyDown={e => { if (e.key === "Enter") saveName(); if (e.key === "Escape") { setTempName(userName); setEditingName(false); } }}
@@ -1637,7 +1645,7 @@ function SubDetailScreen({ sub, onClose, onDelete, onEdit, accentGradient }) {
   );
 
   return (
-    <div style={SD.sheet}>
+    <div style={{ ...SD.sheet, maxHeight:"85dvh" }}>
       <div style={SD.handle} />
 
       <div style={{ ...SD.hero, background: "#F2F5EF" }}>
@@ -1806,7 +1814,9 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
         {/* Name */}
         <div>
           <div style={ES.label}>{t("edit.name")}</div>
-          <input style={AS.input} value={form.name} placeholder="z.B. Netflix" onChange={e => setForm(f=>({...f, name:e.target.value}))} />
+          <input style={AS.input} value={form.name} placeholder="z.B. Netflix" 
+            onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
+            onChange={e => setForm(f=>({...f, name:e.target.value}))} />
         </div>
 
         {/* Icon row */}
@@ -1854,6 +1864,7 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
           <div style={AS.bigInput}>
             <span style={AS.bigCurr}>{currSym}</span>
             <input style={AS.bigField} type="number" placeholder="0.00" value={form.price}
+              onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
               onChange={e => setForm(f=>({...f, price:e.target.value}))} />
           </div>
           <div style={AS.presets}>
@@ -1866,7 +1877,9 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
         {/* Start date */}
         <div>
           <div style={ES.label}>{t("card.nextPayment")}</div>
-          <input style={AS.input} type="date" value={form.startDate} onChange={e => setForm(f=>({...f, startDate:e.target.value}))} />
+          <input style={AS.input} type="date" value={form.startDate} 
+            onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
+            onChange={e => setForm(f=>({...f, startDate:e.target.value}))} />
         </div>
 
         {/* Cycle */}
@@ -1908,8 +1921,12 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
         <div>
           <div style={ES.label}>{t("add.stepPayment")}</div>
           <div style={{ display: "flex", gap: 10 }}>
-            <input style={{ ...AS.input, marginBottom: 0, flex: 2 }} placeholder={t("add.bankNamePlaceholder")} value={form.paymentMethod?.bankName || ""} onChange={e => setForm(f=>({...f, paymentMethod: {...f.paymentMethod, bankName: e.target.value}}))} />
-            <input style={{ ...AS.input, marginBottom: 0, flex: 1 }} placeholder={t("add.last4Placeholder")} maxLength="4" value={form.paymentMethod?.last4 || ""} onChange={e => setForm(f=>({...f, paymentMethod: {...f.paymentMethod, last4: e.target.value}}))} />
+            <input style={{ ...AS.input, marginBottom: 0, flex: 2 }} placeholder={t("add.bankNamePlaceholder")} value={form.name} 
+              onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
+              onChange={e => setForm(f=>({...f, paymentMethod: {...f.paymentMethod, bankName: e.target.value}}))} />
+            <input style={{ ...AS.input, marginBottom: 0, flex: 1 }} placeholder={t("add.last4Placeholder")} maxLength="4" value={form.paymentMethod?.last4 || ""} 
+              onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
+              onChange={e => setForm(f=>({...f, paymentMethod: {...f.paymentMethod, last4: e.target.value}}))} />
           </div>
         </div>
         {/* Save / Delete */}
@@ -2098,6 +2115,22 @@ function App() {
   // keep global currency in sync so formatEur reads latest
   window.__SUBLY_CURRENCY = currency;
 
+  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
+  React.useEffect(() => {
+    if (!window.visualViewport) return;
+    const handleResize = () => {
+      const vh = window.innerHeight;
+      const vvh = window.visualViewport.height;
+      setKeyboardHeight(Math.max(0, vh - vvh));
+    };
+    window.visualViewport.addEventListener("resize", handleResize);
+    window.visualViewport.addEventListener("scroll", handleResize);
+    return () => {
+      window.visualViewport.removeEventListener("resize", handleResize);
+      window.visualViewport.removeEventListener("scroll", handleResize);
+    };
+  }, []);
+
   function handleNameSubmit(name) {
     try { localStorage.setItem("subly:userName", name); } catch {}
     setUserName(name);
@@ -2195,8 +2228,20 @@ function App() {
   const br = ROUNDNESS + 8;
 
   return (
-    <div className="app-wrap" style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"100vh", padding:16 }}>
-      <div className="phone-shell" style={{ width:390, height:844, background:"#F5F7F4", borderRadius:br, overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:`0 32px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.05) inset, 0 0 0 10px #C4D4B4`, position:"relative", flexShrink:0 }}>
+    <div className="app-wrap" style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"100dvh", background: window.innerWidth > 500 ? "#E1E8D9" : "#F5F7F4" }}>
+      <div className="phone-shell" style={{ 
+        width: window.innerWidth > 500 ? 390 : "100%", 
+        height: window.innerWidth > 500 ? 844 : "100dvh", 
+        background:"#F5F7F4", 
+        borderRadius: window.innerWidth > 500 ? br : 0, 
+        overflow:"hidden", 
+        display:"flex", 
+        flexDirection:"column", 
+        boxShadow: window.innerWidth > 500 ? `0 32px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.05) inset, 0 0 0 10px #C4D4B4` : "none", 
+        position:"relative", 
+        flexShrink:0,
+        paddingBottom: keyboardHeight
+      }}>
 
         <div className="fake-statusbar" style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 24px 6px", flexShrink:0, background:"#F5F7F4" }}>
           <span style={{ fontSize:15, color:"#1C2612", fontWeight:700 }}>9:41</span>
