@@ -1234,7 +1234,7 @@ function monthlyEquivalent(sub) {
   return sub.price;
 }
 function InsightsScreen({ subs, accentGradient }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   const allCats = Array.from(new Set(subs.map(s => s.category || "Sonstiges")));
   const allBanks = Array.from(new Set(subs.filter(s => s.paymentMethod?.bankName).map(s => s.paymentMethod.bankName)));
