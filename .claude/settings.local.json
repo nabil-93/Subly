@@ -36,7 +36,10 @@
       "Bash(curl -s http://localhost:8765/index.html)",
       "Bash(node -e ' *)",
       "Read(//c/tmp/**)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(git commit -m ' *)",
+      "Bash(git config *)"
     ]
   }
 }

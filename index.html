@@ -16,6 +16,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/i18next@23.10.1/i18next.min.js"></script>
+<script src="https://unpkg.com/react-i18next@14.1.0/react-i18next.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -84,7 +86,359 @@
 
 <script type="text/babel">
 // ─── Data & Utils ───────────────────────────────────────────────
+// ─── i18n & Logic ───────────────────────────────────────────────────────
+const TRANSLATIONS = {
+  de: {
+    "welcome.title1": "Willkommen bei", "welcome.title2": "Subly",
+    "welcome.subtitle": "Behalte deine Abonnements im Blick. Wie sollen wir dich nennen?",
+    "welcome.placeholder": "Dein Name", "welcome.cta": "Loslegen →",
+    "home.greeting": "Guten Tag", "home.subscriptions": "Abonnements",
+    "home.activeCount": "Du hast {count} aktiv",
+    "home.totalMonth": "Gesamt pro Monat", "home.perYear": "Pro Jahr",
+    "home.upcoming": "Anstehend", "home.activeBadge": "{count} aktiv",
+    "home.empty": "Noch keine Abos", "home.emptyHint": "um dein erstes hinzuzufügen.",
+    "home.emptyTap": "Tippe auf",
+    "card.today": "Heute", "card.overdue": "Überfällig", "card.nextPayment": "Nächste Zahlung",
+    "calendar.expenses": "Ausgaben", "calendar.bookings": "{n} Buchungen",
+    "calendar.today": "Heute", "calendar.total": "Gesamt",
+    "insights.title": "Einblicke", "insights.subtitle": "Deine Ausgabenanalyse",
+    "insights.monthlyExp": "Monatliche Ausgaben", "insights.activeBadge": "{n} AKTIV",
+    "insights.perYear": "{amount} pro Jahr", "insights.trend": "6-Monats-Verlauf",
+    "insights.catDist": "Kategorien-Verteilung", "insights.month": "Monat",
+    "insights.allSubs": "Alle Abonnements", "insights.totalMonth": "Gesamt / Monat",
+    "insights.percentSpending": "% der Ausgaben", "insights.all": "Alle",
+    "insights.noData": "Füge Abos hinzu, um Statistiken zu sehen",
+    "settings.title": "Einstellungen", "settings.notifications": "Benachrichtigungen",
+    "settings.push": "Push-Benachrichtigungen", "settings.testPush": "Test-Benachrichtigung senden",
+    "settings.send": "Senden", "settings.appearance": "Darstellung",
+    "settings.currency": "Währung", "settings.language": "Sprache",
+    "settings.data": "Daten", "settings.activeSubs": "Aktive Abonnements",
+    "settings.resetSubs": "Abos auf Standard zurücksetzen", "settings.resetSubsConfirm": "Wirklich alle Abos zurücksetzen?",
+    "settings.account": "Konto", "settings.resetApp": "App komplett zurücksetzen",
+    "settings.resetAppConfirm": "Wirklich alles zurücksetzen?",
+    "settings.cancel": "Abbrechen", "settings.yes": "Ja",
+    "settings.editName": "Tippe ✏️ zum Bearbeiten", "settings.version": "Subly v1.0.0",
+    "nav.home": "Home", "nav.calendar": "Kalender", "nav.insights": "Einblicke", "nav.settings": "Optionen",
+    "add.title": "Abonnement hinzufügen", "add.editTitle": "Abo bearbeiten",
+    "add.stepName": "Name & Icon", "add.stepCategory": "Kategorie", "add.stepPrice": "Preis",
+    "add.stepDate": "Startdatum", "add.stepCycle": "Abrechnung", "add.stepPayment": "Zahlungsmethode",
+    "add.namePlaceholder": "z.B. Netflix, Spotify…",
+    "add.bankName": "Bankname", "add.bankNamePlaceholder": "z.B. N26, Sparkasse",
+    "add.last4": "Letzte 4 Ziffern (optional)", "add.last4Placeholder": "1234",
+    "add.back": "Zurück", "add.next": "Weiter →", "add.add": "Hinzufügen ✓",
+    "add.save": "Speichern ✓", "add.customDays": "Alle wieviel Tage?", "add.days": "Tage",
+    "add.startDate": "Startdatum:", "add.cycleMonatlich": "Monatlich",
+    "add.cycleWoechentlich": "Wöchentlich", "add.cycleJaehrlich": "Jährlich", "add.cycleCustom": "Benutzerdefiniert",
+    "add.namePreview": "Abo-Name",
+    "edit.color": "Farbe", "edit.icon": "Icon", "edit.nextPayment": "Nächste Zahlung",
+    "edit.name": "Name",
+    "detail.nextDebit": "Nächste Abbuchung", "detail.almostDue": "⚠ Bald fällig",
+    "detail.autoRenew": "Automatische Verlängerung",
+    "detail.autoRenewActive": "Aktiv – wird automatisch verlängert", "detail.autoRenewOff": "Deaktiviert",
+    "detail.yearly": "Jährlich", "detail.cycle": "Zyklus", "detail.payments": "Zahlungen",
+    "detail.history": "Zahlungsverlauf", "detail.pending": "Ausstehend", "detail.paid": "Bezahlt",
+    "detail.close": "Schließen", "detail.edit": "✏️ Bearbeiten", "detail.confirmDel": "Sicher?", "detail.yes": "Ja",
+    "days.today": "Heute", "days.tomorrow": "Morgen", "days.before": "vor {n} Tagen", "days.in": "in {n} Tagen",
+    "cycle.everyN": "alle {n} Tage"
+  },
+  en: {
+    "welcome.title1": "Welcome to", "welcome.title2": "Subly",
+    "welcome.subtitle": "Keep track of your subscriptions. What should we call you?",
+    "welcome.placeholder": "Your name", "welcome.cta": "Get started →",
+    "home.greeting": "Good day", "home.subscriptions": "Subscriptions",
+    "home.activeCount": "You have {count} active",
+    "home.totalMonth": "Total per month", "home.perYear": "Per year",
+    "home.upcoming": "Upcoming", "home.activeBadge": "{count} active",
+    "home.empty": "No subscriptions yet", "home.emptyHint": "to add your first one.",
+    "home.emptyTap": "Tap on",
+    "card.today": "Today", "card.overdue": "Overdue", "card.nextPayment": "Next payment",
+    "calendar.expenses": "Expenses", "calendar.bookings": "{n} bookings",
+    "calendar.today": "Today", "calendar.total": "Total",
+    "insights.title": "Insights", "insights.subtitle": "Your spending analysis",
+    "insights.monthlyExp": "Monthly expenses", "insights.activeBadge": "{n} ACTIVE",
+    "insights.perYear": "{amount} per year", "insights.trend": "6-month trend",
+    "insights.catDist": "Category distribution", "insights.month": "Month",
+    "insights.allSubs": "All subscriptions", "insights.totalMonth": "Total / month",
+    "insights.percentSpending": "% of spending", "insights.all": "All",
+    "insights.noData": "Add subscriptions to see stats",
+    "settings.title": "Settings", "settings.notifications": "Notifications",
+    "settings.push": "Push notifications", "settings.testPush": "Send test notification",
+    "settings.send": "Send", "settings.appearance": "Appearance",
+    "settings.currency": "Currency", "settings.language": "Language",
+    "settings.data": "Data", "settings.activeSubs": "Active subscriptions",
+    "settings.resetSubs": "Reset subscriptions to default", "settings.resetSubsConfirm": "Really reset all subscriptions?",
+    "settings.account": "Account", "settings.resetApp": "Fully reset app",
+    "settings.resetAppConfirm": "Really reset everything?",
+    "settings.cancel": "Cancel", "settings.yes": "Yes",
+    "settings.editName": "Tap ✏️ to edit", "settings.version": "Subly v1.0.0",
+    "nav.home": "Home", "nav.calendar": "Calendar", "nav.insights": "Insights", "nav.settings": "Options",
+    "add.title": "Add subscription", "add.editTitle": "Edit subscription",
+    "add.stepName": "Name & Icon", "add.stepCategory": "Category", "add.stepPrice": "Price",
+    "add.stepDate": "Start date", "add.stepCycle": "Billing", "add.stepPayment": "Payment method",
+    "add.namePlaceholder": "e.g. Netflix, Spotify…",
+    "add.bankName": "Bank name", "add.bankNamePlaceholder": "e.g. N26, Sparkasse",
+    "add.last4": "Last 4 digits (optional)", "add.last4Placeholder": "1234",
+    "add.back": "Back", "add.next": "Next →", "add.add": "Add ✓",
+    "add.save": "Save ✓", "add.customDays": "Every how many days?", "add.days": "days",
+    "add.startDate": "Start date:", "add.cycleMonatlich": "Monthly",
+    "add.cycleWoechentlich": "Weekly", "add.cycleJaehrlich": "Yearly", "add.cycleCustom": "Custom",
+    "add.namePreview": "Subscription name",
+    "edit.color": "Color", "edit.icon": "Icon", "edit.nextPayment": "Next payment",
+    "edit.name": "Name",
+    "detail.nextDebit": "Next debit", "detail.almostDue": "⚠ Due soon",
+    "detail.autoRenew": "Auto-renewal",
+    "detail.autoRenewActive": "Active – will auto-renew", "detail.autoRenewOff": "Disabled",
+    "detail.yearly": "Yearly", "detail.cycle": "Cycle", "detail.payments": "Payments",
+    "detail.history": "Payment history", "detail.pending": "Pending", "detail.paid": "Paid",
+    "detail.close": "Close", "detail.edit": "✏️ Edit", "detail.confirmDel": "Sure?", "detail.yes": "Yes",
+    "days.today": "Today", "days.tomorrow": "Tomorrow", "days.before": "{n} days ago", "days.in": "in {n} days",
+    "cycle.everyN": "every {n} days"
+  },
+  fr: {
+    "welcome.title1": "Bienvenue sur", "welcome.title2": "Subly",
+    "welcome.subtitle": "Gardez un œil sur vos abonnements. Comment devons-nous vous appeler ?",
+    "welcome.placeholder": "Votre nom", "welcome.cta": "Commencer →",
+    "home.greeting": "Bonjour", "home.subscriptions": "Abonnements",
+    "home.activeCount": "Vous avez {count} actifs",
+    "home.totalMonth": "Total par mois", "home.perYear": "Par an",
+    "home.upcoming": "À venir", "home.activeBadge": "{count} actifs",
+    "home.empty": "Aucun abonnement", "home.emptyHint": "pour ajouter le premier.",
+    "home.emptyTap": "Appuyez sur",
+    "card.today": "Aujourd'hui", "card.overdue": "En retard", "card.nextPayment": "Prochain paiement",
+    "calendar.expenses": "Dépenses", "calendar.bookings": "{n} opérations",
+    "calendar.today": "Aujourd'hui", "calendar.total": "Total",
+    "insights.title": "Aperçus", "insights.subtitle": "Analyse de vos dépenses",
+    "insights.monthlyExp": "Dépenses mensuelles", "insights.activeBadge": "{n} ACTIFS",
+    "insights.perYear": "{amount} par an", "insights.trend": "Tendance 6 mois",
+    "insights.catDist": "Répartition par catégorie", "insights.month": "Mois",
+    "insights.allSubs": "Tous les abonnements", "insights.totalMonth": "Total / mois",
+    "insights.percentSpending": "% des dépenses", "insights.all": "Tous",
+    "insights.noData": "Ajoutez des abonnements pour voir les statistiques",
+    "settings.title": "Paramètres", "settings.notifications": "Notifications",
+    "settings.push": "Notifications push", "settings.testPush": "Envoyer une notification test",
+    "settings.send": "Envoyer", "settings.appearance": "Apparence",
+    "settings.currency": "Devise", "settings.language": "Langue",
+    "settings.data": "Données", "settings.activeSubs": "Abonnements actifs",
+    "settings.resetSubs": "Réinitialiser les abonnements", "settings.resetSubsConfirm": "Vraiment tout réinitialiser ?",
+    "settings.account": "Compte", "settings.resetApp": "Réinitialiser l'application",
+    "settings.resetAppConfirm": "Vraiment tout réinitialiser ?",
+    "settings.cancel": "Annuler", "settings.yes": "Oui",
+    "settings.editName": "Appuyez sur ✏️ pour modifier", "settings.version": "Subly v1.0.0",
+    "nav.home": "Accueil", "nav.calendar": "Calendrier", "nav.insights": "Aperçus", "nav.settings": "Options",
+    "add.title": "Ajouter un abonnement", "add.editTitle": "Modifier l'abonnement",
+    "add.stepName": "Nom & Icône", "add.stepCategory": "Catégorie", "add.stepPrice": "Prix",
+    "add.stepDate": "Date de début", "add.stepCycle": "Facturation", "add.stepPayment": "Moyen de paiement",
+    "add.namePlaceholder": "ex. Netflix, Spotify…",
+    "add.bankName": "Nom de la banque", "add.bankNamePlaceholder": "ex. N26, Revolut",
+    "add.last4": "4 derniers chiffres (optionnel)", "add.last4Placeholder": "1234",
+    "add.back": "Retour", "add.next": "Suivant →", "add.add": "Ajouter ✓",
+    "add.save": "Enregistrer ✓", "add.customDays": "Tous les combien de jours ?", "add.days": "jours",
+    "add.startDate": "Date de début :", "add.cycleMonatlich": "Mensuel",
+    "add.cycleWoechentlich": "Hebdomadaire", "add.cycleJaehrlich": "Annuel", "add.cycleCustom": "Personnalisé",
+    "add.namePreview": "Nom de l'abo",
+    "edit.color": "Couleur", "edit.icon": "Icône", "edit.nextPayment": "Prochain paiement",
+    "edit.name": "Nom",
+    "detail.nextDebit": "Prochain prélèvement", "detail.almostDue": "⚠ Bientôt dû",
+    "detail.autoRenew": "Renouvellement auto",
+    "detail.autoRenewActive": "Actif – renouvellement auto", "detail.autoRenewOff": "Désactivé",
+    "detail.yearly": "Annuel", "detail.cycle": "Cycle", "detail.payments": "Paiements",
+    "detail.history": "Historique des paiements", "detail.pending": "En attente", "detail.paid": "Payé",
+    "detail.close": "Fermer", "detail.edit": "✏️ Modifier", "detail.confirmDel": "Sûr ?", "detail.yes": "Oui",
+    "days.today": "Aujourd'hui", "days.tomorrow": "Demain", "days.before": "il y a {n} jours", "days.in": "dans {n} jours",
+    "cycle.everyN": "tous les {n} jours"
+  },
+  ar: {
+    "welcome.title1": "مرحبًا بك في", "welcome.title2": "Subly",
+    "welcome.subtitle": "تابع اشتراكاتك بسهولة. ماذا نسميك؟",
+    "welcome.placeholder": "اسمك", "welcome.cta": "ابدأ →",
+    "home.greeting": "يوم سعيد", "home.subscriptions": "الاشتراكات",
+    "home.activeCount": "لديك {count} نشط",
+    "home.totalMonth": "الإجمالي شهريًا", "home.perYear": "سنويًا",
+    "home.upcoming": "القادم", "home.activeBadge": "{count} نشط",
+    "home.empty": "لا توجد اشتراكات بعد", "home.emptyHint": "لإضافة أول اشتراك.",
+    "home.emptyTap": "اضغط على",
+    "card.today": "اليوم", "card.overdue": "متأخر", "card.nextPayment": "الدفع القادم",
+    "calendar.expenses": "المصاريف", "calendar.bookings": "{n} عمليات",
+    "calendar.today": "اليوم", "calendar.total": "الإجمالي",
+    "insights.title": "إحصاءات", "insights.subtitle": "تحليل مصاريفك",
+    "insights.monthlyExp": "المصاريف الشهرية", "insights.activeBadge": "{n} نشط",
+    "insights.perYear": "{amount} سنويًا", "insights.trend": "آخر 6 أشهر",
+    "insights.catDist": "توزيع الفئات", "insights.month": "الشهر",
+    "insights.allSubs": "كل الاشتراكات", "insights.totalMonth": "الإجمالي / شهر",
+    "insights.percentSpending": "% من المصاريف", "insights.all": "الكل",
+    "insights.noData": "أضف اشتراكات لرؤية الإحصاءات",
+    "settings.title": "الإعدادات", "settings.notifications": "الإشعارات",
+    "settings.push": "إشعارات الدفع", "settings.testPush": "إرسال إشعار تجريبي",
+    "settings.send": "إرسال", "settings.appearance": "المظهر",
+    "settings.currency": "العملة", "settings.language": "اللغة",
+    "settings.data": "البيانات", "settings.activeSubs": "الاشتراكات النشطة",
+    "settings.resetSubs": "إعادة تعيين الاشتراكات", "settings.resetSubsConfirm": "هل تريد فعلًا إعادة تعيين كل الاشتراكات؟",
+    "settings.account": "الحساب", "settings.resetApp": "إعادة تعيين التطبيق بالكامل",
+    "settings.resetAppConfirm": "هل تريد فعلًا إعادة تعيين كل شيء؟",
+    "settings.cancel": "إلغاء", "settings.yes": "نعم",
+    "settings.editName": "اضغط ✏️ للتعديل", "settings.version": "Subly v1.0.0",
+    "nav.home": "الرئيسية", "nav.calendar": "التقويم", "nav.insights": "إحصاءات", "nav.settings": "خيارات",
+    "add.title": "إضافة اشتراك", "add.editTitle": "تعديل الاشتراك",
+    "add.stepName": "الاسم والأيقونة", "add.stepCategory": "الفئة", "add.stepPrice": "السعر",
+    "add.stepDate": "تاريخ البدء", "add.stepCycle": "الفوترة", "add.stepPayment": "طريقة الدفع",
+    "add.namePlaceholder": "مثل: Netflix، Spotify…",
+    "add.bankName": "اسم البنك", "add.bankNamePlaceholder": "مثل: N26، Sparkasse",
+    "add.last4": "آخر 4 أرقام (اختياري)", "add.last4Placeholder": "1234",
+    "add.back": "رجوع", "add.next": "التالي →", "add.add": "إضافة ✓",
+    "add.save": "حفظ ✓", "add.customDays": "كل كم يوم؟", "add.days": "يومًا",
+    "add.startDate": "تاريخ البدء:", "add.cycleMonatlich": "شهري",
+    "add.cycleWoechentlich": "أسبوعي", "add.cycleJaehrlich": "سنوي", "add.cycleCustom": "مخصص",
+    "add.namePreview": "اسم الاشتراك",
+    "edit.color": "اللون", "edit.icon": "الأيقونة", "edit.nextPayment": "الدفع القادم",
+    "edit.name": "الاسم",
+    "detail.nextDebit": "الخصم القادم", "detail.almostDue": "⚠ قريبًا",
+    "detail.autoRenew": "التجديد التلقائي",
+    "detail.autoRenewActive": "مفعّل – سيتجدد تلقائيًا", "detail.autoRenewOff": "معطّل",
+    "detail.yearly": "سنويًا", "detail.cycle": "الدورة", "detail.payments": "الدفعات",
+    "detail.history": "سجل المدفوعات", "detail.pending": "معلّق", "detail.paid": "مدفوع",
+    "detail.close": "إغلاق", "detail.edit": "✏️ تعديل", "detail.confirmDel": "متأكد؟", "detail.yes": "نعم",
+    "days.today": "اليوم", "days.tomorrow": "غدًا", "days.before": "منذ {n} أيام", "days.in": "في {n} أيام",
+    "cycle.everyN": "كل {n} أيام"
+  }
+};
+
+const { useTranslation, initReactI18next } = window.ReactI18next;
+
+i18next.use(initReactI18next).init({
+  resources: {
+    de: { translation: TRANSLATIONS.de },
+    en: { translation: TRANSLATIONS.en },
+    fr: { translation: TRANSLATIONS.fr },
+    ar: { translation: TRANSLATIONS.ar }
+  },
+  lng: localStorage.getItem("subly:language") || "de",
+  fallbackLng: "de",
+  interpolation: { escapeValue: false }
+});
+
+// ─── Logo Helpers ─────────────────────────────────────────────────
+function getLogo(name) {
+  if (!name) return null;
+  const key = name.toLowerCase().trim().replace(/\s+/g, '').replace(/[^a-z0-9-]/g, '');
+  if (!key) return null;
+  return `https://cdn.yoku.app/${key}.com`;
+}
+
+function getBankLogo(name) {
+  if (!name) return null;
+  const key = name.toLowerCase().trim().replace(/\s+/g, '').replace(/[^a-z0-9-]/g, '');
+  if (!key) return null;
+  return `https://cdn.yoku.app/${key}.com`;
+}
+
+function CountdownRing({ days, cycle, customDays, size = 46, strokeWidth = 4 }) {
+  const { t } = useTranslation();
+  const totalDays = cycle === "Wöchentlich" ? 7 : cycle === "Jährlich" ? 365 : cycle === "Benutzerdefiniert" ? (parseInt(customDays,10)||30) : 30;
+  const elapsed = Math.max(0, totalDays - Math.max(0, days));
+  const progress = Math.min(1, Math.max(0, elapsed / totalDays));
+  const r = (size - strokeWidth) / 2;
+  const cx = size / 2, cy = size / 2;
+  const C = 2 * Math.PI * r;
+  const offset = C * (1 - progress);
+  const urgent = days >= 0 && days <= 3;
+  const overdue = days < 0;
+  const ringColor = overdue || urgent ? "#E05A5A" : "#7C9A57";
+  const trackColor = overdue || urgent ? "rgba(224,90,90,0.15)" : "#E1E8D9";
+  const label = overdue ? "!" : days === 0 ? t("card.today") : `${days}d`;
+  return (
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={cx} cy={cy} r={r} stroke={trackColor} strokeWidth={strokeWidth} fill="none" />
+        <circle cx={cx} cy={cy} r={r} stroke={ringColor} strokeWidth={strokeWidth} fill="none"
+          strokeDasharray={C} strokeDashoffset={offset} strokeLinecap="round"
+          style={{ transition: "stroke-dashoffset .6s cubic-bezier(.22,1,.36,1)" }} />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: ringColor, letterSpacing: "-0.3px" }}>{label}</div>
+    </div>
+  );
+}
+
+function FilterChip({ active, onClick, children }) {
+  return (
+    <div className="press" onClick={onClick} style={{
+      flexShrink: 0, padding: "8px 14px", borderRadius: 14, fontSize: 12, fontWeight: 800,
+      background: active ? "#7C9A57" : "#fff", color: active ? "#fff" : "#5E7840",
+      cursor: "pointer", boxShadow: active ? "0 6px 14px -4px rgba(124,154,87,0.4)" : "none",
+      whiteSpace: "nowrap", transition: "all .2s"
+    }}>{children}</div>
+  );
+}
+
+
+function SmartLogo({ name, defaultIcon, style, iconMode }) {
+  const [error, setError] = React.useState(false);
+  const src = getLogo(name);
+
+  React.useEffect(() => { setError(false); }, [name]);
+
+  // Manual mode: show the selected emoji icon
+  if (iconMode === "manual" && defaultIcon) {
+    return (
+      <div style={{
+        width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: style.borderRadius ? Math.min(parseInt(style.width) || 24, parseInt(style.height) || 24) * 0.45 : 22,
+        borderRadius: style.borderRadius || 0
+      }}>{defaultIcon}</div>
+    );
+  }
+
+  // Auto mode: try CDN logo
+  if (!src || error) {
+    // Styled initial-letter fallback
+    const initial = name ? name.charAt(0).toUpperCase() : "?";
+    return (
+      <div style={{
+        width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: style.borderRadius ? Math.min(parseInt(style.width) || 24, parseInt(style.height) || 24) * 0.45 : 18,
+        fontWeight: 800, color: "#fff", letterSpacing: "-0.5px", textTransform: "uppercase",
+        borderRadius: style.borderRadius || 0
+      }}>{initial}</div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={name}
+      style={{ ...style, objectFit: "contain", display: "block" }}
+      onError={() => setError(true)}
+    />
+  );
+}
+
+function SmartBankLogo({ bankName, style }) {
+  const [error, setError] = React.useState(false);
+  const src = getBankLogo(bankName);
+
+  React.useEffect(() => { setError(false); }, [bankName]);
+
+  if (!src || error) {
+    const initial = bankName ? bankName.charAt(0).toUpperCase() : "🏦";
+    return (
+      <div style={{
+        width: style.width || 18, height: style.height || 18,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: "#E1E8D9", borderRadius: style.borderRadius || 4,
+        fontSize: (parseInt(style.width) || 18) * 0.55, fontWeight: 800, color: "#5E7840"
+      }}>{initial}</div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={bankName}
+      style={{ ...style, objectFit: "contain", display: "block" }}
+      onError={() => setError(true)}
+    />
+  );
+}
+
 const INITIAL_SUBS = [];
+
 
 function formatEur(amount) {
   const cur = window.__SUBLY_CURRENCY || "EUR";
@@ -230,6 +584,7 @@ function getInitials(name) {
 
 // ─── Welcome Screen ─────────────────────────────────────────────
 function WelcomeScreen({ onSubmit, accentGradient }) {
+  const { t } = useTranslation();
   const [name, setName] = React.useState("");
   const canSubmit = name.trim().length > 0;
 
@@ -243,11 +598,11 @@ function WelcomeScreen({ onSubmit, accentGradient }) {
       <div style={{ position:"absolute", bottom:-60, left:-40, width:180, height:180, borderRadius:"50%", background:"radial-gradient(circle,rgba(124,154,87,0.14),transparent 70%)" }} />
       <div style={{ position:"relative", zIndex:1 }}>
         <div style={{ width:84, height:84, borderRadius:26, background:"#7C9A57", display:"flex", alignItems:"center", justifyContent:"center", fontSize:42, marginBottom:28, boxShadow:"0 20px 40px -10px rgba(124,154,87,0.5)" }}>💸</div>
-        <div style={{ fontSize:34, fontWeight:800, color:"#1C2612", letterSpacing:"-1.2px", marginBottom:10, lineHeight:1.05 }}>Willkommen bei<br/><span style={{ color:"#7C9A57" }}>Subly</span></div>
-        <div style={{ fontSize:15, color:"#8A9A7B", lineHeight:1.55, marginBottom:32, fontWeight:500 }}>Behalte deine Abonnements im Blick. Wie sollen wir dich nennen?</div>
+        <div style={{ fontSize:34, fontWeight:800, color:"#1C2612", letterSpacing:"-1.2px", marginBottom:10, lineHeight:1.05 }}>{t("welcome.title1")}<br/><span style={{ color:"#7C9A57" }}>{t("welcome.title2")}</span></div>
+        <div style={{ fontSize:15, color:"#8A9A7B", lineHeight:1.55, marginBottom:32, fontWeight:500 }}>{t("welcome.subtitle")}</div>
         <input
           autoFocus
-          placeholder="Dein Name"
+          placeholder={t("welcome.placeholder")}
           value={name}
           onChange={e => setName(e.target.value)}
           onKeyDown={e => e.key === "Enter" && submit()}
@@ -256,14 +611,23 @@ function WelcomeScreen({ onSubmit, accentGradient }) {
         <div
           onClick={canSubmit ? submit : null}
           style={{ background: canSubmit ? "#7C9A57" : "#E1E8D9", color: canSubmit ? "#fff" : "#8A9A7B", borderRadius:24, padding:"18px 0", textAlign:"center", fontWeight:800, fontSize:16, cursor: canSubmit ? "pointer" : "default", transition:"all 0.2s", boxShadow: canSubmit ? "0 20px 40px -10px rgba(124,154,87,0.45)" : "none", letterSpacing:"-0.2px" }}>
-          Loslegen →
+          {t("welcome.cta")}
         </div>
       </div>
     </div>
   );
 }
 
-function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName }) {
+function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName, profileImage, onChangeProfileImage }) {
+  const fileInputRef = React.useRef(null);
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => { onChangeProfileImage(reader.result); };
+    reader.readAsDataURL(file);
+  }
+  const { t } = useTranslation();
   const totalMonthly = subs.reduce((s, x) => s + monthlyEquivalent(x), 0);
   const subsWithNext = subs.map(s => ({ ...s, _next: nextOccurrence(s) }));
   const sortedByNext = [...subsWithNext].sort((a, b) => a._next - b._next);
@@ -287,15 +651,21 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
     <div style={H.screen} className="page-in">
       <div style={H.greetingRow}>
         <div style={{ minWidth:0, flex:1 }}>
-          <div style={H.greeting}>Guten Tag 👋</div>
+          <div style={H.greeting}>{t("home.greeting")} 👋</div>
           <div style={H.userName}>{userName}</div>
         </div>
-        <div style={H.avatar}>{getInitials(userName)}</div>
+        <div style={{ ...H.avatar, cursor: "pointer", overflow: "hidden", padding: 0 }} className="press" onClick={() => fileInputRef.current?.click()}>
+          {profileImage
+            ? <img src={profileImage} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+            : getInitials(userName)
+          }
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+        </div>
       </div>
       <div style={H.header}>
         <div>
-          <div style={H.title}>Abonnements</div>
-          <div style={H.subtitle}>Du hast {subs.length} aktiv</div>
+          <div style={H.title}>{t("home.subscriptions")}</div>
+          <div style={H.subtitle}>{t("home.activeCount").replace("{count}", subs.length)}</div>
         </div>
       </div>
 
@@ -303,10 +673,10 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
         <div style={H.heroBlob1} />
         <div style={H.heroBlob2} />
         <div style={{ position:"relative", zIndex:2 }}>
-          <div style={H.heroLabel}>Gesamt pro Monat</div>
+          <div style={H.heroLabel}>{t("home.totalMonth")}</div>
           <div style={H.heroAmount}>{formatEur(totalMonthly)}</div>
           <div style={H.yearlyPill}>
-            <div style={H.yearlyLabel}>Pro Jahr</div>
+            <div style={H.yearlyLabel}>{t("home.perYear")}</div>
             <div style={H.yearlyVal}>{formatEur(totalMonthly * 12)}</div>
           </div>
         </div>
@@ -315,15 +685,15 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
       {!nextSub && (
         <div style={{ margin:"0 18px 18px", background:"#fff", borderRadius:28, padding:"40px 24px", textAlign:"center", boxShadow:SHADOW_CARD }}>
           <div style={{ width:64, height:64, borderRadius:20, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32, margin:"0 auto 14px" }}>📭</div>
-          <div style={{ fontSize:17, color:"#1C2612", fontWeight:800, marginBottom:6 }}>Noch keine Abos</div>
+          <div style={{ fontSize:17, color:"#1C2612", fontWeight:800, marginBottom:6 }}>{t("home.empty")}</div>
           <div style={{ fontSize:13.5, color:"#8A9A7B", lineHeight:1.5 }}>Tippe auf <span style={{ display:"inline-flex", width:22, height:22, borderRadius:7, background:"#7C9A57", color:"#fff", fontWeight:800, alignItems:"center", justifyContent:"center", fontSize:14, verticalAlign:"middle" }}>+</span> um dein erstes hinzuzufügen.</div>
         </div>
       )}
 
       {subs.length > 0 && (
         <div style={H.sectionRow}>
-          <span style={H.sectionTitle}>Anstehend</span>
-          <span style={H.sectionLink}>{subs.length} aktiv</span>
+          <span style={H.sectionTitle}>{t("home.upcoming")}</span>
+          <span style={H.sectionLink}>{t("home.activeBadge").replace("{count}", subs.length)}</span>
         </div>
       )}
 
@@ -355,10 +725,23 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
                 onClick={() => onSubClick(sub)}>
                 <div style={H.rowTop}>
                   <div style={{ display:"flex", alignItems:"center", gap:14, flex:1, minWidth:0 }}>
-                    <div style={{ ...H.subIcon, background: sub.color }}>{sub.icon}</div>
+                    <div style={{ ...H.subIcon, background: sub.color, overflow: "hidden", padding: 0 }}><SmartLogo name={sub.name} defaultIcon={sub.icon} iconMode={sub.iconMode || "auto"} style={{width: "100%", height: "100%", borderRadius: 16}} /></div>
                     <div style={{ flex:1, minWidth:0 }}>
                       <div style={H.subName}>{sub.name}</div>
-                      <div style={H.subCat}>{sub.category || "Sonstiges"}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                        <div style={H.subCat}>{sub.category || "Sonstiges"}</div>
+                        {sub.paymentMethod?.bankName && (
+                          <>
+                            <span style={{ color: "#E1E8D9", fontSize: 10 }}>•</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                              <SmartBankLogo bankName={sub.paymentMethod.bankName} style={{ width: 14, height: 14, borderRadius: 2 }} />
+                              <span style={{ fontSize: 11, color: "#8A9A7B", fontWeight: 600 }}>
+                                {sub.paymentMethod.bankName} {sub.paymentMethod.last4 ? `**${sub.paymentMethod.last4}` : ""}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div style={{ textAlign:"right" }}>
@@ -368,12 +751,10 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName 
                 </div>
                 <div style={H.paymentPill}>
                   <div>
-                    <div style={H.payLabel}>Nächste Zahlung</div>
+                    <div style={H.payLabel}>{t("card.nextPayment")}</div>
                     <div style={H.payDate}>{formatDate(sub._next)}</div>
                   </div>
-                  <div style={{ ...H.dayBadge, background: d <= 3 ? "rgba(224,90,90,0.10)" : "#F2F5EF", color: d <= 3 ? "#E05A5A" : "#5E7840" }}>
-                    {d === 0 ? "Heute" : d < 0 ? "Überfällig" : daysLabel(d)}
-                  </div>
+                  <CountdownRing days={d} cycle={sub.cycle} customDays={sub.customDays} size={46} strokeWidth={4} />
                 </div>
               </div>
             </div>
@@ -423,6 +804,7 @@ const H = {
 
 // ─── Calendar Screen ────────────────────────────────────────────
 function CalendarScreen({ subs, onAddOnDate }) {
+  const { t } = useTranslation();
   function dateStr(year, month, d) {
     return `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   }
@@ -582,7 +964,7 @@ function CalendarScreen({ subs, onAddOnDate }) {
           </div>
           {selectedEvents.map((ev, i) => (
             <div key={i} style={{ ...CAL.eventRow, borderBottom: i < selectedEvents.length-1 ? "1px solid #F0EEE6" : "none" }}>
-              <div style={{ ...CAL.eventIcon, background: ev.color }}>{ev.icon}</div>
+              <div style={{ ...CAL.eventIcon, background: ev.color, overflow: "hidden", padding: 0 }}><SmartLogo name={ev.name} defaultIcon={ev.icon} iconMode={ev.iconMode || "auto"} style={{width: "100%", height: "100%", borderRadius: 14}} /></div>
               <div style={{ flex:1 }}>
                 <div style={CAL.eventName}>{ev.name}</div>
                 <div style={CAL.eventCat}>{cycleLabel(ev)}</div>
@@ -633,15 +1015,16 @@ const CAL = {
 // ─── Add Screen ─────────────────────────────────────────────────
 const CATEGORIES = ["Unterhaltung","Arbeit","Fitness","Internet","Versorgung","Sonstiges"];
 function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
+  const { t } = useTranslation();
   const [step, setStep] = React.useState(0);
-  const [form, setForm] = React.useState({ name: "", price: "", cycle: "Monatlich", startDate: initialDate || "", icon: "⭐", color: "#7C9A57", category: "Unterhaltung" });
+  const [form, setForm] = React.useState({ name: "", price: "", cycle: "Monatlich", startDate: initialDate || "", icon: "⭐", iconMode: "auto", color: "#7C9A57", category: "Unterhaltung", paymentMethod: { bankName: "", last4: "" } });
 
   const icons = ["⭐","🎵","🎬","☁️","🖌️","📰","🏋️","🎮","📚","🛒","🏠","✈️","💊","📱","🎧","📷"];
   const colors = ["#7C9A57","#E8A34A","#E05A5A","#8A9A7B","#465A30","#1C2612","#4A90E2","#9013FE"];
-  const steps = ["Name & Icon","Kategorie","Preis","Startdatum","Abrechnung"];
+  const steps = [t("add.stepName"), t("add.stepCategory"), t("add.stepPrice"), t("add.stepDate"), t("add.stepCycle"), t("add.stepPayment")];
 
   const cycleStepValid = form.cycle !== "Benutzerdefiniert" || (parseInt(form.customDays,10) > 0);
-  const canNext = [form.name, form.category, form.price, form.startDate, cycleStepValid][step];
+  const canNext = [form.name, form.category, form.price, form.startDate, cycleStepValid, true][step];
 
   function nextStep() {
     if (step < steps.length - 1) setStep(s => s + 1);
@@ -654,13 +1037,13 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
     <div style={AS.sheet}>
       <div style={AS.handle} />
       <div style={AS.titleRow}>
-        <div style={AS.sheetTitle}>Abonnement hinzufügen</div>
+        <div style={AS.sheetTitle}>{t("add.title")}</div>
         <div style={AS.closeBtn} className="press" onClick={onClose}>✕</div>
       </div>
 
       {/* Live preview card */}
       <div style={{ background:"#F2F5EF", borderRadius:20, padding:14, marginBottom:18, display:"flex", alignItems:"center", gap:12 }} className="scale-in">
-        <div style={{ width:54, height:54, borderRadius:16, background:form.color, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:24, boxShadow:"0 4px 10px rgba(0,0,0,0.08)" }}>{form.icon}</div>
+        <div style={{ width:54, height:54, borderRadius:16, background:form.color, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:24, boxShadow:"0 4px 10px rgba(0,0,0,0.08)", overflow: "hidden", padding: 0 }}><SmartLogo name={form.name} defaultIcon={form.icon} iconMode={form.iconMode} style={{width: "100%", height: "100%", borderRadius: 16}} /></div>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontSize:16, color:"#1C2612", fontWeight:800, letterSpacing:"-0.2px" }}>{form.name || "Abo-Name"}</div>
           <div style={{ fontSize:12.5, color:"#8A9A7B", marginTop:2, fontWeight:500 }}>{form.category}</div>
@@ -692,10 +1075,16 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))} autoFocus />
             <div style={AS.iconGrid}>
               {icons.map(ic => (
-                <div key={ic} className="press" style={{ ...AS.iconOpt, background: form.icon===ic ? form.color : "#F2F5EF", color: form.icon===ic ? "#fff" : "#1C2612", boxShadow: form.icon===ic ? "0 6px 14px rgba(0,0,0,0.1)" : "none" }}
-                  onClick={() => setForm(f => ({ ...f, icon: ic }))}>{ic}</div>
+                <div key={ic} className="press" style={{ ...AS.iconOpt, background: form.iconMode==="manual" && form.icon===ic ? form.color : "#F2F5EF", color: form.iconMode==="manual" && form.icon===ic ? "#fff" : "#1C2612", boxShadow: form.iconMode==="manual" && form.icon===ic ? "0 6px 14px rgba(0,0,0,0.1)" : "none" }}
+                  onClick={() => setForm(f => ({ ...f, icon: ic, iconMode: "manual" }))}>{ic}</div>
               ))}
             </div>
+            {form.iconMode === "manual" && (
+              <div className="press" onClick={() => setForm(f => ({ ...f, iconMode: "auto" }))}
+                style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"7px 14px", borderRadius:12, background:"#F2F5EF", color:"#5E7840", fontSize:12, fontWeight:700, cursor:"pointer", marginBottom:8, transition:"all .2s" }}>
+                <span style={{ fontSize:14 }}>🔄</span> Auto-Logo verwenden
+              </div>
+            )}
             <div style={AS.colorRow}>
               {colors.map(c => (
                 <div key={c} className="press" style={{ ...AS.colorDot, background: c, transform: form.color===c ? "scale(1.18)" : "scale(1)", boxShadow: form.color===c ? `0 0 0 2px #fff, 0 0 0 4px ${c}` : "none" }}
@@ -763,10 +1152,20 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
             )}
           </div>
         )}
+      
+        {step === 5 && (
+          <div style={{ padding: "20px 0" }}>
+            <div style={ES.label}>{t("add.bankName")}</div>
+            <input style={AS.input} placeholder={t("add.bankNamePlaceholder")} value={form.paymentMethod?.bankName || ""}
+              onChange={e => setForm(f => ({ ...f, paymentMethod: { ...f.paymentMethod, bankName: e.target.value } }))} autoFocus />
+            <div style={{ ...ES.label, marginTop: 12 }}>{t("add.last4")}</div>
+            <input style={AS.input} placeholder={t("add.last4Placeholder")} maxLength="4" value={form.paymentMethod?.last4 || ""}
+              onChange={e => setForm(f => ({ ...f, paymentMethod: { ...f.paymentMethod, last4: e.target.value } }))} />
+          </div>
+        )}
       </div>
-
       <div style={AS.navRow}>
-        {step > 0 ? <div className="press" style={AS.backBtn} onClick={() => setStep(s=>s-1)}>Zurück</div> : <div />}
+        {step > 0 ? <div className="press" style={AS.backBtn} onClick={() => setStep(s=>s-1)}>{t("add.back")}</div> : <div />}
         <div className="press" style={{ ...AS.nextBtn, background: canNext ? "#7C9A57" : "#E1E8D9", color: canNext ? "#fff" : "#8A9A7B", boxShadow: canNext ? "0 16px 32px -8px rgba(124,154,87,0.5)" : "none" }}
           onClick={canNext ? nextStep : null}>
           {step === steps.length-1 ? "Hinzufügen ✓" : "Weiter →"}
@@ -813,9 +1212,24 @@ function monthlyEquivalent(sub) {
   return sub.price;
 }
 function InsightsScreen({ subs, accentGradient }) {
-  const totalExpenses = subs.reduce((s, x) => s + monthlyEquivalent(x), 0);
+  const { t } = useTranslation();
+  
+  const allCats = Array.from(new Set(subs.map(s => s.category || "Sonstiges")));
+  const allBanks = Array.from(new Set(subs.filter(s => s.paymentMethod?.bankName).map(s => s.paymentMethod.bankName)));
+  const filterChips = ["All", ...allCats, ...allBanks];
+  const [activeFilterChip, setActiveFilterChip] = React.useState("All");
+
+  const filteredSubs = subs.filter(s => {
+    if (activeFilterChip === "All") return true;
+    if (allCats.includes(activeFilterChip)) return (s.category || "Sonstiges") === activeFilterChip;
+    if (allBanks.includes(activeFilterChip)) return s.paymentMethod?.bankName === activeFilterChip;
+    return true;
+  });
+
+  const totalExpenses = filteredSubs.reduce((s, x) => s + monthlyEquivalent(x), 0);
   const catMap = {};
-  subs.forEach(s => { const c = s.category || "Sonstiges"; catMap[c] = (catMap[c] || 0) + monthlyEquivalent(s); });
+  filteredSubs.forEach(s => { const c = s.category || "Sonstiges"; catMap[c] = (catMap[c] || 0) + monthlyEquivalent(s); });
+
   const cats = Object.entries(catMap).sort((a,b) => b[1]-a[1]);
   const catColors = ["#7C9A57","#E8A34A","#E05A5A","#8A9A7B","#465A30","#1C2612","#4A90E2","#9013FE"];
 
@@ -846,7 +1260,7 @@ function InsightsScreen({ subs, accentGradient }) {
     monthList.push({ y: d.getFullYear(), m: d.getMonth(), label: monthShort[d.getMonth()] });
   }
   const months = monthList.map(x => x.label);
-  const expData = monthList.map(x => monthlySpending(subs, x.y, x.m));
+  const expData = monthList.map(x => monthlySpending(filteredSubs, x.y, x.m));
   const maxVal = Math.max(...expData, 1) * 1.2;
   const [activeBar, setActiveBar] = React.useState(5);
 
@@ -854,17 +1268,25 @@ function InsightsScreen({ subs, accentGradient }) {
     <div style={INS.screen} className="page-in">
       <div style={INS.header}>
         <div>
-          <div style={INS.title}>Einblicke</div>
-          <div style={{ fontSize:14, color:"#8A9A7B", fontWeight:600, marginTop:4 }}>Deine Ausgabenanalyse</div>
+          <div style={INS.title}>{t("insights.title")}</div>
+          <div style={{ fontSize:14, color:"#8A9A7B", fontWeight:600, marginTop:4 }}>{t("insights.subtitle")}</div>
         </div>
         <div style={INS.period}>Mai '26</div>
       </div>
 
+      
+      <div style={{ display: "flex", overflowX: "auto", gap: 10, padding: "0 18px 16px", scrollbarWidth: "none" }}>
+        {filterChips.map(chip => (
+          <FilterChip key={chip} active={activeFilterChip === chip} onClick={() => setActiveFilterChip(chip)}>
+            {chip === "All" ? t("insights.all") : chip}
+          </FilterChip>
+        ))}
+      </div>
       <div style={INS.heroCard}>
         <div style={INS.heroBlob1} />
         <div style={INS.heroBlob2} />
         <div style={{ position:"relative" }}>
-          <div style={INS.heroLabel}>Monatliche Ausgaben</div>
+          <div style={INS.heroLabel}>{t("insights.monthlyExp")}</div>
           <div style={INS.heroAmount}>{formatEur(totalExpenses)}</div>
           <div style={{ display:"flex", alignItems:"center", gap:10, marginTop:14 }}>
             <div style={{ background:"rgba(255,255,255,0.20)", color:"#fff", fontSize:11, fontWeight:800, padding:"6px 12px", borderRadius:14, border:"1px solid rgba(255,255,255,0.25)" }}>{subs.length} AKTIV</div>
@@ -874,7 +1296,7 @@ function InsightsScreen({ subs, accentGradient }) {
       </div>
 
       <div style={INS.card}>
-        <div style={INS.cardTitle}>6-Monats-Verlauf</div>
+        <div style={INS.cardTitle}>{t("insights.trend")}</div>
         <div style={INS.chartArea}>
           {months.map((m,i) => (
             <div key={m} style={INS.barGroup} className="press" onClick={() => setActiveBar(i)}>
@@ -887,7 +1309,7 @@ function InsightsScreen({ subs, accentGradient }) {
       </div>
 
       <div style={INS.card}>
-        <div style={INS.cardTitle}>Kategorien-Verteilung</div>
+        <div style={INS.cardTitle}>{t("insights.catDist")}</div>
         {cats.length > 0 ? (
           <>
             <div style={{ display:"flex", justifyContent:"center", marginBottom:16, position:"relative" }}>
@@ -925,10 +1347,10 @@ function InsightsScreen({ subs, accentGradient }) {
       </div>
 
       <div style={INS.card}>
-        <div style={INS.cardTitle}>Alle Abonnements</div>
-        {[...subs].sort((a,b)=>monthlyEquivalent(b)-monthlyEquivalent(a)).map((s,i) => (
-          <div key={s.id} style={{ ...INS.subRow, borderBottom: i < subs.length-1 ? "1px solid #F2F5EF" : "none" }}>
-            <div style={{ ...INS.subIcon, background:s.color }}>{s.icon}</div>
+        <div style={INS.cardTitle}>{t("insights.allSubs")}</div>
+        {[...filteredSubs].sort((a,b)=>monthlyEquivalent(b)-monthlyEquivalent(a)).map((s,i) => (
+          <div key={s.id} style={{ ...INS.subRow, borderBottom: i < filteredSubs.length-1 ? "1px solid #F2F5EF" : "none" }}>
+            <div style={{ ...INS.subIcon, background:s.color, overflow: "hidden", padding: 0 }}><SmartLogo name={s.name} defaultIcon={s.icon} iconMode={s.iconMode || "auto"} style={{width: "100%", height: "100%", borderRadius: 14}} /></div>
             <div style={{ flex:1 }}>
               <div style={INS.subName}>{s.name}</div>
               <div style={INS.subPct}>{Math.round((monthlyEquivalent(s)/totalExpenses)*100)}% · {cycleLabel(s)}</div>
@@ -978,10 +1400,20 @@ const INS = {
 };
 
 // ─── Settings Screen ────────────────────────────────────────────
-function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, pushEnabled, onTogglePush, onTestPush, onChangeName, onResetSubs, onResetApp, subCount }) {
+function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, pushEnabled, onTogglePush, onTestPush, onChangeName, onResetSubs, onResetApp, subCount, profileImage, onChangeProfileImage }) {
+  const { t, i18n } = useTranslation();
+  const changeLanguage = (lng) => { i18n.changeLanguage(lng); localStorage.setItem("subly:language", lng); document.documentElement.dir = lng === "ar" ? "rtl" : "ltr"; };
   const [editingName, setEditingName] = React.useState(false);
   const [tempName, setTempName] = React.useState(userName);
   const [confirmReset, setConfirmReset] = React.useState(null);
+  const photoInputRef = React.useRef(null);
+  function handlePhotoUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => { onChangeProfileImage(reader.result); };
+    reader.readAsDataURL(file);
+  }
 
   const Toggle = ({ value, onChange }) => (
     <div onClick={() => onChange(!value)} style={{ width: 48, height: 28, borderRadius: 14, background: value ? "#7C9A57" : "#E1E8D9", position: "relative", cursor: "pointer", transition: "background 0.25s", flexShrink: 0, boxShadow: value ? "0 4px 10px rgba(124,154,87,0.35)" : "none" }}>
@@ -1010,10 +1442,19 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
 
   return (
     <div style={S.screen} className="page-in">
-      <div style={S.header}><div style={S.title}>Einstellungen</div></div>
+      <div style={S.header}><div style={S.title}>{t("settings.title")}</div></div>
 
       <div style={{ ...S.profileCard, background: accentGradient }}>
-        <div style={S.avatar}>{getInitials(userName)}</div>
+        <div style={{ ...S.avatar, cursor: "pointer", overflow: "hidden", padding: 0, position: "relative" }} className="press" onClick={() => photoInputRef.current?.click()}>
+          {profileImage
+            ? <img src={profileImage} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+            : getInitials(userName)
+          }
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 18, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: 9, color: "#fff", fontWeight: 700 }}>📷</span>
+          </div>
+          <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: "none" }} />
+        </div>
         <div style={{ flex:1, minWidth:0 }}>
           {editingName ? (
             <input
@@ -1033,26 +1474,37 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
         <div style={S.gloss} />
       </div>
 
-      <Section title="Benachrichtigungen">
-        <Row icon="🔔" label="Push-Benachrichtigungen" right={<Toggle value={pushEnabled} onChange={onTogglePush} />} />
-        <Row icon="📨" label="Test-Benachrichtigung senden" right={<span style={{ ...S.badge, background:"#7C9A57", color:"#fff", cursor:"pointer" }} onClick={() => onTestPush && onTestPush()}>Senden</span>} border={false} />
+      <Section title={t("settings.notifications")}>
+        <Row icon="🔔" label={t("settings.push")} right={<Toggle value={pushEnabled} onChange={onTogglePush} />} />
+        <Row icon="📨" label={t("settings.testPush")} right={<span style={{ ...S.badge, background:"#7C9A57", color:"#fff", cursor:"pointer" }} onClick={() => onTestPush && onTestPush()}>Senden</span>} border={false} />
       </Section>
 
-      <Section title="Darstellung">
-        <Row icon="💱" label="Währung" right={
+      
+      <Section title={t("settings.appearance")}>
+        <Row icon="📷" label="Profilbild ändern" right={<span style={S.chevron}>›</span>} onClick={() => photoInputRef.current?.click()} />
+        <Row icon="🌍" label={t("settings.language")} right={
+          <select style={S.select} value={i18n.language} onChange={e => changeLanguage(e.target.value)}>
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="ar">العربية</option>
+          </select>
+        } />
+        <Row icon="💱" label={t("settings.currency")} right={
           <select style={S.select} value={currency} onChange={e => onChangeCurrency(e.target.value)}>
             <option>EUR</option><option>USD</option><option>GBP</option><option>CHF</option><option>MAD</option>
           </select>
         } border={false} />
       </Section>
 
-      <Section title="Daten">
-        <Row icon="📊" label={`Aktive Abonnements`} right={<span style={S.badge}>{subCount}</span>} />
+
+      <Section title={t("settings.data")}>
+        <Row icon="📊" label={`{t("settings.activeSubs")}`} right={<span style={S.badge}>{subCount}</span>} />
         {confirmReset === "subs" ? (
           <Row icon="⚠️" label="Wirklich alle Abos zurücksetzen?" right={
             <div style={{ display:"flex", gap:6 }}>
-              <span style={{ ...S.badge, background:"#F2F5EF", color:"#8A9A7B", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>Abbrechen</span>
-              <span style={{ ...S.badge, background:"#FCE9DD", color:"#E05A5A", cursor:"pointer" }} onClick={() => { onResetSubs(); setConfirmReset(null); }}>Ja</span>
+              <span style={{ ...S.badge, background:"#F2F5EF", color:"#8A9A7B", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>{t("settings.cancel")}</span>
+              <span style={{ ...S.badge, background:"#FCE9DD", color:"#E05A5A", cursor:"pointer" }} onClick={() => { onResetSubs(); setConfirmReset(null); }}>{t("settings.yes")}</span>
             </div>
           } border={false} />
         ) : (
@@ -1060,16 +1512,16 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
         )}
       </Section>
 
-      <Section title="Konto">
+      <Section title={t("settings.account")}>
         {confirmReset === "app" ? (
           <Row icon="⚠️" label="Wirklich alles zurücksetzen?" right={
             <div style={{ display:"flex", gap:6 }}>
-              <span style={{ ...S.badge, background:"#F2F5EF", color:"#8A9A7B", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>Abbrechen</span>
-              <span style={{ ...S.badge, background:"#FCE9DD", color:"#E05A5A", cursor:"pointer" }} onClick={() => { onResetApp(); setConfirmReset(null); }}>Ja</span>
+              <span style={{ ...S.badge, background:"#F2F5EF", color:"#8A9A7B", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>{t("settings.cancel")}</span>
+              <span style={{ ...S.badge, background:"#FCE9DD", color:"#E05A5A", cursor:"pointer" }} onClick={() => { onResetApp(); setConfirmReset(null); }}>{t("settings.yes")}</span>
             </div>
           } border={false} />
         ) : (
-          <Row icon="🚪" label="App komplett zurücksetzen" danger right={<span style={S.chevron}>›</span>} onClick={() => setConfirmReset("app")} border={false} />
+          <Row icon="🚪" label={t("settings.resetApp")} danger right={<span style={S.chevron}>›</span>} onClick={() => setConfirmReset("app")} border={false} />
         )}
       </Section>
 
@@ -1102,6 +1554,7 @@ const S = {
 
 // ─── Sub Detail Screen ──────────────────────────────────────────
 function SubDetailScreen({ sub, onClose, onDelete, onEdit, accentGradient }) {
+  const { t } = useTranslation();
   const [autoRenew, setAutoRenew] = React.useState(sub.autoRenew);
   const [showConfirm, setShowConfirm] = React.useState(false);
   const nextDate = nextOccurrence(sub);
@@ -1118,8 +1571,8 @@ function SubDetailScreen({ sub, onClose, onDelete, onEdit, accentGradient }) {
       <div style={SD.handle} />
 
       <div style={{ ...SD.hero, background: "#F2F5EF" }}>
-        <div style={{ ...SD.heroIcon, background:sub.color }}>{sub.icon}</div>
-        <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ ...SD.heroIcon, background:sub.color, overflow: "hidden", padding: 0 }}><SmartLogo name={sub.name} defaultIcon={sub.icon} iconMode={sub.iconMode || "auto"} style={{width: "100%", height: "100%", borderRadius: 16}} /></div>
+                    <div style={{ flex:1, minWidth:0 }}>
           <div style={SD.heroName}>{sub.name}</div>
           <div style={SD.heroCat}>{sub.category}</div>
         </div>
@@ -1130,39 +1583,53 @@ function SubDetailScreen({ sub, onClose, onDelete, onEdit, accentGradient }) {
       </div>
 
       <div style={SD.countdown}>
-        <div style={SD.countLabel}>Nächste Abbuchung</div>
+        <div style={SD.countLabel}>{t("detail.nextDebit")}</div>
         <div style={{ ...SD.countDays, color:days<=2?"#E05A5A":"#7C9A57" }}>{daysLabel(days)}</div>
         <div style={SD.countDate}>{formatDate(nextDate)}</div>
-        {days<=2 && <div style={SD.warn}>⚠ Bald fällig</div>}
+        {days<=2 && <div style={SD.warn}>{t("detail.almostDue")}</div>}
       </div>
 
       <div style={SD.settingRow}>
         <div>
-          <div style={SD.settingLabel}>Automatische Verlängerung</div>
+          <div style={SD.settingLabel}>{t("detail.autoRenew")}</div>
           <div style={SD.settingHint}>{autoRenew ? "Aktiv – wird automatisch verlängert" : "Deaktiviert"}</div>
         </div>
         <Toggle value={autoRenew} onChange={setAutoRenew} />
       </div>
 
+      
+      {sub.paymentMethod?.bankName && (
+        <div style={{ ...SD.settingRow, padding: "12px 18px" }}>
+          <div>
+            <div style={SD.settingLabel}>{t("add.stepPayment")}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+              <SmartBankLogo bankName={sub.paymentMethod.bankName} style={{ width: 18, height: 18, borderRadius: 4, fontSize: 16 }} />
+              <span style={{ fontSize: 14, color: "#1C2612", fontWeight: 700 }}>
+                {sub.paymentMethod.bankName} {sub.paymentMethod.last4 ? `**${sub.paymentMethod.last4}` : ""}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
       <div style={SD.stats}>
         <div style={SD.statBox}>
           <div style={SD.statVal}>{formatEur(sub.price*12)}</div>
-          <div style={SD.statLabel}>Jährlich</div>
+          <div style={SD.statLabel}>{t("detail.yearly")}</div>
         </div>
         <div style={SD.statDiv} />
         <div style={SD.statBox}>
           <div style={SD.statVal}>{cycleLabel(sub)}</div>
-          <div style={SD.statLabel}>Zyklus</div>
+          <div style={SD.statLabel}>{t("detail.cycle")}</div>
         </div>
         <div style={SD.statDiv} />
         <div style={SD.statBox}>
           <div style={SD.statVal}>{sub.history.length+1}</div>
-          <div style={SD.statLabel}>Zahlungen</div>
+          <div style={SD.statLabel}>{t("detail.payments")}</div>
         </div>
       </div>
 
       <div style={{ marginBottom:16 }}>
-        <div style={{ fontSize:13, color:"#8A9A7B", fontWeight:700, marginBottom:12, textTransform:"uppercase", letterSpacing:"0.8px" }}>Zahlungsverlauf</div>
+        <div style={{ fontSize:13, color:"#8A9A7B", fontWeight:700, marginBottom:12, textTransform:"uppercase", letterSpacing:"0.8px" }}>{t("detail.history")}</div>
         {[nextDate,...sub.history].map((d,i) => (
           <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 0", borderBottom:"1px solid #F2F5EF" }}>
             <div style={{ width:8, height:8, borderRadius:"50%", background:i===0?"#7C9A57":"#E1E8D9", flexShrink:0 }} />
@@ -1176,7 +1643,7 @@ function SubDetailScreen({ sub, onClose, onDelete, onEdit, accentGradient }) {
       </div>
 
       <div style={{ display:"flex", gap:10 }}>
-        <div className="press" style={SD.editBtn} onClick={onClose}>Schließen</div>
+        <div className="press" style={SD.editBtn} onClick={onClose}>{t("detail.close")}</div>
         <div className="press" style={{ ...SD.editBtn, background:"#7C9A57", color:"#fff", boxShadow:"0 10px 22px -6px rgba(124,154,87,0.5)" }} onClick={onEdit}>✏️ Bearbeiten</div>
         {!showConfirm ? (
           <div className="press" style={SD.deleteBtn} onClick={() => setShowConfirm(true)}>🗑</div>
@@ -1184,7 +1651,7 @@ function SubDetailScreen({ sub, onClose, onDelete, onEdit, accentGradient }) {
           <div className="press" style={{ ...SD.deleteBtn, background:"#E05A5A", color:"#fff", display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}
             onClick={() => { onDelete(sub.id); onClose(); }}>
             <span style={{ fontSize:10 }}>Sicher?</span>
-            <span style={{ fontWeight:800, fontSize:13 }}>Ja</span>
+            <span style={{ fontWeight:800, fontSize:13 }}>{t("settings.yes")}</span>
           </div>
         )}
       </div>
@@ -1194,6 +1661,7 @@ function SubDetailScreen({ sub, onClose, onDelete, onEdit, accentGradient }) {
 
 // ─── Edit Sub Screen ────────────────────────────────────────────
 function EditSubScreen({ sub, onSave, onClose, onDelete }) {
+  const { t } = useTranslation();
   const dateToInput = (d) => {
     const dt = new Date(d);
     if (isNaN(dt)) return "";
@@ -1208,7 +1676,9 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
     category:   sub.category || "Sonstiges",
     startDate:  dateToInput(sub.nextDate),
     icon:       sub.icon || "⭐",
+    iconMode:   sub.iconMode || "auto",
     color:      sub.color || "#7C9A57",
+    paymentMethod: sub.paymentMethod || { bankName: "", last4: "" }
   });
   const [showConfirm, setShowConfirm] = React.useState(false);
 
@@ -1228,7 +1698,9 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
       category:   form.category,
       nextDate,
       icon:       form.icon,
+      iconMode:   form.iconMode,
       color:      form.color,
+      paymentMethod: form.paymentMethod
     });
     onClose();
   }
@@ -1242,13 +1714,13 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
     <div style={{ ...AS.sheet, maxHeight:"92%" }}>
       <div style={AS.handle} />
       <div style={AS.titleRow}>
-        <div style={AS.sheetTitle}>Abo bearbeiten</div>
+        <div style={AS.sheetTitle}>{t("add.editTitle")}</div>
         <div className="press" style={AS.closeBtn} onClick={onClose}>✕</div>
       </div>
 
       {/* Live preview */}
       <div style={{ background:"#F2F5EF", borderRadius:20, padding:14, marginBottom:18, display:"flex", alignItems:"center", gap:12 }}>
-        <div style={{ width:54, height:54, borderRadius:16, background:form.color, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:24, boxShadow:"0 4px 10px rgba(0,0,0,0.08)" }}>{form.icon}</div>
+        <div style={{ width:54, height:54, borderRadius:16, background:form.color, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:24, boxShadow:"0 4px 10px rgba(0,0,0,0.08)", overflow: "hidden", padding: 0 }}><SmartLogo name={form.name} defaultIcon={form.icon} iconMode={form.iconMode} style={{width: "100%", height: "100%", borderRadius: 16}} /></div>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontSize:16, color:"#1C2612", fontWeight:800 }}>{form.name || "Name"}</div>
           <div style={{ fontSize:12.5, color:"#8A9A7B", marginTop:2 }}>{form.category}</div>
@@ -1263,24 +1735,30 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
 
         {/* Name */}
         <div>
-          <div style={ES.label}>Name</div>
+          <div style={ES.label}>{t("edit.name")}</div>
           <input style={AS.input} value={form.name} placeholder="z.B. Netflix" onChange={e => setForm(f=>({...f, name:e.target.value}))} />
         </div>
 
         {/* Icon row */}
         <div>
-          <div style={ES.label}>Icon</div>
+          <div style={ES.label}>{t("edit.icon")}</div>
           <div style={AS.iconGrid}>
             {icons.map(ic => (
-              <div key={ic} className="press" style={{ ...AS.iconOpt, background: form.icon===ic ? form.color : "#F2F5EF", color: form.icon===ic ? "#fff" : "#1C2612" }}
-                onClick={() => setForm(f=>({...f, icon:ic}))}>{ic}</div>
+              <div key={ic} className="press" style={{ ...AS.iconOpt, background: form.iconMode==="manual" && form.icon===ic ? form.color : "#F2F5EF", color: form.iconMode==="manual" && form.icon===ic ? "#fff" : "#1C2612" }}
+                onClick={() => setForm(f=>({...f, icon:ic, iconMode: "manual"}))}>{ic}</div>
             ))}
           </div>
+          {form.iconMode === "manual" && (
+            <div className="press" onClick={() => setForm(f => ({ ...f, iconMode: "auto" }))}
+              style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"7px 14px", borderRadius:12, background:"#F2F5EF", color:"#5E7840", fontSize:12, fontWeight:700, cursor:"pointer", marginBottom:8, transition:"all .2s" }}>
+              <span style={{ fontSize:14 }}>🔄</span> Auto-Logo verwenden
+            </div>
+          )}
         </div>
 
         {/* Color */}
         <div>
-          <div style={ES.label}>Farbe</div>
+          <div style={ES.label}>{t("edit.color")}</div>
           <div style={AS.colorRow}>
             {colors.map(c => (
               <div key={c} className="press" style={{ ...AS.colorDot, background:c, transform:form.color===c?"scale(1.18)":"scale(1)", boxShadow:form.color===c?`0 0 0 2px #fff, 0 0 0 4px ${c}`:"none" }}
@@ -1291,7 +1769,7 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
 
         {/* Category */}
         <div>
-          <div style={ES.label}>Kategorie</div>
+          <div style={ES.label}>{t("add.stepCategory")}</div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:8 }}>
             {CATEGORIES.map(c => (
               <div key={c} className="press" style={{ background:form.category===c?"#7C9A57":"#F2F5EF", color:form.category===c?"#fff":"#1C2612", padding:"12px 14px", borderRadius:14, fontWeight:700, fontSize:13, cursor:"pointer", textAlign:"center", boxShadow:form.category===c?"0 8px 20px -4px rgba(124,154,87,0.4)":"none", transition:"all .2s" }}
@@ -1302,7 +1780,7 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
 
         {/* Price */}
         <div>
-          <div style={ES.label}>Preis</div>
+          <div style={ES.label}>{t("add.stepPrice")}</div>
           <div style={AS.bigInput}>
             <span style={AS.bigCurr}>{currSym}</span>
             <input style={AS.bigField} type="number" placeholder="0.00" value={form.price}
@@ -1317,13 +1795,13 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
 
         {/* Start date */}
         <div>
-          <div style={ES.label}>Nächste Zahlung</div>
+          <div style={ES.label}>{t("card.nextPayment")}</div>
           <input style={AS.input} type="date" value={form.startDate} onChange={e => setForm(f=>({...f, startDate:e.target.value}))} />
         </div>
 
         {/* Cycle */}
         <div>
-          <div style={ES.label}>Abrechnung</div>
+          <div style={ES.label}>{t("add.stepCycle")}</div>
           <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
             {["Monatlich","Wöchentlich","Jährlich","Benutzerdefiniert"].map(c => (
               <div key={c} className="press" style={{ ...AS.cycleOpt, background:form.cycle===c?"#7C9A57":"#F2F5EF" }}
@@ -1355,6 +1833,15 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
           </div>
         </div>
 
+        
+        {/* Payment */}
+        <div>
+          <div style={ES.label}>{t("add.stepPayment")}</div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <input style={{ ...AS.input, marginBottom: 0, flex: 2 }} placeholder={t("add.bankNamePlaceholder")} value={form.paymentMethod?.bankName || ""} onChange={e => setForm(f=>({...f, paymentMethod: {...f.paymentMethod, bankName: e.target.value}}))} />
+            <input style={{ ...AS.input, marginBottom: 0, flex: 1 }} placeholder={t("add.last4Placeholder")} maxLength="4" value={form.paymentMethod?.last4 || ""} onChange={e => setForm(f=>({...f, paymentMethod: {...f.paymentMethod, last4: e.target.value}}))} />
+          </div>
+        </div>
         {/* Save / Delete */}
         <div style={{ display:"flex", gap:10, paddingTop:6, paddingBottom:8 }}>
           {!showConfirm ? (
@@ -1363,7 +1850,7 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
           ) : (
             <div className="press" style={{ ...SD.deleteBtn, flex:"0 0 52px", background:"#E05A5A", color:"#fff", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:1, fontSize:10, fontWeight:800 }}
               onClick={() => { onDelete(sub.id); onClose(); }}>
-              <span>Ja</span><span>löschen</span>
+              <span>{t("settings.yes")}</span><span>löschen</span>
             </div>
           )}
           <div className="press" style={{ ...AS.nextBtn, flex:1, padding:"16px 0", background: canSave?"#7C9A57":"#E1E8D9", color:canSave?"#fff":"#8A9A7B", boxShadow:canSave?"0 14px 28px -6px rgba(124,154,87,0.5)":"none" }}
@@ -1408,6 +1895,7 @@ const SD = {
 
 // ─── Install Prompt ─────────────────────────────────────────────
 function InstallPrompt({ accentGradient }) {
+  const { t } = useTranslation();
   const [show, setShow] = React.useState(false);
   const [platform, setPlatform] = React.useState(null);
   const deferredPrompt = React.useRef(null);
@@ -1496,10 +1984,22 @@ const SHADOW_FLOAT = "0 20px 40px -10px rgba(124, 154, 87, 0.4)";
 
 function App() {
   const accentGradient = `linear-gradient(135deg, ${ACCENT_START}, ${ACCENT_END})`;
+  
+  React.useEffect(() => {
+    const lng = localStorage.getItem("subly:language") || "de";
+    document.documentElement.dir = lng === "ar" ? "rtl" : "ltr";
+  }, []);
 
   const [userName, setUserName] = React.useState(() => {
     try { return localStorage.getItem("subly:userName") || ""; } catch { return ""; }
   });
+  const [profileImage, setProfileImage] = React.useState(() => {
+    try { return localStorage.getItem("subly:profileImage") || ""; } catch { return ""; }
+  });
+  function handleChangeProfileImage(dataUrl) {
+    try { localStorage.setItem("subly:profileImage", dataUrl); } catch {}
+    setProfileImage(dataUrl);
+  }
   const [currency, setCurrency] = React.useState(() => {
     try { return localStorage.getItem("subly:currency") || "EUR"; } catch { return "EUR"; }
   });
@@ -1565,6 +2065,7 @@ function App() {
   function handleResetApp() {
     try {
       localStorage.removeItem("subly:userName");
+      localStorage.removeItem("subly:profileImage");
       localStorage.removeItem("subly:currency");
       localStorage.removeItem("subly:push");
       localStorage.removeItem("subly:subs");
@@ -1574,6 +2075,7 @@ function App() {
     setPushEnabled(true);
     setActiveTab("home");
     setUserName("");
+    setProfileImage("");
   }
 
   React.useEffect(() => {
@@ -1600,7 +2102,7 @@ function App() {
     } else {
       nd = new Date(2026, 4, 10);
     }
-    setSubs(s => [...s, { id: Date.now(), ...data, nextDate: nd, autoRenew: true, history: [], category: data.category || "Sonstiges", cycle: data.cycle || "Monatlich" }]);
+    setSubs(s => [...s, { id: Date.now(), ...data, nextDate: nd, autoRenew: true, history: [], category: data.category || "Sonstiges", cycle: data.cycle || "Monatlich", paymentMethod: data.paymentMethod, iconMode: data.iconMode || "auto" }]);
   }
 
   function handleDelete(id) { setSubs(s => s.filter(x => x.id !== id)); }
@@ -1614,10 +2116,10 @@ function App() {
   ];
 
   const screens = {
-    home:     <HomeScreen key="home" subs={subs} onSwipeDelete={handleDelete} onSubClick={setSelectedSub} accentGradient={accentGradient} userName={userName} />,
+    home:     <HomeScreen key="home" subs={subs} onSwipeDelete={handleDelete} onSubClick={setSelectedSub} accentGradient={accentGradient} userName={userName} profileImage={profileImage} onChangeProfileImage={handleChangeProfileImage} />,
     calendar: <CalendarScreen key="cal" subs={subs} onAddOnDate={openAddOnDate} />,
     insights: <InsightsScreen key="ins" subs={subs} accentGradient={accentGradient} />,
-    settings: <SettingsScreen key="set" accentGradient={accentGradient} userName={userName} currency={currency} onChangeCurrency={handleChangeCurrency} pushEnabled={pushEnabled} onTogglePush={handleTogglePush} onTestPush={sendTestNotification} onChangeName={handleNameSubmit} onResetSubs={handleResetSubs} onResetApp={handleResetApp} subCount={subs.length} />,
+    settings: <SettingsScreen key="set" accentGradient={accentGradient} userName={userName} currency={currency} onChangeCurrency={handleChangeCurrency} pushEnabled={pushEnabled} onTogglePush={handleTogglePush} onTestPush={sendTestNotification} onChangeName={handleNameSubmit} onResetSubs={handleResetSubs} onResetApp={handleResetApp} subCount={subs.length} profileImage={profileImage} onChangeProfileImage={handleChangeProfileImage} />,
   };
 
   const br = ROUNDNESS + 8;
