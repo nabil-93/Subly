@@ -1149,6 +1149,12 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate, onOpenPicker }
   const colors = ["#7C9A57","#E8A34A","#E05A5A","#8A9A7B","#465A30","#1C2612","#4A90E2","#9013FE"];
   const steps = [t("add.stepName"), t("add.stepCategory"), t("add.stepPrice"), t("add.stepDate"), t("add.stepCycle"), t("add.stepPayment")];
 
+  React.useEffect(() => {
+    if (step === 3) {
+      onOpenPicker(form.startDate, d => setForm(f => ({ ...f, startDate: d, startDateInput: undefined })));
+    }
+  }, [step]);
+
   const cycleStepValid = form.cycle !== "Benutzerdefiniert" || (parseInt(form.customDays,10) > 0);
   const canNext = [form.name, form.category, form.price, form.startDate, cycleStepValid, true][step];
 
