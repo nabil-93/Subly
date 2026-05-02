@@ -1911,8 +1911,9 @@ function EditSubScreen({ sub, onSave, onClose, onDelete, onOpenPicker }) {
   const currSym = (() => { try { return (1).toLocaleString((window.__SUBLY_CURRENCY||"EUR")==="MAD"?"fr-MA":"de-DE",{style:"currency",currency:window.__SUBLY_CURRENCY||"EUR"}).replace(/[\d.,\s]/g,""); } catch { return "€"; } })();
 
   return (
-    <div style={{ ...AS.sheet, maxHeight:"92%" }}>
-      <div style={AS.handle} />
+    <div style={{ ...AS.sheet, maxHeight:"90dvh", overflowY:"auto", touchAction:"pan-y" }}>
+      <div style={{ paddingBottom: 160 }}>
+        <div style={AS.handle} />
       <div style={AS.titleRow}>
         <div style={AS.sheetTitle}>{t("add.editTitle")}</div>
         <div className="press" style={AS.closeBtn} onClick={onClose}>✕</div>
