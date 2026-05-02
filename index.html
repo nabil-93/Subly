@@ -2281,6 +2281,7 @@ function App() {
   );
 }
 
+const { I18nextProvider } = window.ReactI18next;
 const Root = () => {
   const { i18n } = useTranslation();
   return <App key={i18n.language} />;
