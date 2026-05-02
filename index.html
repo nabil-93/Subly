@@ -1100,12 +1100,19 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
               ))}
             </div>
             {form.iconMode === "manual" && (
-              <div style={AS.colorRow}>
-              {colors.map(c => (
-                <div key={c} className="press" style={{ ...AS.colorDot, background: c, transform: form.color===c ? "scale(1.18)" : "scale(1)", boxShadow: form.color===c ? `0 0 0 2px #fff, 0 0 0 4px ${c}` : "none" }}
-                  onClick={() => setForm(f => ({ ...f, color: c }))} />
-              ))}
-            </div>
+              <>
+                <div className="press" onClick={() => setForm(f => ({ ...f, iconMode: "auto" }))}
+                  style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"7px 14px", borderRadius:12, background:"#F2F5EF", color:"#5E7840", fontSize:12, fontWeight:700, cursor:"pointer", marginBottom:8, transition:"all .2s" }}>
+                  <span style={{ fontSize:14 }}>🔄</span> {t("add.autoLogo")}
+                </div>
+                <div style={AS.colorRow}>
+                  {colors.map(c => (
+                    <div key={c} className="press" style={{ ...AS.colorDot, background: c, transform: form.color===c ? "scale(1.18)" : "scale(1)", boxShadow: form.color===c ? `0 0 0 2px #fff, 0 0 0 4px ${c}` : "none" }}
+                      onClick={() => setForm(f => ({ ...f, color: c }))} />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         )}
         {step === 1 && (
@@ -1534,7 +1541,15 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
       <Section title={t("settings.data")}>
         <Row icon="📊" label={t("settings.activeSubs", { count: subCount })} right={<span style={S.badge}>{subCount}</span>} />
         {confirmReset === "subs" ? (
+          <Row icon="⚠️" label={t("settings.resetSubsConfirm")} right={
+            <div style={{ display:"flex", gap:6 }}>
+              <span style={{ ...S.badge, background:"#F2F5EF", color:"#8A9A7B", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>{t("settings.cancel")}</span>
+              <span style={{ ...S.badge, background:"#FCE9DD", color:"#E05A5A", cursor:"pointer" }} onClick={() => { onResetSubs(); setConfirmReset(null); }}>{t("settings.yes")}</span>
+            </div>
+          } border={false} />
+        ) : (
           <Row icon="🔄" label={t("settings.resetSubs")} right={<span style={S.chevron}>›</span>} onClick={() => setConfirmReset("subs")} border={false} />
+        )}
       </Section>
 
       <Section title={t("settings.storage")}>
@@ -1569,6 +1584,9 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
 
       <Section title={t("settings.account")}>
         {confirmReset === "app" ? (
+          <Row icon="⚠️" label={t("settings.resetAppConfirm")} right={
+            <div style={{ display:"flex", gap:6 }}>
+              <span style={{ ...S.badge, background:"#F2F5EF", color:"#8A9A7B", cursor:"pointer" }} onClick={() => setConfirmReset(null)}>{t("settings.cancel")}</span>
               <span style={{ ...S.badge, background:"#FCE9DD", color:"#E05A5A", cursor:"pointer" }} onClick={() => { onResetApp(); setConfirmReset(null); }}>{t("settings.yes")}</span>
             </div>
           } border={false} />
