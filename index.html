@@ -118,6 +118,8 @@ const TRANSLATIONS = {
     "settings.resetAppConfirm": "Wirklich alles zurücksetzen?",
     "settings.cancel": "Abbrechen", "settings.yes": "Ja",
     "settings.editName": "Tippe ✏️ zum Bearbeiten", "settings.version": "Subly v1.0.0",
+    "settings.storage": "Speicherplatz", "settings.storageUsed": "{used} MB / {max} MB verwendet",
+    "settings.storageAlmostFull": "Speicher fast voll", "settings.storageLimitReached": "Speicherlimit erreicht",
     "nav.home": "Home", "nav.calendar": "Kalender", "nav.insights": "Einblicke", "nav.settings": "Optionen",
     "add.title": "Abonnement hinzufügen", "add.editTitle": "Abo bearbeiten",
     "add.stepName": "Name & Icon", "add.stepCategory": "Kategorie", "add.stepPrice": "Preis",
@@ -171,6 +173,8 @@ const TRANSLATIONS = {
     "settings.resetAppConfirm": "Really reset everything?",
     "settings.cancel": "Cancel", "settings.yes": "Yes",
     "settings.editName": "Tap ✏️ to edit", "settings.version": "Subly v1.0.0",
+    "settings.storage": "Storage", "settings.storageUsed": "{used} MB / {max} MB used",
+    "settings.storageAlmostFull": "Storage almost full", "settings.storageLimitReached": "Storage limit reached",
     "nav.home": "Home", "nav.calendar": "Calendar", "nav.insights": "Insights", "nav.settings": "Options",
     "add.title": "Add subscription", "add.editTitle": "Edit subscription",
     "add.stepName": "Name & Icon", "add.stepCategory": "Category", "add.stepPrice": "Price",
@@ -224,6 +228,8 @@ const TRANSLATIONS = {
     "settings.resetAppConfirm": "Vraiment tout réinitialiser ?",
     "settings.cancel": "Annuler", "settings.yes": "Oui",
     "settings.editName": "Appuyez sur ✏️ pour modifier", "settings.version": "Subly v1.0.0",
+    "settings.storage": "Stockage", "settings.storageUsed": "{used} Mo / {max} Mo utilisés",
+    "settings.storageAlmostFull": "Stockage presque plein", "settings.storageLimitReached": "Limite de stockage atteinte",
     "nav.home": "Accueil", "nav.calendar": "Calendrier", "nav.insights": "Aperçus", "nav.settings": "Options",
     "add.title": "Ajouter un abonnement", "add.editTitle": "Modifier l'abonnement",
     "add.stepName": "Nom & Icône", "add.stepCategory": "Catégorie", "add.stepPrice": "Prix",
@@ -277,6 +283,8 @@ const TRANSLATIONS = {
     "settings.resetAppConfirm": "هل تريد فعلًا إعادة تعيين كل شيء؟",
     "settings.cancel": "إلغاء", "settings.yes": "نعم",
     "settings.editName": "اضغط ✏️ للتعديل", "settings.version": "Subly v1.0.0",
+    "settings.storage": "مساحة التخزين", "settings.storageUsed": "{used} ميجابايت / {max} ميجابايت مستخدمة",
+    "settings.storageAlmostFull": "المساحة ممتلئة تقريباً", "settings.storageLimitReached": "تم الوصول إلى الحد الأقصى",
     "nav.home": "الرئيسية", "nav.calendar": "التقويم", "nav.insights": "إحصاءات", "nav.settings": "خيارات",
     "add.title": "إضافة اشتراك", "add.editTitle": "تعديل الاشتراك",
     "add.stepName": "الاسم والأيقونة", "add.stepCategory": "الفئة", "add.stepPrice": "السعر",
@@ -1415,6 +1423,24 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
     reader.readAsDataURL(file);
   }
 
+  const getStorageUsage = () => {
+    let total = 0;
+    Object.keys(localStorage).forEach((key) => {
+      const value = localStorage.getItem(key);
+      if (value) total += new Blob([value]).size;
+    });
+    return total;
+  };
+
+  const [storageUsage, setStorageUsage] = React.useState(getStorageUsage());
+  const usedMB = storageUsage / (1024 * 1024);
+  const MAX_MB = 5;
+  const percentage = Math.min(100, (usedMB / MAX_MB) * 100);
+
+  React.useEffect(() => {
+    setStorageUsage(getStorageUsage());
+  }, [subCount]);
+
   const Toggle = ({ value, onChange }) => (
     <div onClick={() => onChange(!value)} style={{ width: 48, height: 28, borderRadius: 14, background: value ? "#7C9A57" : "#E1E8D9", position: "relative", cursor: "pointer", transition: "background 0.25s", flexShrink: 0, boxShadow: value ? "0 4px 10px rgba(124,154,87,0.35)" : "none" }}>
       <div style={{ position: "absolute", top: 3, left: value ? 23 : 3, width: 22, height: 22, borderRadius: "50%", background: "#fff", transition: "left 0.25s", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }} />
@@ -1510,6 +1536,36 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
         ) : (
           <Row icon="🔄" label="Abos auf Standard zurücksetzen" right={<span style={S.chevron}>›</span>} onClick={() => setConfirmReset("subs")} border={false} />
         )}
+      </Section>
+
+      <Section title={t("settings.storage")}>
+        <div style={{ padding: "16px 18px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <span style={{ fontSize: 13, color: "#1C2612", fontWeight: 800 }}>{t("settings.storageUsed").replace("{used}", usedMB.toFixed(2)).replace("{max}", MAX_MB)}</span>
+            <span style={{ fontSize: 11, color: "#8A9A7B", fontWeight: 700 }}>{Math.round(percentage)}%</span>
+          </div>
+          <div style={{ width: "100%", background: "#F2F5EF", borderRadius: 10, height: 8, overflow: "hidden" }}>
+            <div
+              style={{
+                height: "100%",
+                borderRadius: 10,
+                transition: "all 0.4s cubic-bezier(.22,1,.36,1)",
+                width: `${percentage}%`,
+                backgroundColor:
+                  percentage < 60
+                    ? "#4CAF50"   // green
+                    : percentage < 85
+                    ? "#FFA500"   // orange
+                    : "#FF3B30"   // red
+              }}
+            />
+          </div>
+          {percentage > 80 && (
+            <div style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: percentage > 95 ? "#FF3B30" : "#FFA500", textAlign: i18n.language === "ar" ? "left" : "right" }}>
+              {percentage > 95 ? t("settings.storageLimitReached") : t("settings.storageAlmostFull")}
+            </div>
+          )}
+        </div>
       </Section>
 
       <Section title={t("settings.account")}>
