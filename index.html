@@ -467,7 +467,194 @@ function SmartBankLogo({ bankName, style }) {
 }
 
 const INITIAL_SUBS = [];
+const ACCENT_START = "#8EB073";
+const ACCENT_END = "#7C9A57";
+const ACCENT_DARK = "#465A30";
+const ACCENT_LIGHT = "#E1E8D9";
+const ACCENT_TINT = "#F2F5EF";
+const BG_WARM = "#F5F7F4";
+const BG_CARD = "#FFFFFF";
+const TEXT_DARK = "#1C2612";
+const TEXT_MUTED = "#8A9A7B";
+const DANGER = "#E05A5A";
+const WARNING = "#E8A34A";
+const ROUNDNESS = 28;
+const SHADOW_CARD = "0 12px 36px -8px rgba(0,0,0,0.06), 0 4px 12px -4px rgba(0,0,0,0.04)";
+const SHADOW_FLOAT = "0 20px 40px -10px rgba(124, 154, 87, 0.4)";
 
+const H = {
+  screen: { flex: 1, overflowY: "auto", paddingBottom: 110, background: "#F5F7F4" },
+  greetingRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 24px 4px", background: "#F5F7F4" },
+  greeting: { fontSize: 13, color: "#8A9A7B", fontWeight: 600, letterSpacing: "0.1px" },
+  userName: { fontSize: 18, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.4px", marginTop: 2 },
+  header: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 24px 20px", background: "#F5F7F4" },
+  title: { fontSize: 28, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.9px", lineHeight: 1.1 },
+  subtitle: { fontSize: 14, color: "#8A9A7B", fontWeight: 600, marginTop: 4 },
+  avatar: { width: 48, height: 48, borderRadius: "50%", background: "#7C9A57", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 14, boxShadow: "0 4px 12px rgba(124,154,87,0.35)" },
+  heroCard: { margin: "0 18px 24px", borderRadius: 32, padding: "26px 24px", background: "#7C9A57", color: "#fff", position: "relative", overflow: "hidden", boxShadow: "0 20px 40px -10px rgba(124,154,87,0.45)" },
+  heroBlob1: { position: "absolute", top: -50, right: -30, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.10)", filter: "blur(24px)", pointerEvents: "none" },
+  heroBlob2: { position: "absolute", bottom: -40, left: -40, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,0.10)", filter: "blur(20px)", pointerEvents: "none" },
+  heroLabel: { fontSize: 13, color: "#E1E8D9", fontWeight: 600, marginBottom: 4 },
+  heroAmount: { fontSize: 38, color: "#fff", fontWeight: 800, letterSpacing: "-1.2px", marginBottom: 18, lineHeight: 1.1 },
+  yearlyPill: { display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.18)", borderRadius: 18, padding: "12px 18px", border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(10px)" },
+  yearlyLabel: { fontSize: 12, color: "#E1E8D9", fontWeight: 600 },
+  yearlyVal: { fontSize: 17, color: "#fff", fontWeight: 700, letterSpacing: "-0.3px" },
+  sectionRow: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px 14px" },
+  sectionTitle: { fontSize: 20, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.5px" },
+  sectionLink: { fontSize: 12, color: "#8A9A7B", fontWeight: 700, cursor: "pointer", textTransform:"uppercase", letterSpacing:"0.8px" },
+  list: { display: "flex", flexDirection: "column", gap: 14, padding: "0 18px" },
+  rowWrap: { position: "relative", borderRadius: 28, overflow: "hidden" },
+  row: { background: "#fff", borderRadius: 28, padding: 18, cursor: "pointer", position: "relative", zIndex: 1, boxShadow: SHADOW_CARD, display: "flex", flexDirection: "column", gap: 14 },
+  rowTop: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  subIcon: { width: 52, height: 52, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, color: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.08)" },
+  subName: { fontSize: 17, color: "#1C2612", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", letterSpacing: "-0.2px" },
+  subCat: { fontSize: 13, color: "#8A9A7B", marginTop: 2, fontWeight: 500, textTransform: "capitalize" },
+  subPrice: { fontSize: 19, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.4px" },
+  subCycleLabel: { fontSize: 10, color: "#A4BC8E", fontWeight: 700, marginTop: 2, textTransform: "uppercase", letterSpacing: "0.8px" },
+  paymentPill: { background: "#F5F7F4", borderRadius: 18, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 },
+  payLabel: { fontSize: 11, color: "#8A9A7B", fontWeight: 600, marginBottom: 2 },
+  payDate: { fontSize: 13.5, color: "#1C2612", fontWeight: 700 },
+  dayBadge: { fontSize: 12, fontWeight: 700, padding: "6px 12px", borderRadius: 14 },
+  swipeDel: { position: "absolute", right: 0, top: 0, bottom: 0, width: 76, background: "#E05A5A", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "#fff", fontWeight: 700, fontSize: 18, cursor: "pointer", zIndex: 0, borderRadius: "0 28px 28px 0" },
+  swipeEdit: { position: "absolute", left: 0, top: 0, bottom: 0, width: 76, background: "#7C9A57", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "#fff", fontWeight: 700, fontSize: 18, cursor: "pointer", zIndex: 0, borderRadius: "28px 0 0 28px" },
+};
+
+const CAL = {
+  screen: { flex:1, overflowY:"auto", paddingBottom:110, background:"#F5F7F4" },
+  header: { display:"flex", justifyContent:"space-between", alignItems:"center", padding:"24px 24px 18px" },
+  monthTitle: { fontSize:28, color:"#1C2612", fontWeight:800, letterSpacing:"-0.9px" },
+  navRow: { display:"flex", gap:8 },
+  navBtn: { width:40, height:40, borderRadius:14, background:"#fff", display:"flex", alignItems:"center", justifyContent:"center", color:"#1C2612", fontSize:18, cursor:"pointer", boxShadow:SHADOW_CARD, fontWeight:700 },
+  totalBanner: { margin:"0 18px 18px", background:"#7C9A57", borderRadius:24, padding:"18px 22px", display:"flex", justifyContent:"space-between", alignItems:"center", boxShadow:"0 16px 32px -10px rgba(124,154,87,0.5)" },
+  totalLabel: { fontSize:12, color:"#E1E8D9", fontWeight:700, textTransform:"uppercase", letterSpacing:"1px" },
+  totalAmount: { fontSize:22, color:"#fff", fontWeight:800, letterSpacing:"-0.5px" },
+  dayNames: { display:"grid", gridTemplateColumns:"repeat(7,1fr)", padding:"0 18px", marginBottom:8 },
+  dayName: { textAlign:"center", fontSize:11, color:"#A4BC8E", fontWeight:700, padding:"8px 0", textTransform:"uppercase", letterSpacing:"1px" },
+  grid: { display:"grid", gridTemplateColumns:"repeat(7,1fr)", padding:"10px 8px", margin:"0 14px", gap:"4px 0", background:"#fff", borderRadius:28, boxShadow:SHADOW_CARD },
+  dayCell: { display:"flex", flexDirection:"column", alignItems:"center", padding:"7px 0", borderRadius:14, transition:"background 0.15s" },
+  dayNum: { fontSize:14, lineHeight:1 },
+  dots: { display:"flex", gap:3, marginTop:4, height:6, alignItems:"center" },
+  dot: { width:5, height:5, borderRadius:"50%" },
+  popup: { margin:"16px 18px 0", background:"#fff", borderRadius:28, padding:"20px 20px 16px", boxShadow:SHADOW_CARD },
+  popupHeader: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 },
+  popupTitle: { fontSize:17, color:"#1C2612", fontWeight:800, letterSpacing:"-0.3px" },
+  popupClose: { width:32, height:32, borderRadius:11, background:"#F5F7F4", display:"flex", alignItems:"center", justifyContent:"center", color:"#8A9A7B", fontSize:13, cursor:"pointer", fontWeight:700 },
+  eventRow: { display:"flex", alignItems:"center", gap:12, padding:"12px 0" },
+  eventIcon: { width:44, height:44, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, color:"#fff", boxShadow:"0 3px 8px rgba(0,0,0,0.06)" },
+  eventName: { fontSize:15, color:"#1C2612", fontWeight:700 },
+  eventCat: { fontSize:12.5, color:"#8A9A7B", marginTop:2, fontWeight:500 },
+  eventAmount: { fontSize:16, fontWeight:800, color:"#1C2612" },
+  popupTotal: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:14, marginTop:6, borderTop:"1px solid #F2F5EF" },
+};
+
+const INS = {
+  screen: { flex:1, overflowY:"auto", paddingBottom:110, background:"#F5F7F4" },
+  header: { display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"24px 24px 20px" },
+  title: { fontSize:28, color:"#1C2612", fontWeight:800, letterSpacing:"-0.9px" },
+  period: { fontSize:12, color:"#fff", background:"#7C9A57", padding:"8px 16px", borderRadius:20, fontWeight:800, boxShadow:"0 8px 18px rgba(124,154,87,0.45)" },
+  heroCard: { margin:"0 18px 18px", background:"#7C9A57", borderRadius:32, padding:"26px 24px", position:"relative", overflow:"hidden", boxShadow:"0 20px 40px -10px rgba(124,154,87,0.45)" },
+  heroLabel: { fontSize:13, color:"#E1E8D9", fontWeight:600, marginBottom:6 },
+  heroAmount: { fontSize:42, color:"#fff", fontWeight:800, letterSpacing:"-1.5px", lineHeight:1 },
+  heroSub: { fontSize:13, color:"#E1E8D9", fontWeight:500 },
+  heroBlob1: { position:"absolute", top:-50, right:-30, width:180, height:180, borderRadius:"50%", background:"rgba(255,255,255,0.10)", filter:"blur(24px)" },
+  heroBlob2: { position:"absolute", bottom:-40, left:-40, width:140, height:140, borderRadius:"50%", background:"rgba(255,255,255,0.10)", filter:"blur(20px)" },
+  card: { margin:"0 18px 16px", background:"#fff", borderRadius:28, padding:22, boxShadow:SHADOW_CARD },
+  cardTitle: { fontSize:17, color:"#1C2612", fontWeight:800, marginBottom:18, letterSpacing:"-0.3px" },
+  chartArea: { display:"flex", justifyContent:"space-between", alignItems:"flex-end", height:130, paddingBottom:0 },
+  barGroup: { flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:6, cursor:"pointer" },
+  barLabel2: { fontSize:10, color:"#7C9A57", fontWeight:800, height:14, textAlign:"center" },
+  bar: { width:26, minHeight:6 },
+  barLabel: { fontSize:11.5 },
+  catRow: { display:"flex", alignItems:"center", gap:12 },
+  catDot: { width:12, height:12, borderRadius:4, flexShrink:0 },
+  catName: { fontSize:14, color:"#1C2612", fontWeight:600 },
+  catVal: { fontSize:14, color:"#1C2612", fontWeight:800 },
+  catBg: { height:6, background:"#F2F5EF", borderRadius:3, overflow:"hidden" },
+  catFill: { height:"100%", borderRadius:3, transition:"width .5s ease" },
+  subRow: { display:"flex", alignItems:"center", gap:12, padding:"12px 0" },
+  subIcon: { width:42, height:42, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, color:"#fff", boxShadow:"0 3px 8px rgba(0,0,0,0.06)" },
+  subName: { fontSize:14.5, color:"#1C2612", fontWeight:700 },
+  subPct: { fontSize:12, color:"#8A9A7B", marginTop:2, fontWeight:500 },
+  subPrice: { fontSize:15, color:"#1C2612", fontWeight:800 },
+  totalRow: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:14, marginTop:6, borderTop:"1px solid #F2F5EF" },
+};
+
+const S = {
+  screen: { flex:1, overflowY:"auto", paddingBottom:110, background:"#F5F7F4" },
+  header: { padding:"24px 24px 14px" },
+  title: { fontSize:28, color:"#1C2612", fontWeight:800, letterSpacing:"-0.9px" },
+  profileCard: { margin:"6px 18px 18px", background:"#7C9A57", borderRadius:28, padding:22, display:"flex", alignItems:"center", gap:16, position:"relative", overflow:"hidden", boxShadow:"0 20px 40px -10px rgba(124,154,87,0.45)" },
+  avatar: { width:58, height:58, borderRadius:"50%", background:"#fff", display:"flex", alignItems:"center", justifyContent:"center", color:"#7C9A57", fontWeight:800, fontSize:18, boxShadow:"0 6px 14px rgba(0,0,0,0.12)" },
+  profileName: { fontSize:19, color:"#fff", fontWeight:800, letterSpacing:"-0.3px" },
+  profileEmail: { fontSize:13, color:"#E1E8D9", marginTop:3, fontWeight:600 },
+  profileEdit: { marginLeft:"auto", width:38, height:38, borderRadius:12, background:"rgba(255,255,255,0.18)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, cursor:"pointer", color:"#fff" },
+  gloss: { position:"absolute", top:-40, right:-40, width:160, height:160, borderRadius:"50%", background:"rgba(255,255,255,0.12)", filter:"blur(20px)", pointerEvents:"none" },
+  section: { margin:"0 18px 14px" },
+  sectionLabel: { fontSize:11, color:"#8A9A7B", fontWeight:800, textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:10, paddingLeft:8 },
+  sectionCard: { background:"#fff", borderRadius:24, boxShadow:SHADOW_CARD, overflow:"hidden" },
+  row: { display:"flex", alignItems:"center", gap:14, padding:"16px 18px" },
+  rowIcon: { fontSize:18, width:40, height:40, borderRadius:13, background:"#F2F5EF", color:"#5E7840", display:"flex", alignItems:"center", justifyContent:"center" },
+  rowLabel: { flex:1, fontSize:15, color:"#1C2612", fontWeight:700 },
+  chevron: { color:"#C4D4B4", fontSize:22, fontWeight:300 },
+  badge: { background:"#F2F5EF", color:"#5E7840", fontSize:12, fontWeight:800, padding:"5px 12px", borderRadius:12 },
+  select: { background:"transparent", color:"#7C9A57", border:"none", outline:"none", fontSize:14, fontWeight:800, cursor:"pointer" },
+  version: { textAlign:"center", color:"#A4BC8E", fontSize:11, padding:"18px 0 6px", fontWeight:700, letterSpacing:"0.6px" },
+};
+
+const AS = {
+  sheet: { width:"100%", background:"#fff", borderRadius:"32px 32px 0 0", padding:"0 22px 32px", display:"flex", flexDirection:"column", maxHeight:"85dvh", overflowY:"auto" },
+  handle: { width:42, height:5, background:"#E1E8D9", borderRadius:3, margin:"12px auto 14px" },
+  titleRow: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 },
+  sheetTitle: { fontSize:19, color:"#1C2612", fontWeight:800, letterSpacing:"-0.3px" },
+  closeBtn: { width:34, height:34, borderRadius:12, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", color:"#8A9A7B", fontSize:14, cursor:"pointer", fontWeight:700 },
+  progress: { display:"flex", gap:6, marginBottom:18 },
+  progressDot: { flex:1, height:5, borderRadius:3, transition:"background 0.3s" },
+  stepTitle: { fontSize:22, color:"#1C2612", fontWeight:800, marginBottom:20, letterSpacing:"-0.5px" },
+  input: { width:"100%", background:"#fff", border:"2px solid #F2F5EF", borderRadius:16, padding:"16px 18px", color:"#1C2612", fontSize:16, fontWeight:600, outline:"none", boxSizing:"border-box", marginBottom:16, transition:"all .2s ease" },
+  iconGrid: { display:"grid", gridTemplateColumns:"repeat(8,1fr)", gap:8, marginBottom:16 },
+  iconOpt: { aspectRatio:"1", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, cursor:"pointer", transition:"all 0.15s" },
+  colorRow: { display:"flex", gap:10, paddingBottom:8 },
+  colorDot: { width:30, height:30, borderRadius:"50%", cursor:"pointer", transition:"transform 0.15s, box-shadow 0.15s" },
+  bigInput: { display:"flex", alignItems:"center", background:"#F2F5EF", borderRadius:18, padding:"14px 20px", marginBottom:18 },
+  bigCurr: { fontSize:30, color:"#A4BC8E", fontWeight:700, marginRight:8 },
+  bigField: { flex:1, background:"transparent", border:"none", outline:"none", fontSize:40, fontWeight:800, color:"#1C2612", width:"100%", letterSpacing:"-1px" },
+  presets: { display:"flex", gap:8 },
+  preset: { flex:1, background:"#E8EFD8", borderRadius:12, padding:"10px 0", textAlign:"center", fontSize:13, color:"#5B7A3C", fontWeight:700, cursor:"pointer" },
+  cycleOpt: { display:"flex", justifyContent:"space-between", alignItems:"center", padding:"16px 18px", borderRadius:16, cursor:"pointer", transition:"all 0.15s" },
+  navRow: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:18, gap:12 },
+  backBtn: { padding:"16px 22px", borderRadius:16, color:"#8A9A7B", fontWeight:700, fontSize:15, cursor:"pointer" },
+  nextBtn: { flex:1, padding:"17px 0", borderRadius:18, textAlign:"center", fontWeight:800, fontSize:16, cursor:"pointer", transition:"all 0.2s", letterSpacing:"-0.2px" },
+};
+
+const ES = {
+  label: { fontSize:11, color:"#8A9A7B", fontWeight:700, textTransform:"uppercase", letterSpacing:"1px", marginBottom:8 },
+};
+
+const SD = {
+  sheet: { width:"100%", background:"#fff", borderRadius:"32px 32px 0 0", padding:"0 22px 32px", maxHeight:"90%", overflowY:"auto" },
+  handle: { width:42, height:5, background:"#E1E8D9", borderRadius:3, margin:"12px auto 18px" },
+  hero: { borderRadius:24, padding:18, display:"flex", alignItems:"center", gap:14, marginBottom:14 },
+  heroIcon: { width:58, height:58, borderRadius:18, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, flexShrink:0, color:"#fff" },
+  heroName: { fontSize:22, color:"#1C2612", fontWeight:800, letterSpacing:"-0.4px" },
+  heroCat: { fontSize:13, color:"#8A9A7B", marginTop:2, fontWeight:500 },
+  heroPrice: { fontSize:23, color:"#1C2612", fontWeight:800, letterSpacing:"-0.3px" },
+  heroCycle: { fontSize:11, color:"#A4BC8E", marginTop:2, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px" },
+  countdown: { background:"#F2F5EF", borderRadius:20, padding:18, marginBottom:14, position:"relative" },
+  countLabel: { fontSize:12, color:"#8A9A7B", fontWeight:600, marginBottom:6, textTransform:"uppercase", letterSpacing:"0.8px" },
+  countDays: { fontSize:26, fontWeight:800, marginBottom:2, letterSpacing:"-0.5px" },
+  countDate: { fontSize:14, color:"#5E7840", fontWeight:600 },
+  warn: { position:"absolute", top:14, right:16, background:"#E05A5A", color:"#fff", fontSize:11, fontWeight:800, padding:"5px 10px", borderRadius:10, textTransform:"uppercase", letterSpacing:"0.6px" },
+  settingRow: { display:"flex", justifyContent:"space-between", alignItems:"center", background:"#F2F5EF", borderRadius:20, padding:"16px 18px", marginBottom:14 },
+  settingLabel: { fontSize:15, color:"#1C2612", fontWeight:700 },
+  settingHint: { fontSize:12, color:"#8A9A7B", marginTop:2, fontWeight:500 },
+  stats: { display:"flex", background:"#F2F5EF", borderRadius:20, padding:"16px 0", marginBottom:14, justifyContent:"space-around", alignItems:"center" },
+  statBox: { textAlign:"center", flex:1 },
+  statVal: { fontSize:16, color:"#1C2612", fontWeight:800 },
+  statLabel: { fontSize:11, color:"#8A9A7B", marginTop:3, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.6px" },
+  statDiv: { width:1, height:36, background:"#E1E8D9" },
+  editBtn: { flex:1, background:"#F2F5EF", borderRadius:18, padding:"16px 0", textAlign:"center", color:"#5E7840", fontWeight:800, fontSize:15, cursor:"pointer" },
+  deleteBtn: { flex:1, background:"rgba(224,90,90,0.10)", borderRadius:18, padding:"16px 0", textAlign:"center", color:"#E05A5A", fontWeight:800, fontSize:15, cursor:"pointer", transition:"all 0.2s" },
+};
 
 function formatEur(amount) {
   const cur = window.__SUBLY_CURRENCY || "EUR";
@@ -601,6 +788,17 @@ function monthlySpending(subs, year, month) {
     }
   });
   return total;
+}
+
+function monthlyEquivalent(sub) {
+  const c = (sub.cycle || "Monatlich");
+  if (c === "Wöchentlich") return sub.price * 4.33;
+  if (c === "Jährlich") return sub.price / 12;
+  if (c === "Benutzerdefiniert") {
+    const n = parseInt(sub.customDays, 10) || 30;
+    return sub.price * (30.4375 / n);
+  }
+  return sub.price;
 }
 
 // ─── Home Screen ────────────────────────────────────────────────
@@ -795,42 +993,6 @@ function HomeScreen({ subs, onSwipeDelete, onSubClick, accentGradient, userName,
   );
 }
 
-const H = {
-  screen: { flex: 1, overflowY: "auto", paddingBottom: 110, background: "#F5F7F4" },
-  greetingRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 24px 4px", background: "#F5F7F4" },
-  greeting: { fontSize: 13, color: "#8A9A7B", fontWeight: 600, letterSpacing: "0.1px" },
-  userName: { fontSize: 18, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.4px", marginTop: 2 },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 24px 20px", background: "#F5F7F4" },
-  title: { fontSize: 28, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.9px", lineHeight: 1.1 },
-  subtitle: { fontSize: 14, color: "#8A9A7B", fontWeight: 600, marginTop: 4 },
-  avatar: { width: 48, height: 48, borderRadius: "50%", background: "#7C9A57", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 14, boxShadow: "0 4px 12px rgba(124,154,87,0.35)" },
-  heroCard: { margin: "0 18px 24px", borderRadius: 32, padding: "26px 24px", background: "#7C9A57", color: "#fff", position: "relative", overflow: "hidden", boxShadow: "0 20px 40px -10px rgba(124,154,87,0.45)" },
-  heroBlob1: { position: "absolute", top: -50, right: -30, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.10)", filter: "blur(24px)", pointerEvents: "none" },
-  heroBlob2: { position: "absolute", bottom: -40, left: -40, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,0.10)", filter: "blur(20px)", pointerEvents: "none" },
-  heroLabel: { fontSize: 13, color: "#E1E8D9", fontWeight: 600, marginBottom: 4 },
-  heroAmount: { fontSize: 38, color: "#fff", fontWeight: 800, letterSpacing: "-1.2px", marginBottom: 18, lineHeight: 1.1 },
-  yearlyPill: { display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.18)", borderRadius: 18, padding: "12px 18px", border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(10px)" },
-  yearlyLabel: { fontSize: 12, color: "#E1E8D9", fontWeight: 600 },
-  yearlyVal: { fontSize: 17, color: "#fff", fontWeight: 700, letterSpacing: "-0.3px" },
-  sectionRow: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px 14px" },
-  sectionTitle: { fontSize: 20, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.5px" },
-  sectionLink: { fontSize: 12, color: "#8A9A7B", fontWeight: 700, cursor: "pointer", textTransform:"uppercase", letterSpacing:"0.8px" },
-  list: { display: "flex", flexDirection: "column", gap: 14, padding: "0 18px" },
-  rowWrap: { position: "relative", borderRadius: 28, overflow: "hidden" },
-  row: { background: "#fff", borderRadius: 28, padding: 18, cursor: "pointer", position: "relative", zIndex: 1, boxShadow: SHADOW_CARD, display: "flex", flexDirection: "column", gap: 14 },
-  rowTop: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 },
-  subIcon: { width: 52, height: 52, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, color: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.08)" },
-  subName: { fontSize: 17, color: "#1C2612", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", letterSpacing: "-0.2px" },
-  subCat: { fontSize: 13, color: "#8A9A7B", marginTop: 2, fontWeight: 500, textTransform: "capitalize" },
-  subPrice: { fontSize: 19, color: "#1C2612", fontWeight: 800, letterSpacing: "-0.4px" },
-  subCycleLabel: { fontSize: 10, color: "#A4BC8E", fontWeight: 700, marginTop: 2, textTransform: "uppercase", letterSpacing: "0.8px" },
-  paymentPill: { background: "#F5F7F4", borderRadius: 18, padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 },
-  payLabel: { fontSize: 11, color: "#8A9A7B", fontWeight: 600, marginBottom: 2 },
-  payDate: { fontSize: 13.5, color: "#1C2612", fontWeight: 700 },
-  dayBadge: { fontSize: 12, fontWeight: 700, padding: "6px 12px", borderRadius: 14 },
-  swipeDel: { position: "absolute", right: 0, top: 0, bottom: 0, width: 76, background: "#E05A5A", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "#fff", fontWeight: 700, fontSize: 18, cursor: "pointer", zIndex: 0, borderRadius: "0 28px 28px 0" },
-  swipeEdit: { position: "absolute", left: 0, top: 0, bottom: 0, width: 76, background: "#7C9A57", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: "#fff", fontWeight: 700, fontSize: 18, cursor: "pointer", zIndex: 0, borderRadius: "28px 0 0 28px" },
-};
 
 // ─── Calendar Screen ────────────────────────────────────────────
 function CalendarScreen({ subs, onAddOnDate }) {
@@ -1014,81 +1176,7 @@ function CalendarScreen({ subs, onAddOnDate }) {
   );
 }
 
-const CAL = {
-  screen: { flex:1, overflowY:"auto", paddingBottom:110, background:"#F5F7F4" },
-  header: { display:"flex", justifyContent:"space-between", alignItems:"center", padding:"24px 24px 18px" },
-  monthTitle: { fontSize:28, color:"#1C2612", fontWeight:800, letterSpacing:"-0.9px" },
-  navRow: { display:"flex", gap:8 },
-  navBtn: { width:40, height:40, borderRadius:14, background:"#fff", display:"flex", alignItems:"center", justifyContent:"center", color:"#1C2612", fontSize:18, cursor:"pointer", boxShadow:SHADOW_CARD, fontWeight:700 },
-  totalBanner: { margin:"0 18px 18px", background:"#7C9A57", borderRadius:24, padding:"18px 22px", display:"flex", justifyContent:"space-between", alignItems:"center", boxShadow:"0 16px 32px -10px rgba(124,154,87,0.5)" },
-  totalLabel: { fontSize:12, color:"#E1E8D9", fontWeight:700, textTransform:"uppercase", letterSpacing:"1px" },
-  totalAmount: { fontSize:22, color:"#fff", fontWeight:800, letterSpacing:"-0.5px" },
-  dayNames: { display:"grid", gridTemplateColumns:"repeat(7,1fr)", padding:"0 18px", marginBottom:8 },
-  dayName: { textAlign:"center", fontSize:11, color:"#A4BC8E", fontWeight:700, padding:"8px 0", textTransform:"uppercase", letterSpacing:"1px" },
-  grid: { display:"grid", gridTemplateColumns:"repeat(7,1fr)", padding:"10px 8px", margin:"0 14px", gap:"4px 0", background:"#fff", borderRadius:28, boxShadow:SHADOW_CARD },
-  dayCell: { display:"flex", flexDirection:"column", alignItems:"center", padding:"7px 0", borderRadius:14, transition:"background 0.15s" },
-  dayNum: { fontSize:14, lineHeight:1 },
-  dots: { display:"flex", gap:3, marginTop:4, height:6, alignItems:"center" },
-  dot: { width:5, height:5, borderRadius:"50%" },
-  popup: { margin:"16px 18px 0", background:"#fff", borderRadius:28, padding:"20px 20px 16px", boxShadow:SHADOW_CARD },
-  popupHeader: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 },
-  popupTitle: { fontSize:17, color:"#1C2612", fontWeight:800, letterSpacing:"-0.3px" },
-  popupClose: { width:32, height:32, borderRadius:11, background:"#F5F7F4", display:"flex", alignItems:"center", justifyContent:"center", color:"#8A9A7B", fontSize:13, cursor:"pointer", fontWeight:700 },
-  eventRow: { display:"flex", alignItems:"center", gap:12, padding:"12px 0" },
-  eventIcon: { width:44, height:44, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, color:"#fff", boxShadow:"0 3px 8px rgba(0,0,0,0.06)" },
-  eventName: { fontSize:15, color:"#1C2612", fontWeight:700 },
-  eventCat: { fontSize:12.5, color:"#8A9A7B", marginTop:2, fontWeight:500 },
-  eventAmount: { fontSize:16, fontWeight:800, color:"#1C2612" },
-  popupTotal: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:14, marginTop:6, borderTop:"1px solid #F2F5EF" },
-};
 
-const formatDateLong = (date) => {
-  if (!date) return "";
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
-};
-
-const parseDateInput = (str) => {
-  const m = str.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-  if (!m) return null;
-  const d = parseInt(m[1], 10);
-  const mon = parseInt(m[2], 10);
-  const y = parseInt(m[3], 10);
-  const dt = new Date(y, mon - 1, d);
-  if (dt.getFullYear() === y && dt.getMonth() === mon - 1 && dt.getDate() === d) {
-    return dt.toISOString().split("T")[0];
-  }
-  return null;
-};
-
-const maskDateInput = (val) => {
-  let v = val.replace(/\D/g, "");
-  if (v.length > 8) v = v.slice(0, 8);
-  let res = "";
-  if (v.length > 0) {
-    let d = v.slice(0, 2);
-    if (d.length === 2) {
-      const dn = parseInt(d, 10);
-      if (dn > 31) d = "31";
-      if (dn === 0 && d !== "0") d = "01";
-    }
-    res += d;
-  }
-  if (v.length > 2) {
-    let m = v.slice(2, 4);
-    if (m.length === 2) {
-      const mn = parseInt(m, 10);
-      if (mn > 12) m = "12";
-      if (mn === 0 && m !== "0") m = "01";
-    }
-    res += "." + m;
-  }
-  if (v.length > 4) {
-    res += "." + v.slice(4, 8);
-  }
-  return res;
-};
 
 
 
@@ -1375,42 +1463,8 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate, onOpenPicker }
   );
 }
 
-const AS = {
-  sheet: { width:"100%", background:"#fff", borderRadius:"32px 32px 0 0", padding:"0 22px 32px", display:"flex", flexDirection:"column", maxHeight:"85dvh", overflowY:"auto" },
-  handle: { width:42, height:5, background:"#E1E8D9", borderRadius:3, margin:"12px auto 14px" },
-  titleRow: { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 },
-  sheetTitle: { fontSize:19, color:"#1C2612", fontWeight:800, letterSpacing:"-0.3px" },
-  closeBtn: { width:34, height:34, borderRadius:12, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", color:"#8A9A7B", fontSize:14, cursor:"pointer", fontWeight:700 },
-  progress: { display:"flex", gap:6, marginBottom:18 },
-  progressDot: { flex:1, height:5, borderRadius:3, transition:"background 0.3s" },
-  stepTitle: { fontSize:22, color:"#1C2612", fontWeight:800, marginBottom:20, letterSpacing:"-0.5px" },
-  input: { width:"100%", background:"#fff", border:"2px solid #F2F5EF", borderRadius:16, padding:"16px 18px", color:"#1C2612", fontSize:16, fontWeight:600, outline:"none", boxSizing:"border-box", marginBottom:16, transition:"all .2s ease" },
-  iconGrid: { display:"grid", gridTemplateColumns:"repeat(8,1fr)", gap:8, marginBottom:16 },
-  iconOpt: { aspectRatio:"1", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, cursor:"pointer", transition:"all 0.15s" },
-  colorRow: { display:"flex", gap:10, paddingBottom:8 },
-  colorDot: { width:30, height:30, borderRadius:"50%", cursor:"pointer", transition:"transform 0.15s, box-shadow 0.15s" },
-  bigInput: { display:"flex", alignItems:"center", background:"#F2F5EF", borderRadius:18, padding:"14px 20px", marginBottom:18 },
-  bigCurr: { fontSize:30, color:"#A4BC8E", fontWeight:700, marginRight:8 },
-  bigField: { flex:1, background:"transparent", border:"none", outline:"none", fontSize:40, fontWeight:800, color:"#1C2612", width:"100%", letterSpacing:"-1px" },
-  presets: { display:"flex", gap:8 },
-  preset: { flex:1, background:"#E8EFD8", borderRadius:12, padding:"10px 0", textAlign:"center", fontSize:13, color:"#5B7A3C", fontWeight:700, cursor:"pointer" },
-  cycleOpt: { display:"flex", justifyContent:"space-between", alignItems:"center", padding:"16px 18px", borderRadius:16, cursor:"pointer", transition:"all 0.15s" },
-  navRow: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:18, gap:12 },
-  backBtn: { padding:"16px 22px", borderRadius:16, color:"#8A9A7B", fontWeight:700, fontSize:15, cursor:"pointer" },
-  nextBtn: { flex:1, padding:"17px 0", borderRadius:18, textAlign:"center", fontWeight:800, fontSize:16, cursor:"pointer", transition:"all 0.2s", letterSpacing:"-0.2px" },
-};
 
 // ─── Insights Screen ────────────────────────────────────────────
-function monthlyEquivalent(sub) {
-  const c = (sub.cycle || "Monatlich");
-  if (c === "Wöchentlich") return sub.price * 4.33;
-  if (c === "Jährlich") return sub.price / 12;
-  if (c === "Benutzerdefiniert") {
-    const n = parseInt(sub.customDays, 10) || 30;
-    return sub.price * (30.4375 / n);
-  }
-  return sub.price;
-}
 function InsightsScreen({ subs, accentGradient }) {
   const { t, i18n } = useTranslation();
   
@@ -1567,37 +1621,6 @@ function InsightsScreen({ subs, accentGradient }) {
   );
 }
 
-const INS = {
-  screen: { flex:1, overflowY:"auto", paddingBottom:110, background:"#F5F7F4" },
-  header: { display:"flex", justifyContent:"space-between", alignItems:"flex-start", padding:"24px 24px 20px" },
-  title: { fontSize:28, color:"#1C2612", fontWeight:800, letterSpacing:"-0.9px" },
-  period: { fontSize:12, color:"#fff", background:"#7C9A57", padding:"8px 16px", borderRadius:20, fontWeight:800, boxShadow:"0 8px 18px rgba(124,154,87,0.45)" },
-  heroCard: { margin:"0 18px 18px", background:"#7C9A57", borderRadius:32, padding:"26px 24px", position:"relative", overflow:"hidden", boxShadow:"0 20px 40px -10px rgba(124,154,87,0.45)" },
-  heroLabel: { fontSize:13, color:"#E1E8D9", fontWeight:600, marginBottom:6 },
-  heroAmount: { fontSize:42, color:"#fff", fontWeight:800, letterSpacing:"-1.5px", lineHeight:1 },
-  heroSub: { fontSize:13, color:"#E1E8D9", fontWeight:500 },
-  heroBlob1: { position:"absolute", top:-50, right:-30, width:180, height:180, borderRadius:"50%", background:"rgba(255,255,255,0.10)", filter:"blur(24px)" },
-  heroBlob2: { position:"absolute", bottom:-40, left:-40, width:140, height:140, borderRadius:"50%", background:"rgba(255,255,255,0.10)", filter:"blur(20px)" },
-  card: { margin:"0 18px 16px", background:"#fff", borderRadius:28, padding:22, boxShadow:SHADOW_CARD },
-  cardTitle: { fontSize:17, color:"#1C2612", fontWeight:800, marginBottom:18, letterSpacing:"-0.3px" },
-  chartArea: { display:"flex", justifyContent:"space-between", alignItems:"flex-end", height:130, paddingBottom:0 },
-  barGroup: { flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:6, cursor:"pointer" },
-  barLabel2: { fontSize:10, color:"#7C9A57", fontWeight:800, height:14, textAlign:"center" },
-  bar: { width:26, minHeight:6 },
-  barLabel: { fontSize:11.5 },
-  catRow: { display:"flex", alignItems:"center", gap:12 },
-  catDot: { width:12, height:12, borderRadius:4, flexShrink:0 },
-  catName: { fontSize:14, color:"#1C2612", fontWeight:600 },
-  catVal: { fontSize:14, color:"#1C2612", fontWeight:800 },
-  catBg: { height:6, background:"#F2F5EF", borderRadius:3, overflow:"hidden" },
-  catFill: { height:"100%", borderRadius:3, transition:"width .5s ease" },
-  subRow: { display:"flex", alignItems:"center", gap:12, padding:"12px 0" },
-  subIcon: { width:42, height:42, borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, color:"#fff", boxShadow:"0 3px 8px rgba(0,0,0,0.06)" },
-  subName: { fontSize:14.5, color:"#1C2612", fontWeight:700 },
-  subPct: { fontSize:12, color:"#8A9A7B", marginTop:2, fontWeight:500 },
-  subPrice: { fontSize:15, color:"#1C2612", fontWeight:800 },
-  totalRow: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:14, marginTop:6, borderTop:"1px solid #F2F5EF" },
-};
 
 // ─── Settings Screen ────────────────────────────────────────────
 function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, pushEnabled, onTogglePush, onTestPush, onChangeName, onResetSubs, onResetApp, subCount, profileImage, onChangeProfileImage }) {
@@ -1779,27 +1802,6 @@ function SettingsScreen({ accentGradient, userName, currency, onChangeCurrency, 
   );
 }
 
-const S = {
-  screen: { flex:1, overflowY:"auto", paddingBottom:110, background:"#F5F7F4" },
-  header: { padding:"24px 24px 14px" },
-  title: { fontSize:28, color:"#1C2612", fontWeight:800, letterSpacing:"-0.9px" },
-  profileCard: { margin:"6px 18px 18px", background:"#7C9A57", borderRadius:28, padding:22, display:"flex", alignItems:"center", gap:16, position:"relative", overflow:"hidden", boxShadow:"0 20px 40px -10px rgba(124,154,87,0.45)" },
-  avatar: { width:58, height:58, borderRadius:"50%", background:"#fff", display:"flex", alignItems:"center", justifyContent:"center", color:"#7C9A57", fontWeight:800, fontSize:18, boxShadow:"0 6px 14px rgba(0,0,0,0.12)" },
-  profileName: { fontSize:19, color:"#fff", fontWeight:800, letterSpacing:"-0.3px" },
-  profileEmail: { fontSize:13, color:"#E1E8D9", marginTop:3, fontWeight:600 },
-  profileEdit: { marginLeft:"auto", width:38, height:38, borderRadius:12, background:"rgba(255,255,255,0.18)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, cursor:"pointer", color:"#fff" },
-  gloss: { position:"absolute", top:-40, right:-40, width:160, height:160, borderRadius:"50%", background:"rgba(255,255,255,0.12)", filter:"blur(20px)", pointerEvents:"none" },
-  section: { margin:"0 18px 14px" },
-  sectionLabel: { fontSize:11, color:"#8A9A7B", fontWeight:800, textTransform:"uppercase", letterSpacing:"1.2px", marginBottom:10, paddingLeft:8 },
-  sectionCard: { background:"#fff", borderRadius:24, boxShadow:SHADOW_CARD, overflow:"hidden" },
-  row: { display:"flex", alignItems:"center", gap:14, padding:"16px 18px" },
-  rowIcon: { fontSize:18, width:40, height:40, borderRadius:13, background:"#F2F5EF", color:"#5E7840", display:"flex", alignItems:"center", justifyContent:"center" },
-  rowLabel: { flex:1, fontSize:15, color:"#1C2612", fontWeight:700 },
-  chevron: { color:"#C4D4B4", fontSize:22, fontWeight:300 },
-  badge: { background:"#F2F5EF", color:"#5E7840", fontSize:12, fontWeight:800, padding:"5px 12px", borderRadius:12 },
-  select: { background:"transparent", color:"#7C9A57", border:"none", outline:"none", fontSize:14, fontWeight:800, cursor:"pointer" },
-  version: { textAlign:"center", color:"#A4BC8E", fontSize:11, padding:"18px 0 6px", fontWeight:700, letterSpacing:"0.6px" },
-};
 
 // ─── Sub Detail Screen ──────────────────────────────────────────
 function SubDetailScreen({ sub, onClose, onDelete, onEdit, accentGradient }) {
@@ -2134,35 +2136,7 @@ function EditSubScreen({ sub, onSave, onClose, onDelete, onOpenPicker }) {
   );
 }
 
-const ES = {
-  label: { fontSize:11, color:"#8A9A7B", fontWeight:700, textTransform:"uppercase", letterSpacing:"1px", marginBottom:8 },
-};
 
-const SD = {
-  sheet: { width:"100%", background:"#fff", borderRadius:"32px 32px 0 0", padding:"0 22px 32px", maxHeight:"90%", overflowY:"auto" },
-  handle: { width:42, height:5, background:"#E1E8D9", borderRadius:3, margin:"12px auto 18px" },
-  hero: { borderRadius:24, padding:18, display:"flex", alignItems:"center", gap:14, marginBottom:14 },
-  heroIcon: { width:58, height:58, borderRadius:18, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, flexShrink:0, color:"#fff" },
-  heroName: { fontSize:22, color:"#1C2612", fontWeight:800, letterSpacing:"-0.4px" },
-  heroCat: { fontSize:13, color:"#8A9A7B", marginTop:2, fontWeight:500 },
-  heroPrice: { fontSize:23, color:"#1C2612", fontWeight:800, letterSpacing:"-0.3px" },
-  heroCycle: { fontSize:11, color:"#A4BC8E", marginTop:2, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px" },
-  countdown: { background:"#F2F5EF", borderRadius:20, padding:18, marginBottom:14, position:"relative" },
-  countLabel: { fontSize:12, color:"#8A9A7B", fontWeight:600, marginBottom:6, textTransform:"uppercase", letterSpacing:"0.8px" },
-  countDays: { fontSize:26, fontWeight:800, marginBottom:2, letterSpacing:"-0.5px" },
-  countDate: { fontSize:14, color:"#5E7840", fontWeight:600 },
-  warn: { position:"absolute", top:14, right:16, background:"#E05A5A", color:"#fff", fontSize:11, fontWeight:800, padding:"5px 10px", borderRadius:10, textTransform:"uppercase", letterSpacing:"0.6px" },
-  settingRow: { display:"flex", justifyContent:"space-between", alignItems:"center", background:"#F2F5EF", borderRadius:20, padding:"16px 18px", marginBottom:14 },
-  settingLabel: { fontSize:15, color:"#1C2612", fontWeight:700 },
-  settingHint: { fontSize:12, color:"#8A9A7B", marginTop:2, fontWeight:500 },
-  stats: { display:"flex", background:"#F2F5EF", borderRadius:20, padding:"16px 0", marginBottom:14, justifyContent:"space-around", alignItems:"center" },
-  statBox: { textAlign:"center", flex:1 },
-  statVal: { fontSize:16, color:"#1C2612", fontWeight:800 },
-  statLabel: { fontSize:11, color:"#8A9A7B", marginTop:3, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.6px" },
-  statDiv: { width:1, height:36, background:"#E1E8D9" },
-  editBtn: { flex:1, background:"#F2F5EF", borderRadius:18, padding:"16px 0", textAlign:"center", color:"#5E7840", fontWeight:800, fontSize:15, cursor:"pointer" },
-  deleteBtn: { flex:1, background:"rgba(224,90,90,0.10)", borderRadius:18, padding:"16px 0", textAlign:"center", color:"#E05A5A", fontWeight:800, fontSize:15, cursor:"pointer", transition:"all 0.2s" },
-};
 
 // ─── Install Prompt ─────────────────────────────────────────────
 function InstallPrompt({ accentGradient }) {
@@ -2238,20 +2212,6 @@ function InstallPrompt({ accentGradient }) {
 }
 
 // ─── App ────────────────────────────────────────────────────────
-const ACCENT_START = "#8EB073";
-const ACCENT_END = "#7C9A57";
-const ACCENT_DARK = "#465A30";
-const ACCENT_LIGHT = "#E1E8D9";
-const ACCENT_TINT = "#F2F5EF";
-const BG_WARM = "#F5F7F4";
-const BG_CARD = "#FFFFFF";
-const TEXT_DARK = "#1C2612";
-const TEXT_MUTED = "#8A9A7B";
-const DANGER = "#E05A5A";
-const WARNING = "#E8A34A";
-const ROUNDNESS = 28;
-const SHADOW_CARD = "0 12px 36px -8px rgba(0,0,0,0.06), 0 4px 12px -4px rgba(0,0,0,0.04)";
-const SHADOW_FLOAT = "0 20px 40px -10px rgba(124, 154, 87, 0.4)";
 
 function App() {
   const accentGradient = `linear-gradient(135deg, ${ACCENT_START}, ${ACCENT_END})`;
