@@ -613,8 +613,8 @@ const AS = {
   input: { width:"100%", background:"#fff", border:"2px solid #F2F5EF", borderRadius:16, padding:"16px 18px", color:"#1C2612", fontSize:16, fontWeight:600, outline:"none", boxSizing:"border-box", marginBottom:16, transition:"all .2s ease" },
   iconGrid: { display:"grid", gridTemplateColumns:"repeat(8,1fr)", gap:8, marginBottom:16 },
   iconOpt: { aspectRatio:"1", borderRadius:14, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, cursor:"pointer", transition:"all 0.15s" },
-  colorRow: { display:"flex", gap:10, paddingBottom:8 },
-  colorDot: { width:30, height:30, borderRadius:"50%", cursor:"pointer", transition:"transform 0.15s, box-shadow 0.15s" },
+  colorRow: { display: "flex", gap: 12, padding: "8px 6px", overflowX: "visible" },
+  colorDot: { width: 32, height: 32, borderRadius: "50%", cursor: "pointer", transition: "transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s" },
   bigInput: { display:"flex", alignItems:"center", background:"#F2F5EF", borderRadius:18, padding:"14px 20px", marginBottom:18 },
   bigCurr: { fontSize:30, color:"#A4BC8E", fontWeight:700, marginRight:8 },
   bigField: { flex:1, background:"transparent", border:"none", outline:"none", fontSize:40, fontWeight:800, color:"#1C2612", width:"100%", letterSpacing:"-1px" },
@@ -1391,9 +1391,8 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate, onOpenPicker }
         {step === 3 && (
           <div style={{ padding: "20px 0" }}>
             <div style={{ position: "relative", cursor: "pointer" }} onClick={() => onOpenPicker(form.startDate, d => setForm(f => ({ ...f, startDate: d, startDateInput: undefined })))}>
-              <input style={{ ...AS.input, paddingLeft: 46 }} type="text" placeholder="dd.mm.yyyy" 
+              <input style={{ ...AS.input, paddingLeft: 46, cursor: "pointer" }} type="text" placeholder="dd.mm.yyyy" readOnly
                 value={form.startDateInput !== undefined ? form.startDateInput : formatDateLong(form.startDate)}
-                onClick={e => e.stopPropagation()}
                 onChange={e => {
                   const val = maskDateInput(e.target.value);
                   setForm(f => ({ ...f, startDateInput: val }));
@@ -1897,7 +1896,11 @@ function SubDetailScreen({ sub, onClose, onDelete, onEdit, accentGradient }) {
         <div className="press" style={SD.editBtn} onClick={onClose}>{t("detail.close")}</div>
         <div className="press" style={{ ...SD.editBtn, background:"#7C9A57", color:"#fff", boxShadow:"0 10px 22px -6px rgba(124,154,87,0.5)" }} onClick={onEdit}>{t("detail.editBtn")}</div>
         {!showConfirm ? (
-          <div className="press" style={SD.deleteBtn} onClick={() => setShowConfirm(true)}>🗑</div>
+          <div className="press" style={{ ...SD.deleteBtn, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowConfirm(true)}>
+            <svg xmlns="http://www.w3.org/2000/svg" style={{ width:24, height:24 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </div>
         ) : (
           <div className="press" style={{ ...SD.deleteBtn, background:"#E05A5A", color:"#fff", display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}
             onClick={() => { onDelete(sub.id); onClose(); }}>
@@ -2052,9 +2055,8 @@ function EditSubScreen({ sub, onSave, onClose, onDelete, onOpenPicker }) {
         <div>
           <div style={ES.label}>{t("card.nextPayment")}</div>
           <div style={{ position: "relative", cursor: "pointer" }} onClick={() => onOpenPicker(form.startDate, d => setForm(f => ({ ...f, startDate: d, startDateInput: undefined })))}>
-            <input style={{ ...AS.input, paddingLeft: 46 }} type="text" placeholder="dd.mm.yyyy" 
+            <input style={{ ...AS.input, paddingLeft: 46, cursor: "pointer" }} type="text" placeholder="dd.mm.yyyy" readOnly
               value={form.startDateInput !== undefined ? form.startDateInput : formatDateLong(form.startDate)}
-              onClick={e => e.stopPropagation()}
               onChange={e => {
                 const val = maskDateInput(e.target.value);
                 setForm(f => ({ ...f, startDateInput: val }));
@@ -2117,8 +2119,12 @@ function EditSubScreen({ sub, onSave, onClose, onDelete, onOpenPicker }) {
         {/* Save / Delete */}
         <div style={{ display:"flex", gap:10, paddingTop:6, paddingBottom:8 }}>
           {!showConfirm ? (
-            <div className="press" style={{ ...SD.deleteBtn, flex:"0 0 52px", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}
-              onClick={() => setShowConfirm(true)}>🗑️</div>
+            <div className="press" style={{ ...SD.deleteBtn, flex:"0 0 52px", display:"flex", alignItems:"center", justifyContent:"center" }}
+              onClick={() => setShowConfirm(true)}>
+              <svg xmlns="http://www.w3.org/2000/svg" style={{ width:24, height:24 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
           ) : (
             <div className="press" style={{ ...SD.deleteBtn, flex:"0 0 52px", background:"#E05A5A", color:"#fff", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:1, fontSize:10, fontWeight:800 }}
               onClick={() => { onDelete(sub.id); onClose(); }}>
