@@ -1042,11 +1042,65 @@ const CAL = {
   popupTotal: { display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:14, marginTop:6, borderTop:"1px solid #F2F5EF" },
 };
 
+const formatDateLong = (date) => {
+  if (!date) return "";
+  const d = new Date(date);
+  if (isNaN(d)) return "";
+  return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+};
+
+function DatePickerModal({ value, onChange, onClose }) {
+  const { t } = useTranslation();
+  const [viewDate, setViewDate] = React.useState(value ? new Date(value) : new Date());
+  const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+  
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // Mon=0
+  
+  const days = [];
+  for (let i = 0; i < firstDay; i++) days.push(null);
+  for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i));
+
+  const isSelected = (d) => d && value && new Date(d).toDateString() === new Date(value).toDateString();
+  const isToday = (d) => d && new Date(d).toDateString() === new Date().toDateString();
+
+  return (
+    <div style={{ position:"fixed", inset:0, zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", padding:20, background:"rgba(28,38,18,0.6)", backdropFilter:"blur(8px)" }} onClick={onClose}>
+      <div style={{ width:"100%", maxWidth:340, background:"#fff", borderRadius:28, padding:22, boxShadow:"0 24px 50px rgba(0,0,0,0.3)" }} onClick={e => e.stopPropagation()} className="scale-in">
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+          <div style={{ fontSize:17, fontWeight:800, color:"#1C2612" }}>{monthNames[month]} {year}</div>
+          <div style={{ display:"flex", gap:10 }}>
+            <div className="press" onClick={() => setViewDate(new Date(year, month - 1, 1))} style={{ width:34, height:34, borderRadius:10, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#7C9A57", fontWeight:800 }}>‹</div>
+            <div className="press" onClick={() => setViewDate(new Date(year, month + 1, 1))} style={{ width:34, height:34, borderRadius:10, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#7C9A57", fontWeight:800 }}>›</div>
+          </div>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:6, textAlign:"center", marginBottom:8 }}>
+          {["M","D","M","D","F","S","S"].map((d,i) => <div key={i} style={{ fontSize:11, color:"#8A9A7B", fontWeight:700 }}>{d}</div>)}
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:6 }}>
+          {days.map((d,i) => (
+            <div key={i} className={d ? "press" : ""} onClick={() => d && (onChange(d.toISOString().split("T")[0]), onClose())}
+                 style={{ 
+                   height:38, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:10, fontSize:14, fontWeight:700, cursor:d?"pointer":"default",
+                   background: isSelected(d) ? "#7C9A57" : (isToday(d) ? "#F2F5EF" : "transparent"),
+                   color: isSelected(d) ? "#fff" : (isToday(d) ? "#7C9A57" : (d ? "#1C2612" : "transparent"))
+                 }}>{d ? d.getDate() : ""}</div>
+          ))}
+        </div>
+        <div className="press" onClick={onClose} style={{ marginTop:20, background:"#F2F5EF", color:"#5E7840", textAlign:"center", padding:"14px 0", borderRadius:16, fontWeight:800, fontSize:14, cursor:"pointer" }}>{t("detail.close")}</div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Add Screen ─────────────────────────────────────────────────
 const CATEGORIES = ["Unterhaltung","Arbeit","Fitness","Internet","Versorgung","Sonstiges"];
 function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
   const { t } = useTranslation();
   const [step, setStep] = React.useState(0);
+  const [showDatePicker, setShowDatePicker] = React.useState(false);
   const [form, setForm] = React.useState({ name: "", price: "", cycle: "Monatlich", startDate: initialDate || "", icon: "⭐", iconMode: "auto", color: "#7C9A57", category: "Unterhaltung", paymentMethod: { bankName: "", last4: "" } });
 
   const icons = ["⭐","🎵","🎬","☁️","🖌️","📰","🏋️","🎮","📚","🛒","🏠","✈️","💊","📱","🎧","📷"];
@@ -1151,12 +1205,11 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
         )}
         {step === 3 && (
           <div style={{ padding: "20px 0" }}>
-            <div style={{ position: "relative" }}>
-              <input style={{ ...AS.input, paddingLeft: 46 }} type="date" value={form.startDate}
-                onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
-                onChange={e => setForm(f => ({ ...f, startDate: e.target.value }))} />
+            <div style={{ position: "relative" }} onClick={() => setShowDatePicker(true)}>
+              <input style={{ ...AS.input, paddingLeft: 46, cursor: "pointer" }} type="text" readOnly placeholder="dd.mm.yyyy" value={formatDateLong(form.startDate)} />
               <span style={{ position: "absolute", left: 16, top: 22, fontSize: 18, pointerEvents: "none" }}>📅</span>
             </div>
+            {showDatePicker && <DatePickerModal value={form.startDate} onChange={d => setForm(f => ({ ...f, startDate: d }))} onClose={() => setShowDatePicker(false)} />}
           </div>
         )}
         {step === 4 && (
@@ -1758,6 +1811,8 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
     return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
   };
 
+  const [showDatePicker, setShowDatePicker] = React.useState(false);
+
   const [form, setForm] = React.useState({
     name:       sub.name || "",
     price:      String(sub.price || ""),
@@ -1889,12 +1944,11 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
         {/* Start date */}
         <div>
           <div style={ES.label}>{t("card.nextPayment")}</div>
-          <div style={{ position: "relative" }}>
-            <input style={{ ...AS.input, paddingLeft: 46 }} type="date" value={form.startDate} 
-              onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: "smooth", block: "center" }), 300)}
-              onChange={e => setForm(f=>({...f, startDate:e.target.value}))} />
+          <div style={{ position: "relative" }} onClick={() => setShowDatePicker(true)}>
+            <input style={{ ...AS.input, paddingLeft: 46, cursor: "pointer" }} type="text" readOnly placeholder="dd.mm.yyyy" value={formatDateLong(form.startDate)} />
             <span style={{ position: "absolute", left: 16, top: 22, fontSize: 18, pointerEvents: "none" }}>📅</span>
           </div>
+          {showDatePicker && <DatePickerModal value={form.startDate} onChange={d => setForm(f => ({ ...f, startDate: d }))} onClose={() => setShowDatePicker(false)} />}
         </div>
 
         {/* Cycle */}
