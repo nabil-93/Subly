@@ -1101,7 +1101,7 @@ const S = {
 };
 
 // ─── Sub Detail Screen ──────────────────────────────────────────
-function SubDetailScreen({ sub, onClose, onDelete, accentGradient }) {
+function SubDetailScreen({ sub, onClose, onDelete, onEdit, accentGradient }) {
   const [autoRenew, setAutoRenew] = React.useState(sub.autoRenew);
   const [showConfirm, setShowConfirm] = React.useState(false);
   const nextDate = nextOccurrence(sub);
@@ -1176,20 +1176,209 @@ function SubDetailScreen({ sub, onClose, onDelete, accentGradient }) {
       </div>
 
       <div style={{ display:"flex", gap:10 }}>
-        <div style={SD.editBtn} onClick={onClose}>Schließen</div>
+        <div className="press" style={SD.editBtn} onClick={onClose}>Schließen</div>
+        <div className="press" style={{ ...SD.editBtn, background:"#7C9A57", color:"#fff", boxShadow:"0 10px 22px -6px rgba(124,154,87,0.5)" }} onClick={onEdit}>✏️ Bearbeiten</div>
         {!showConfirm ? (
-          <div style={SD.deleteBtn} onClick={() => setShowConfirm(true)}>Kündigen</div>
+          <div className="press" style={SD.deleteBtn} onClick={() => setShowConfirm(true)}>🗑</div>
         ) : (
-          <div style={{ ...SD.deleteBtn, background:"#EF4444", color:"#fff", display:"flex", flexDirection:"column", alignItems:"center", gap:3 }}
+          <div className="press" style={{ ...SD.deleteBtn, background:"#E05A5A", color:"#fff", display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}
             onClick={() => { onDelete(sub.id); onClose(); }}>
-            <span style={{ fontSize:11 }}>Wirklich kündigen?</span>
-            <span style={{ fontWeight:800 }}>Ja, löschen</span>
+            <span style={{ fontSize:10 }}>Sicher?</span>
+            <span style={{ fontWeight:800, fontSize:13 }}>Ja</span>
           </div>
         )}
       </div>
     </div>
   );
 }
+
+// ─── Edit Sub Screen ────────────────────────────────────────────
+function EditSubScreen({ sub, onSave, onClose, onDelete }) {
+  const dateToInput = (d) => {
+    const dt = new Date(d);
+    if (isNaN(dt)) return "";
+    return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+  };
+
+  const [form, setForm] = React.useState({
+    name:       sub.name || "",
+    price:      String(sub.price || ""),
+    cycle:      sub.cycle || "Monatlich",
+    customDays: String(sub.customDays || ""),
+    category:   sub.category || "Sonstiges",
+    startDate:  dateToInput(sub.nextDate),
+    icon:       sub.icon || "⭐",
+    color:      sub.color || "#7C9A57",
+  });
+  const [showConfirm, setShowConfirm] = React.useState(false);
+
+  const icons  = ["⭐","🎵","🎬","☁️","🖌️","📰","🏋️","🎮","📚","🛒","🏠","✈️","💊","📱","🎧","📷"];
+  const colors = ["#7C9A57","#E8A34A","#E05A5A","#8A9A7B","#465A30","#1C2612","#4A90E2","#9013FE"];
+
+  function save() {
+    if (!form.name || !form.price) return;
+    const [y, m, d] = (form.startDate || "").split("-").map(Number);
+    const nextDate = form.startDate ? new Date(y, (m||1)-1, d||1) : new Date(sub.nextDate);
+    onSave({
+      ...sub,
+      name:       form.name,
+      price:      parseFloat(form.price) || 0,
+      cycle:      form.cycle,
+      customDays: form.customDays,
+      category:   form.category,
+      nextDate,
+      icon:       form.icon,
+      color:      form.color,
+    });
+    onClose();
+  }
+
+  const canSave = form.name && form.price &&
+    (form.cycle !== "Benutzerdefiniert" || parseInt(form.customDays,10) > 0);
+
+  const currSym = (() => { try { return (1).toLocaleString((window.__SUBLY_CURRENCY||"EUR")==="MAD"?"fr-MA":"de-DE",{style:"currency",currency:window.__SUBLY_CURRENCY||"EUR"}).replace(/[\d.,\s]/g,""); } catch { return "€"; } })();
+
+  return (
+    <div style={{ ...AS.sheet, maxHeight:"92%" }}>
+      <div style={AS.handle} />
+      <div style={AS.titleRow}>
+        <div style={AS.sheetTitle}>Abo bearbeiten</div>
+        <div className="press" style={AS.closeBtn} onClick={onClose}>✕</div>
+      </div>
+
+      {/* Live preview */}
+      <div style={{ background:"#F2F5EF", borderRadius:20, padding:14, marginBottom:18, display:"flex", alignItems:"center", gap:12 }}>
+        <div style={{ width:54, height:54, borderRadius:16, background:form.color, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:24, boxShadow:"0 4px 10px rgba(0,0,0,0.08)" }}>{form.icon}</div>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontSize:16, color:"#1C2612", fontWeight:800 }}>{form.name || "Name"}</div>
+          <div style={{ fontSize:12.5, color:"#8A9A7B", marginTop:2 }}>{form.category}</div>
+        </div>
+        <div style={{ textAlign:"right" }}>
+          <div style={{ fontSize:17, color:"#1C2612", fontWeight:800 }}>{form.price ? formatEur(parseFloat(form.price)||0) : "—"}</div>
+          <div style={{ fontSize:10, color:"#A4BC8E", fontWeight:700, marginTop:2, textTransform:"uppercase", letterSpacing:"0.8px" }}>{cycleLabel(form)}</div>
+        </div>
+      </div>
+
+      <div style={{ display:"flex", flexDirection:"column", gap:14, overflowY:"auto" }}>
+
+        {/* Name */}
+        <div>
+          <div style={ES.label}>Name</div>
+          <input style={AS.input} value={form.name} placeholder="z.B. Netflix" onChange={e => setForm(f=>({...f, name:e.target.value}))} />
+        </div>
+
+        {/* Icon row */}
+        <div>
+          <div style={ES.label}>Icon</div>
+          <div style={AS.iconGrid}>
+            {icons.map(ic => (
+              <div key={ic} className="press" style={{ ...AS.iconOpt, background: form.icon===ic ? form.color : "#F2F5EF", color: form.icon===ic ? "#fff" : "#1C2612" }}
+                onClick={() => setForm(f=>({...f, icon:ic}))}>{ic}</div>
+            ))}
+          </div>
+        </div>
+
+        {/* Color */}
+        <div>
+          <div style={ES.label}>Farbe</div>
+          <div style={AS.colorRow}>
+            {colors.map(c => (
+              <div key={c} className="press" style={{ ...AS.colorDot, background:c, transform:form.color===c?"scale(1.18)":"scale(1)", boxShadow:form.color===c?`0 0 0 2px #fff, 0 0 0 4px ${c}`:"none" }}
+                onClick={() => setForm(f=>({...f, color:c}))} />
+            ))}
+          </div>
+        </div>
+
+        {/* Category */}
+        <div>
+          <div style={ES.label}>Kategorie</div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:8 }}>
+            {CATEGORIES.map(c => (
+              <div key={c} className="press" style={{ background:form.category===c?"#7C9A57":"#F2F5EF", color:form.category===c?"#fff":"#1C2612", padding:"12px 14px", borderRadius:14, fontWeight:700, fontSize:13, cursor:"pointer", textAlign:"center", boxShadow:form.category===c?"0 8px 20px -4px rgba(124,154,87,0.4)":"none", transition:"all .2s" }}
+                onClick={() => setForm(f=>({...f, category:c}))}>{c}</div>
+            ))}
+          </div>
+        </div>
+
+        {/* Price */}
+        <div>
+          <div style={ES.label}>Preis</div>
+          <div style={AS.bigInput}>
+            <span style={AS.bigCurr}>{currSym}</span>
+            <input style={AS.bigField} type="number" placeholder="0.00" value={form.price}
+              onChange={e => setForm(f=>({...f, price:e.target.value}))} />
+          </div>
+          <div style={AS.presets}>
+            {[4.99,9.99,14.99,19.99].map(p => (
+              <div key={p} className="press" style={AS.preset} onClick={() => setForm(f=>({...f, price:String(p)}))}>{formatEur(p)}</div>
+            ))}
+          </div>
+        </div>
+
+        {/* Start date */}
+        <div>
+          <div style={ES.label}>Nächste Zahlung</div>
+          <input style={AS.input} type="date" value={form.startDate} onChange={e => setForm(f=>({...f, startDate:e.target.value}))} />
+        </div>
+
+        {/* Cycle */}
+        <div>
+          <div style={ES.label}>Abrechnung</div>
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            {["Monatlich","Wöchentlich","Jährlich","Benutzerdefiniert"].map(c => (
+              <div key={c} className="press" style={{ ...AS.cycleOpt, background:form.cycle===c?"#7C9A57":"#F2F5EF" }}
+                onClick={() => setForm(f=>({...f, cycle:c}))}>
+                <span style={{ color:form.cycle===c?"#fff":"#1C2612", fontWeight:700 }}>{c}</span>
+                {form.cycle===c && <span style={{ width:22, height:22, borderRadius:"50%", background:"#fff", color:"#7C9A57", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:12 }}>✓</span>}
+              </div>
+            ))}
+            {form.cycle === "Benutzerdefiniert" && (
+              <div style={{ background:"#F2F5EF", borderRadius:16, padding:14, marginTop:4 }} className="fade-in">
+                <div style={{ fontSize:12, color:"#5E7840", fontWeight:700, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.6px" }}>Alle wieviel Tage?</div>
+                <div style={{ display:"flex", alignItems:"center", background:"#fff", borderRadius:12, padding:"8px 14px", marginBottom:10 }}>
+                  <input type="number" min="1" max="365" placeholder="z.B. 14" value={form.customDays}
+                    onChange={e => setForm(f=>({...f, customDays:e.target.value}))}
+                    style={{ flex:1, background:"transparent", border:"none", outline:"none", fontSize:22, fontWeight:800, color:"#1C2612", width:"100%" }} />
+                  <span style={{ fontSize:13, color:"#8A9A7B", fontWeight:700 }}>Tage</span>
+                </div>
+                <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                  {[3,7,14,30,60,90].map(n => (
+                    <div key={n} className="press"
+                      onClick={() => setForm(f=>({...f, customDays:String(n)}))}
+                      style={{ background:String(form.customDays)===String(n)?"#7C9A57":"#fff", color:String(form.customDays)===String(n)?"#fff":"#5E7840", borderRadius:10, padding:"7px 12px", fontSize:12, fontWeight:800, cursor:"pointer", flex:"1 1 calc(33% - 6px)", textAlign:"center" }}>
+                      {n} T.
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Save / Delete */}
+        <div style={{ display:"flex", gap:10, paddingTop:6, paddingBottom:8 }}>
+          {!showConfirm ? (
+            <div className="press" style={{ ...SD.deleteBtn, flex:"0 0 52px", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}
+              onClick={() => setShowConfirm(true)}>🗑️</div>
+          ) : (
+            <div className="press" style={{ ...SD.deleteBtn, flex:"0 0 52px", background:"#E05A5A", color:"#fff", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:1, fontSize:10, fontWeight:800 }}
+              onClick={() => { onDelete(sub.id); onClose(); }}>
+              <span>Ja</span><span>löschen</span>
+            </div>
+          )}
+          <div className="press" style={{ ...AS.nextBtn, flex:1, padding:"16px 0", background: canSave?"#7C9A57":"#E1E8D9", color:canSave?"#fff":"#8A9A7B", boxShadow:canSave?"0 14px 28px -6px rgba(124,154,87,0.5)":"none" }}
+            onClick={canSave ? save : null}>
+            Speichern ✓
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const ES = {
+  label: { fontSize:11, color:"#8A9A7B", fontWeight:700, textTransform:"uppercase", letterSpacing:"1px", marginBottom:8 },
+};
 
 const SD = {
   sheet: { width:"100%", background:"#fff", borderRadius:"32px 32px 0 0", padding:"0 22px 32px", maxHeight:"90%", overflowY:"auto" },
@@ -1330,6 +1519,10 @@ function App() {
   function openAddOnDate(dateISO) { setAddPrefillDate(dateISO); setShowAdd(true); setActiveTab(prev => prev); }
   function closeAdd() { setShowAdd(false); setAddPrefillDate(""); }
   const [selectedSub, setSelectedSub] = React.useState(null);
+  const [editSub, setEditSub] = React.useState(null);
+  function handleUpdate(updated) {
+    setSubs(s => s.map(x => x.id === updated.id ? updated : x));
+  }
   const [notification, setNotification] = React.useState(null);
 
   // keep global currency in sync so formatEur reads latest
@@ -1460,7 +1653,15 @@ function App() {
         {selectedSub && (
           <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"flex-end", zIndex:200, background:"rgba(28,38,18,0.45)", backdropFilter:"blur(6px)" }} onClick={e => e.target===e.currentTarget && setSelectedSub(null)}>
             <div style={{ width:"100%", position:"relative" }} className="slide-up">
-              <SubDetailScreen sub={selectedSub} onClose={() => setSelectedSub(null)} onDelete={handleDelete} accentGradient={accentGradient} />
+              <SubDetailScreen sub={selectedSub} onClose={() => setSelectedSub(null)} onDelete={handleDelete} onEdit={() => { setEditSub(selectedSub); setSelectedSub(null); }} accentGradient={accentGradient} />
+            </div>
+          </div>
+        )}
+
+        {editSub && (
+          <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"flex-end", zIndex:210, background:"rgba(28,38,18,0.45)", backdropFilter:"blur(6px)" }} onClick={e => e.target===e.currentTarget && setEditSub(null)}>
+            <div style={{ width:"100%", position:"relative" }} className="slide-up">
+              <EditSubScreen sub={editSub} onSave={handleUpdate} onClose={() => setEditSub(null)} onDelete={id => { handleDelete(id); setEditSub(null); }} />
             </div>
           </div>
         )}
