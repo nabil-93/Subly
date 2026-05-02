@@ -1138,6 +1138,102 @@ function DatePickerModal({ value, onChange, onClose }) {
   );
 }
 
+
+// ─── Date Utils ────────────────────────────────────────────────
+function formatDateLong(d) {
+  if (!d) return "";
+  const date = new Date(d);
+  if (isNaN(date.getTime())) return "";
+  const dd = String(date.getDate()).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const yyyy = date.getFullYear();
+  return `${dd}.${mm}.${yyyy}`;
+}
+
+function maskDateInput(val) {
+  let v = val.replace(/\D/g, "");
+  if (v.length > 8) v = v.substring(0, 8);
+  
+  // Validate day (max 31)
+  if (v.length >= 2) {
+    let day = parseInt(v.substring(0, 2), 10);
+    if (day > 31) day = 31;
+    if (day === 0) day = 1;
+    v = String(day).padStart(2, "0") + v.substring(2);
+  }
+  // Validate month (max 12)
+  if (v.length >= 4) {
+    let month = parseInt(v.substring(2, 4), 10);
+    if (month > 12) month = 12;
+    if (month === 0) month = 1;
+    v = v.substring(0, 2) + String(month).padStart(2, "0") + v.substring(4);
+  }
+
+  let res = "";
+  if (v.length > 0) res += v.substring(0, 2);
+  if (v.length > 2) res += "." + v.substring(2, 4);
+  if (v.length > 4) res += "." + v.substring(4, 8);
+  return res;
+}
+
+function parseDateInput(val) {
+  const parts = val.split(".");
+  if (parts.length === 3 && parts[2].length === 4) {
+    const d = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    const y = parseInt(parts[2], 10);
+    const date = new Date(y, m - 1, d);
+    if (!isNaN(date.getTime())) return date.toISOString().split("T")[0];
+  }
+  return null;
+}
+
+function DatePickerModal({ value, onChange, onClose }) {
+  const { t } = useTranslation();
+  const [viewDate, setViewDate] = React.useState(new Date(value || new Date()));
+  const month = viewDate.getMonth();
+  const year = viewDate.getFullYear();
+  const monthNames = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+  
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const offset = (firstDay + 6) % 7;
+  const days = Array(offset).fill(null).concat(Array.from({ length: daysInMonth }, (_, i) => new Date(year, month, i + 1)));
+
+  const isSelected = (d) => d && value && d.toISOString().split("T")[0] === value;
+  const isToday = (d) => d && d.toDateString() === new Date().toDateString();
+
+  return (
+    <div style={{ position:"fixed", inset:0, zIndex:3000, display:"flex", alignItems:"flex-end", justifyContent:"center", background:"rgba(0,0,0,0.35)", backdropFilter:"blur(4px)" }} onClick={onClose}>
+      <div style={{ width:"100%", maxWidth:400, background:"#fff", borderRadius:"32px 32px 0 0", padding:"16px 22px 32px", boxShadow:"0 -10px 40px rgba(0,0,0,0.1)" }} onClick={e => e.stopPropagation()} className="slide-up">
+        <div style={{ width:42, height:5, background:"#E1E8D9", borderRadius:3, margin:"0 auto 20px" }} />
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+          <div style={{ fontSize:18, fontWeight:800, color:"#1C2612" }}>{monthNames[month]} {year}</div>
+          <div style={{ display:"flex", gap:8 }}>
+            <div className="press" onClick={() => setViewDate(new Date(year, month - 1, 1))} style={{ width:38, height:38, borderRadius:12, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#7C9A57", fontWeight:800 }}>‹</div>
+            <div className="press" onClick={() => setViewDate(new Date(year, month + 1, 1))} style={{ width:38, height:38, borderRadius:12, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#7C9A57", fontWeight:800 }}>›</div>
+          </div>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4, textAlign:"center", marginBottom:10 }}>
+          {["Mo","Di","Mi","Do","Fr","Sa","So"].map((d,i) => <div key={i} style={{ fontSize:11, color:"#8A9A7B", fontWeight:700, textTransform:"uppercase" }}>{d}</div>)}
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4 }}>
+          {days.map((d,i) => (
+            <div key={i} className={d ? "press" : ""} onClick={() => d && (onChange(d.toISOString().split("T")[0]), onClose())}
+                 style={{ 
+                   height:44, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:14, fontSize:16, fontWeight:700, cursor:d?"pointer":"default",
+                   background: isSelected(d) ? "#7C9A57" : (isToday(d) ? "#F2F5EF" : "transparent"),
+                   color: isSelected(d) ? "#fff" : (isToday(d) ? "#7C9A57" : (d ? "#1C2612" : "transparent")),
+                   boxShadow: isSelected(d) ? "0 8px 16px rgba(124,154,87,0.3)" : "none"
+                 }}>{d ? d.getDate() : ""}</div>
+          ))}
+        </div>
+        <div className="press" onClick={onClose} style={{ marginTop:24, background:"#F2F5EF", color:"#5E7840", textAlign:"center", padding:"16px 0", borderRadius:18, fontWeight:800, fontSize:15, cursor:"pointer" }}>{t("detail.close")}</div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Add Screen ─────────────────────────────────────────────────
 const CATEGORIES = ["Unterhaltung","Arbeit","Fitness","Internet","Versorgung","Sonstiges"];
 function AddScreen({ onAdd, onClose, accentGradient, initialDate, onOpenPicker }) {
