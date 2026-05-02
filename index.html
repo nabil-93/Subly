@@ -1050,7 +1050,7 @@ const formatDateLong = (date) => {
 };
 
 const parseDateInput = (str) => {
-  const m = str.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+  const m = str.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
   if (!m) return null;
   const d = parseInt(m[1], 10);
   const mon = parseInt(m[2], 10);
@@ -1060,6 +1060,34 @@ const parseDateInput = (str) => {
     return dt.toISOString().split("T")[0];
   }
   return null;
+};
+
+const maskDateInput = (val) => {
+  let v = val.replace(/\D/g, "");
+  if (v.length > 8) v = v.slice(0, 8);
+  let res = "";
+  if (v.length > 0) {
+    let d = v.slice(0, 2);
+    if (d.length === 2) {
+      const dn = parseInt(d, 10);
+      if (dn > 31) d = "31";
+      if (dn === 0 && d !== "0") d = "01";
+    }
+    res += d;
+  }
+  if (v.length > 2) {
+    let m = v.slice(2, 4);
+    if (m.length === 2) {
+      const mn = parseInt(m, 10);
+      if (mn > 12) m = "12";
+      if (mn === 0 && m !== "0") m = "01";
+    }
+    res += "." + m;
+  }
+  if (v.length > 4) {
+    res += "." + v.slice(4, 8);
+  }
+  return res;
 };
 
 function DatePickerModal({ value, onChange, onClose }) {
@@ -1080,14 +1108,14 @@ function DatePickerModal({ value, onChange, onClose }) {
   const isToday = (d) => d && new Date(d).toDateString() === new Date().toDateString();
 
   return (
-    <div style={{ position:"absolute", inset:0, zIndex:1000, display:"flex", alignItems:"flex-end", background:"rgba(28,38,18,0.4)", backdropFilter:"blur(4px)" }} onClick={onClose}>
-      <div style={{ width:"100%", background:"#fff", borderRadius:"32px 32px 0 0", padding:"16px 22px 32px", boxShadow:"0 -10px 40px rgba(0,0,0,0.15)" }} onClick={e => e.stopPropagation()} className="slide-up">
+    <div style={{ position:"fixed", inset:0, zIndex:2000, display:"flex", alignItems:"flex-end", justifyContent:"center", background:"rgba(0,0,0,0.35)", backdropFilter:"blur(4px)" }} onClick={onClose}>
+      <div style={{ width:"100%", maxWidth:400, background:"#fff", borderRadius:"32px 32px 0 0", padding:"16px 22px 32px", boxShadow:"0 -10px 40px rgba(0,0,0,0.1)" }} onClick={e => e.stopPropagation()} className="slide-up">
         <div style={{ width:42, height:5, background:"#E1E8D9", borderRadius:3, margin:"0 auto 20px" }} />
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
           <div style={{ fontSize:18, fontWeight:800, color:"#1C2612" }}>{monthNames[month]} {year}</div>
           <div style={{ display:"flex", gap:8 }}>
-            <div className="press" onClick={() => setViewDate(new Date(year, month - 1, 1))} style={{ width:36, height:36, borderRadius:12, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#7C9A57", fontWeight:800 }}>‹</div>
-            <div className="press" onClick={() => setViewDate(new Date(year, month + 1, 1))} style={{ width:36, height:36, borderRadius:12, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#7C9A57", fontWeight:800 }}>›</div>
+            <div className="press" onClick={() => setViewDate(new Date(year, month - 1, 1))} style={{ width:38, height:38, borderRadius:12, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#7C9A57", fontWeight:800 }}>‹</div>
+            <div className="press" onClick={() => setViewDate(new Date(year, month + 1, 1))} style={{ width:38, height:38, borderRadius:12, background:"#F2F5EF", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#7C9A57", fontWeight:800 }}>›</div>
           </div>
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4, textAlign:"center", marginBottom:10 }}>
@@ -1097,7 +1125,7 @@ function DatePickerModal({ value, onChange, onClose }) {
           {days.map((d,i) => (
             <div key={i} className={d ? "press" : ""} onClick={() => d && (onChange(d.toISOString().split("T")[0]), onClose())}
                  style={{ 
-                   height:42, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:12, fontSize:15, fontWeight:700, cursor:d?"pointer":"default",
+                   height:44, display:"flex", alignItems:"center", justifyContent:"center", borderRadius:14, fontSize:16, fontWeight:700, cursor:d?"pointer":"default",
                    background: isSelected(d) ? "#7C9A57" : (isToday(d) ? "#F2F5EF" : "transparent"),
                    color: isSelected(d) ? "#fff" : (isToday(d) ? "#7C9A57" : (d ? "#1C2612" : "transparent")),
                    boxShadow: isSelected(d) ? "0 8px 16px rgba(124,154,87,0.3)" : "none"
@@ -1112,10 +1140,9 @@ function DatePickerModal({ value, onChange, onClose }) {
 
 // ─── Add Screen ─────────────────────────────────────────────────
 const CATEGORIES = ["Unterhaltung","Arbeit","Fitness","Internet","Versorgung","Sonstiges"];
-function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
+function AddScreen({ onAdd, onClose, accentGradient, initialDate, onOpenPicker }) {
   const { t } = useTranslation();
   const [step, setStep] = React.useState(0);
-  const [showDatePicker, setShowDatePicker] = React.useState(false);
   const [form, setForm] = React.useState({ name: "", price: "", cycle: "Monatlich", startDate: initialDate || "", icon: "⭐", iconMode: "auto", color: "#7C9A57", category: "Unterhaltung", paymentMethod: { bankName: "", last4: "" } });
 
   const icons = ["⭐","🎵","🎬","☁️","🖌️","📰","🏋️","🎮","📚","🛒","🏠","✈️","💊","📱","🎧","📷"];
@@ -1224,16 +1251,15 @@ function AddScreen({ onAdd, onClose, accentGradient, initialDate }) {
               <input style={{ ...AS.input, paddingLeft: 46 }} type="text" placeholder="dd.mm.yyyy" 
                 value={form.startDateInput !== undefined ? form.startDateInput : formatDateLong(form.startDate)}
                 onChange={e => {
-                  const val = e.target.value;
+                  const val = maskDateInput(e.target.value);
                   setForm(f => ({ ...f, startDateInput: val }));
                   const parsed = parseDateInput(val);
                   if (parsed) setForm(f => ({ ...f, startDate: parsed }));
                 }}
                 onBlur={() => setForm(f => ({ ...f, startDateInput: undefined }))}
               />
-              <span className="press" onClick={() => setShowDatePicker(true)} style={{ position: "absolute", left: 16, top: 22, fontSize: 18, cursor:"pointer" }}>📅</span>
+              <span className="press" onClick={() => onOpenPicker(form.startDate, d => setForm(f => ({ ...f, startDate: d, startDateInput: undefined })))} style={{ position: "absolute", left: 16, top: 22, fontSize: 18, cursor:"pointer" }}>📅</span>
             </div>
-            {showDatePicker && <DatePickerModal value={form.startDate} onChange={d => setForm(f => ({ ...f, startDate: d, startDateInput: undefined }))} onClose={() => setShowDatePicker(false)} />}
           </div>
         )}
         {step === 4 && (
@@ -1827,15 +1853,13 @@ function SubDetailScreen({ sub, onClose, onDelete, onEdit, accentGradient }) {
 }
 
 // ─── Edit Sub Screen ────────────────────────────────────────────
-function EditSubScreen({ sub, onSave, onClose, onDelete }) {
+function EditSubScreen({ sub, onSave, onClose, onDelete, onOpenPicker }) {
   const { t } = useTranslation();
   const dateToInput = (d) => {
     const dt = new Date(d);
-    if (isNaN(dt)) return "";
+    if (isNaN(dt.getTime())) return "";
     return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
   };
-
-  const [showDatePicker, setShowDatePicker] = React.useState(false);
 
   const [form, setForm] = React.useState({
     name:       sub.name || "",
@@ -1972,16 +1996,15 @@ function EditSubScreen({ sub, onSave, onClose, onDelete }) {
             <input style={{ ...AS.input, paddingLeft: 46 }} type="text" placeholder="dd.mm.yyyy" 
               value={form.startDateInput !== undefined ? form.startDateInput : formatDateLong(form.startDate)}
               onChange={e => {
-                const val = e.target.value;
+                const val = maskDateInput(e.target.value);
                 setForm(f => ({ ...f, startDateInput: val }));
                 const parsed = parseDateInput(val);
                 if (parsed) setForm(f => ({ ...f, startDate: parsed }));
               }}
               onBlur={() => setForm(f => ({ ...f, startDateInput: undefined }))}
             />
-            <span className="press" onClick={() => setShowDatePicker(true)} style={{ position: "absolute", left: 16, top: 22, fontSize: 18, cursor:"pointer" }}>📅</span>
+            <span className="press" onClick={() => onOpenPicker(form.startDate, d => setForm(f => ({ ...f, startDate: d, startDateInput: undefined })))} style={{ position: "absolute", left: 16, top: 22, fontSize: 18, cursor:"pointer" }}>📅</span>
           </div>
-          {showDatePicker && <DatePickerModal value={form.startDate} onChange={d => setForm(f => ({ ...f, startDate: d, startDateInput: undefined }))} onClose={() => setShowDatePicker(false)} />}
         </div>
 
         {/* Cycle */}
@@ -2213,6 +2236,7 @@ function App() {
     setSubs(s => s.map(x => x.id === updated.id ? updated : x));
   }
   const [notification, setNotification] = React.useState(null);
+  const [globalPicker, setGlobalPicker] = React.useState(null);
 
   // keep global currency in sync so formatEur reads latest
   window.__SUBLY_CURRENCY = currency;
@@ -2327,6 +2351,8 @@ function App() {
     settings: <SettingsScreen key="set" accentGradient={accentGradient} userName={userName} currency={currency} onChangeCurrency={handleChangeCurrency} pushEnabled={pushEnabled} onTogglePush={handleTogglePush} onTestPush={sendTestNotification} onChangeName={handleNameSubmit} onResetSubs={handleResetSubs} onResetApp={handleResetApp} subCount={subs.length} profileImage={profileImage} onChangeProfileImage={handleChangeProfileImage} />,
   };
 
+  const openGlobalPicker = (val, cb) => setGlobalPicker({ value: val, onChange: cb });
+
   const br = ROUNDNESS + 8;
 
   return (
@@ -2364,7 +2390,7 @@ function App() {
         {showAdd && (
           <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"flex-end", zIndex:200, background:"rgba(28,38,18,0.45)", backdropFilter:"blur(6px)" }} onClick={e => e.target===e.currentTarget && closeAdd()}>
             <div style={{ width:"100%", position:"relative" }} className="slide-up">
-              <AddScreen onAdd={handleAdd} onClose={closeAdd} accentGradient={accentGradient} initialDate={addPrefillDate} />
+              <AddScreen onAdd={handleAdd} onClose={closeAdd} accentGradient={accentGradient} initialDate={addPrefillDate} onOpenPicker={openGlobalPicker} />
             </div>
           </div>
         )}
@@ -2380,7 +2406,7 @@ function App() {
         {editSub && (
           <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"flex-end", zIndex:210, background:"rgba(28,38,18,0.45)", backdropFilter:"blur(6px)" }} onClick={e => e.target===e.currentTarget && setEditSub(null)}>
             <div style={{ width:"100%", position:"relative" }} className="slide-up">
-              <EditSubScreen sub={editSub} onSave={handleUpdate} onClose={() => setEditSub(null)} onDelete={id => { handleDelete(id); setEditSub(null); }} />
+              <EditSubScreen sub={editSub} onSave={handleUpdate} onClose={() => setEditSub(null)} onDelete={id => { handleDelete(id); setEditSub(null); }} onOpenPicker={openGlobalPicker} />
             </div>
           </div>
         )}
@@ -2424,6 +2450,7 @@ function App() {
         </div>
         </>)}
       </div>
+      {globalPicker && <DatePickerModal value={globalPicker.value} onChange={globalPicker.onChange} onClose={() => setGlobalPicker(null)} />}
     </div>
   );
 }
