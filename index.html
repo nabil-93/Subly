@@ -1293,7 +1293,7 @@ function InsightsScreen({ subs, accentGradient }) {
           <div style={INS.title}>{t("insights.title")}</div>
           <div style={{ fontSize:14, color:"#8A9A7B", fontWeight:600, marginTop:4 }}>{t("insights.subtitle")}</div>
         </div>
-        <div style={INS.period}>Mai '26</div>
+        <div style={INS.period}>{new Date().toLocaleDateString(i18n.language, { day: 'numeric', month: 'short', year: '2-digit' })}</div>
       </div>
 
       
@@ -1311,8 +1311,8 @@ function InsightsScreen({ subs, accentGradient }) {
           <div style={INS.heroLabel}>{t("insights.monthlyExp")}</div>
           <div style={INS.heroAmount}>{formatEur(totalExpenses)}</div>
           <div style={{ display:"flex", alignItems:"center", gap:10, marginTop:14 }}>
-            <div style={{ background:"rgba(255,255,255,0.20)", color:"#fff", fontSize:11, fontWeight:800, padding:"6px 12px", borderRadius:14, border:"1px solid rgba(255,255,255,0.25)" }}>{subs.length} AKTIV</div>
-            <div style={INS.heroSub}>{formatEur(totalExpenses*12)} pro Jahr</div>
+            <div style={{ background:"rgba(255,255,255,0.20)", color:"#fff", fontSize:11, fontWeight:800, padding:"6px 12px", borderRadius:14, border:"1px solid rgba(255,255,255,0.25)" }}>{t("insights.activeBadge", { n: subs.length })}</div>
+            <div style={INS.heroSub}>{t("insights.perYear", { amount: formatEur(totalExpenses*12) })}</div>
           </div>
         </div>
       </div>
@@ -1364,7 +1364,7 @@ function InsightsScreen({ subs, accentGradient }) {
             </div>
           </>
         ) : (
-          <div style={{ textAlign:"center", color:"#8A9A7B", padding:"30px 0", fontSize:13.5 }}>Füge Abos hinzu, um Statistiken zu sehen</div>
+          <div style={{ textAlign:"center", color:"#8A9A7B", padding:"30px 0", fontSize:13.5 }}>{t("insights.noData")}</div>
         )}
       </div>
 
@@ -1381,7 +1381,7 @@ function InsightsScreen({ subs, accentGradient }) {
           </div>
         ))}
         <div style={INS.totalRow}>
-          <span style={{ color:"#8A9A7B", fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px" }}>Gesamt / Monat</span>
+          <span style={{ color:"#8A9A7B", fontSize:12, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.8px" }}>{t("insights.totalMonth")}</span>
           <span style={{ color:"#7C9A57", fontWeight:800, fontSize:19 }}>{formatEur(totalExpenses)}</span>
         </div>
       </div>
